@@ -1,11 +1,22 @@
-# SÓ É POSSÍVEL USAR ESTE SCRITP EM VERSÕES ABAIXO DO R 4.0
+# THIS SCRIPT CAN ONLY BE USED IN VERSIONS BELOW R 4.0
 
 library("scmamp")
 library("ggplot2")
 library("Rgraphviz")
 
+sistema = c(Sys.info())
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/GLPML", sep="")
+  setwd(FolderRoot)
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/GLPML", sep="")
+  setwd(FolderRoot)
+}
 
-setwd("C:/Users/elain/Documents/Doutorado/My Papers/SCA-2021/Results")
+Folder = paste(sep="")
+setwd()
+
 RankingF1 = data.frame(read.csv("ranking-f1.csv"))
 RankingR = data.frame(read.csv("ranking-recall.csv"))
 RankingP = data.frame(read.csv("ranking-precision.csv"))

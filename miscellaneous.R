@@ -26,7 +26,7 @@ diretorios = directories()
 ##################################################################################################
 #
 ##################################################################################################
-avalia <- function(ds, dataset_name, Folder){  
+evaluateGeneral <- function(ds, dataset_name, Folder){  
   
   apagar = c(0)
   resConfMatFinal = data.frame(apagar)

@@ -1,5 +1,5 @@
 ##################################################################################################
-# In-between Global and Local Partitions for Multi-label Classification                          #
+# HPML-J                                                                                         #
 ##################################################################################################
 
 ##################################################################################################
@@ -13,7 +13,6 @@
 
 ##################################################################################################
 # Script 3 - Miscellaneuous                                                                      #
-# LAST UPDATE: 2020-06-28                                                                        #
 ##################################################################################################
 
 ##################################################################################################
@@ -23,7 +22,6 @@ sf = setFolder()
 setwd(sf$Folder)
 FolderRoot = sf$Folder
 diretorios = directories()
-
 
 ##################################################################################################
 #
@@ -67,7 +65,7 @@ avalia <- function(ds, dataset_name, Folder){
   }
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO AVALIA MISCELLANEOUS                                                             #") 
+  cat("\n# END OF THE EVALUATION MISCELLANEOUS FUNCTION                                                   #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
@@ -76,7 +74,7 @@ avalia <- function(ds, dataset_name, Folder){
 ##################################################################################################
 #
 ##################################################################################################
-resume <- function(FolderHClust, FolderHybPart, FolderD){
+resumeResults <- function(FolderHClust, FolderHybPart, FolderD){
   retorno = list()
   
   setwd(FolderHClust)
@@ -95,7 +93,7 @@ resume <- function(FolderHClust, FolderHybPart, FolderD){
   return(retorno)
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO RESUME                                                                           #") 
+  cat("\n# END OF THE RESUME FUNCTION                                                                     #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
@@ -104,7 +102,7 @@ resume <- function(FolderHClust, FolderHybPart, FolderD){
 ##################################################################################################
 #
 ##################################################################################################
-compara <- function(FolderLocal, FolderGlobal, FolderHybrid, FolderBR, FolderDataset, ds, dataset_name){
+compareMethods <- function(FolderLocal, FolderGlobal, FolderHybrid, FolderBR, FolderDataset, ds, dataset_name){
   retorno = list()
   
   setwd(FolderHybrid)
@@ -131,9 +129,50 @@ compara <- function(FolderLocal, FolderGlobal, FolderHybrid, FolderBR, FolderDat
   return(retorno)
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO COMPARA                                                                          #") 
+  cat("\n# END OF THE COMPARE FUNCTION                                                                    #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
+}
+
+analysePartitions <- function(Folder, namesLabels){
+  
+  setwd(Folder)
+  bestCoef = data.frame(read.csv("BestFoldsCoef.csv"))
+  
+  i = 1
+  while(i<=ds$Labels){
+    cat("\n\nROTULO: ", i)
+    
+    apagar = c(0)
+    rotulos = data.frame(apagar)
+    
+    f=1
+    while(f<=10){
+      cat("\nFOLD: ", f)
+      a = bestCoef[f,]
+      Folder2 = paste(Folder, "/Split-", f, "/", toString(a$metodo), sep="")
+      setwd(Folder2)
+      particao = data.frame(read.csv("partitions.csv"))
+      rotulos = cbind(rotulos, particao[,i])
+      names(rotulos)[f+1] = paste("Fold-", f, sep="")
+      f = f + 1
+      gc()
+    }
+    
+    setwd(Folder)
+    rotulos = rotulos[,-1]
+    rownames(rotulos)=namesLabels
+    write.csv(rotulos, paste("rotulos-", i, ".csv", sep=""), row.names = TRUE)
+    
+    i = i + 1
+    gc()
+  }
+  gc()
+  cat("\n##################################################################################################")
+  cat("\n# END OF THE ANALYSE PARTITIONS                                                                  #") 
+  cat("\n##################################################################################################")
+  cat("\n\n\n\n")
+  
 }
 
 

@@ -22,10 +22,14 @@ This source code consists of a R project for R Studio and the following R script
 12. Run
 13. executeForOneDataset
 
+Please, after your download, confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff. jar and weka.jar. Without this libraries the code not runs.
+
 ## Requirements
-This code was develop in R Language using R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows.
+This code was develop in R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows. The R language version is 4.0.1 (2020-06-06) with x86_64-w64-mingw32 plataform.
 
 This code may or may not be executed in parallel, however, it is highly recommended that you run it in parallel. The number of cores can be configured via the command line. In our experiments we used ten cores. For reproducibility we recommend that you also use ten cores.
+
+
 
 ## Process flow
 

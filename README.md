@@ -1,7 +1,10 @@
-# HPML
+# HPML-J
+
+This code is a part of my doctoral research at PPG-CC/DC/UFSCar. HPML-J is the name of the first experiment carried out: Hybrid Partitions for Multi-Label Classification with index Jaccard. Other two versions will be available soon: HPML-KN and HPML-KT (K = kohonen, N = normal, T = transpose).
 
 
 ## Multi-Label Datasets
+You can download the multi-label datasets in this link: https://cometa.ujaen.es/datasets/
 
 ## Scripts
 This source code consists of a R project for R Studio and the following R scripts, folders and files:
@@ -19,13 +22,14 @@ This source code consists of a R project for R Studio and the following R script
 12. Run
 13. executeForOneDataset
 
+## Requirements
+This code was develop in R Language using R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows.
 
+This code may or may not be executed in parallel, however, it is highly recommended that you run it in parallel. The number of cores can be configured via the command line. In our experiments we used ten cores. For reproducibility we recommend that you also use ten cores.
 
 ## Process flow
 
 ## Experimental Setup
-
-## Hardware
 
 ## Results
 

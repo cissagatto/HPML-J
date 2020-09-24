@@ -19,10 +19,10 @@
 sistema = c(Sys.info())
 FolderRoot = ""
 if (sistema[1] == "Linux"){
-  FolderRoot = paste("/home/", sistema[7], "HPML", sep="")
+  FolderRoot = paste("/home/", sistema[7], "HPML-J", sep="")
   setwd(FolderRoot)
 } else {
-  FolderRoot = paste("C:/Users/", sistema[7], "/HPML", sep="")
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
   setwd(FolderRoot)
 }
 setwd(FolderRoot)

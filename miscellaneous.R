@@ -134,6 +134,10 @@ compareMethods <- function(FolderLocal, FolderGlobal, FolderHybrid, FolderBR, Fo
   cat("\n\n\n\n")
 }
 
+                     
+##################################################################################################
+#
+##################################################################################################
 analysePartitions <- function(Folder, namesLabels){
   
   setwd(Folder)

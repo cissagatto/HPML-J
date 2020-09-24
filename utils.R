@@ -1,5 +1,5 @@
 ##################################################################################################
-# In-between Global and Local Partitions for Multi-label Classification                          #
+# HPML-J                                                                                         #
 ##################################################################################################
 
 ##################################################################################################
@@ -13,7 +13,6 @@
 
 ##################################################################################################
 # Script 2 - Utilities                                                                           #
-# LAST UPDATE: 2020-06-28                                                                        #
 ##################################################################################################
 
 ##################################################################################################
@@ -28,10 +27,10 @@
 sistema = c(Sys.info())
 FolderRoot = ""
 if (sistema[1] == "Linux"){
-  FolderRoot = paste("/home/", sistema[7], "/GLPML", sep="")
+  FolderRoot = paste("/home/", sistema[7], "/HPML", sep="")
   setwd(FolderRoot)
 } else {
-  FolderRoot = paste("C:/Users/", sistema[7], "/GLPML", sep="")
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML", sep="")
   setwd(FolderRoot)
 }
 setwd(FolderRoot)
@@ -39,10 +38,10 @@ setFolder <- function(){
   retorno = list()
   sistema = c(Sys.info())
   if (sistema[1] == "Linux"){
-    Folder = paste("/home/", sistema[7], "/GLPML", sep="")
+    Folder = paste("/home/", sistema[7], "/HPML", sep="")
     setwd(Folder)
   } else {
-    Folder = paste("C:/Users/", sistema[7], "/GLPML", sep="")
+    Folder = paste("C:/Users/", sistema[7], "/HPML", sep="")
     setwd(Folder)
   }
   FolderRoot = Folder
@@ -362,13 +361,12 @@ converteArff <- function(arg1, arg2, arg3){
 ##################################################################################################
 criaPastasCSC <- function(dataset_name){
   diretorios = directories()
-  #setwd(FolderRoot)
-  # "C:/Users/elain/PJ10Fold/ConfigSplitsClus/DATASET
+  
   Pasta1 = paste(diretorios$folderCSC, "/", dataset_name, sep="")
   dir.create(Pasta1)
   print(Pasta1)
   cat("\n")    
-  # do primeiro fold ate o ultimo --> sao 10 folds
+  
   j = 1
   while(j<=10){
     cat("\n\tFOLD: ", j)

@@ -27,10 +27,10 @@
 sistema = c(Sys.info())
 FolderRoot = ""
 if (sistema[1] == "Linux"){
-  FolderRoot = paste("/home/", sistema[7], "/HPML", sep="")
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
   setwd(FolderRoot)
 } else {
-  FolderRoot = paste("C:/Users/", sistema[7], "/HPML", sep="")
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
   setwd(FolderRoot)
 }
 setwd(FolderRoot)
@@ -38,10 +38,10 @@ setFolder <- function(){
   retorno = list()
   sistema = c(Sys.info())
   if (sistema[1] == "Linux"){
-    Folder = paste("/home/", sistema[7], "/HPML", sep="")
+    Folder = paste("/home/", sistema[7], "/HPML-J", sep="")
     setwd(Folder)
   } else {
-    Folder = paste("C:/Users/", sistema[7], "/HPML", sep="")
+    Folder = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
     setwd(Folder)
   }
   FolderRoot = Folder

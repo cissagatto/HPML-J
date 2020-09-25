@@ -1,4 +1,19 @@
-# SÓ É POSSÍVEL USAR ESTE SCRITP EM VERSÕES ABAIXO DO R 4.0
+##################################################################################################
+# HPML-J                                                                                         #
+##################################################################################################
+
+##################################################################################################
+# Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
+# www.professoracissagatto.com.br                                                                #
+# Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
+# Computer Department (DC: https://site.dc.ufscar.br/)                                           #
+# Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
+# Bioinformatics and Machine Learning Group (BIOMAL: http://www.biomal.ufscar.br/)               #
+##################################################################################################
+
+##################################################################################################
+# FRIEDMAN AND NEMENYI                                                                           #
+##################################################################################################
 
 library("scmamp")
 library("ggplot2")
@@ -17,31 +32,29 @@ if (sistema[1] == "Linux"){
 Folder = paste(FolderRoot, "/ExperimentsResults", sep="")
 setwd(Folder)
 
-
-RankingF1 = data.frame(read.csv("ranking-f1.csv"))
-RankingR = data.frame(read.csv("ranking-recall.csv"))
-RankingP = data.frame(read.csv("ranking-precision.csv"))
-RankingA = data.frame(read.csv("ranking-accuracy.csv"))
-RankingHL = data.frame(read.csv("ranking-hamming.csv"))
+RankingF1 = data.frame(read.csv("friedman-nemenyi-f1.csv"))
+RankingR = data.frame(read.csv("friedman-nemenyi-recall.csv"))
+RankingP = data.frame(read.csv("friedman-nemenyi-precision.csv"))
+RankingA = data.frame(read.csv("friedman-nemenyi-accuracy.csv"))
+RankingHL = data.frame(read.csv("friedman-nemenyi-hamming.csv"))
+RankingSA = data.frame(read.csv("friedman-nemenyi-subset.csv"))
 
 fF1 = friedmanTest(RankingF1[,-1])
 fR = friedmanTest(RankingR[,-1])
 fP = friedmanTest(RankingP[,-1])
 fA = friedmanTest(RankingA[,-1])
 fHL = friedmanTest(RankingHL[,-1])
+fSA = friedmanTest(RankingSA[,-1])
 
 nF1 = nemenyiTest (RankingF1[,-1], alpha=0.05)
 nR = nemenyiTest (RankingR[,-1], alpha=0.05)
 nP = nemenyiTest (RankingP[,-1], alpha=0.05)
 nA = nemenyiTest (RankingA[,-1], alpha=0.05)
 nHL = nemenyiTest (RankingHL[,-1], alpha=0.05)
+nSA = nemenyiTest (RankingSA[,-1], alpha=0.05)
 
-plotCD(RankingF1[,-1], alpha=0.05, cex=1)
-plotCD(RankingR[,-1], alpha=0.01, cex=1)
-plotCD(RankingP[,-1], alpha=0.01, cex=1)
-plotCD(RankingA[,-1], alpha=0.01, cex=1)
-plotCD(RankingHL[,-1], alpha=0.01, cex=1)
-
+Folder2 = paste(Folder, "/Graphics", sep="")
+setwd(Folder2)
 
 pdf("F1CD.pdf", width = 4, height = 1.5)
 plotCD(RankingF1[,-1], alpha=0.05, cex=1)
@@ -63,69 +76,54 @@ pdf("HLCD.pdf", width = 4, height = 1.5)
 plotCD(RankingHL[,-1], alpha=0.05, cex=1)
 dev.off()
 
-# GRAFICO DE DENSIDADE
+pdf("SACD.pdf", width = 4, height = 1.5)
+plotCD(RankingHL[,-1], alpha=0.05, cex=1)
+dev.off()
+
+pdf("F1-Density.pdf", width = 5, height = 2.5)
 plotDensities(RankingF1[,-1])
+dev.off()
+
+pdf("R-Density.pdf", width = 5, height = 2.5)
 plotDensities(RankingR[,-1])
+dev.off()
+
+pdf("P-Density.pdf", width = 5, height = 2.5)
 plotDensities(RankingP[,-1])
+dev.off()
+
+pdf("A-Density.pdf", width = 5, height = 2.5)
 plotDensities(RankingA[,-1])
+dev.off()
+
+pdf("HL-Density.pdf", width = 5, height = 2.5)
 plotDensities(RankingHL[,-1])
+dev.off()
 
-# GRAFICO DE P VALUES
+pdf("SA-Density.pdf", width = 5, height = 2.5)
+plotDensities(RankingSA[,-1])
+dev.off()
+
+pdf("F1-pValues.pdf", width = 5, height = 2.5)
 plotPvalues(nF1$diff.matrix)
+dev.off()
+
+pdf("P-pValues.pdf", width = 5, height = 2.5)
 plotPvalues(nP$diff.matrix)
+dev.off()
+
+pdf("R-pValues.pdf", width = 5, height = 2.5)
 plotPvalues(nR$diff.matrix)
+dev.off()
+
+pdf("A-pValues.pdf", width = 5, height = 2.5)
 plotPvalues(nA$diff.matrix)
+dev.off()
+
+pdf("HL-pValues.pdf", width = 5, height = 2.5)
 plotPvalues(nHL$diff.matrix)
+dev.off()
 
-
-# RANKING
-plotRanking()
-             
-Measure = c(0)
-CD = c(0)
-DF = c(0)
-FCS = c(0)
-DF_F = c(0)
-p_value = c(0)
-results = data.frame(Measure, CD, DF, FCS, DF_F, p_value)
-
-Measure = "Hamming Loss"
-CD = as.numeric(nHL$statistic)
-DF_N = as.numeric(nR$parameter)
-FCS = as.numeric(fHL$statistic)
-DF_F = as.numeric(fHL$parameter)
-p_value = as.numeric(fHL$p.value)
-results = rbind(results, data.frame(Measure, CD, DF, FCS, DF_F, p_value))
-results = results[-1,]
-colnames(results) = c("Measures", "Critical Distance", 
-                      "Nemenyi F Distribution", "Friedman's Chi-Squared", 
-                      "Friedman F Distribution", "P Value")
-
-library(xtable)
-xtable(results)
-
-nF1$statistic
-nF1$parameter[2]
-nF1$method
-nF1$data.name
-nF1$diff.matrix
-
-fF1$statistic
-fF1$parameter
-fF1$method
-fF1$p.value
-fF1$data.name
-
-
-# Uma lista com a classe "htest" contendo os seguintes componentes:
-# estatística: o valor da estatística usada no teste;
-# método: uma cadeia de caracteres indicando que tipo de teste foi realizado;
-# data.name: uma cadeia de caracteres que fornece o nome dos dados e
-# diff.matirx: uma matriz com todas as diferenças em pares das classificações médias
-
-# Uma lista com a classe "htest" contendo os seguintes componentes:
-# estatística: o valor da estatística usada no teste;
-# parâmetro: os dois graus de liberdade da distribuição F;
-# p.value: o valor p para o teste;
-# método: uma cadeia de caracteres indicando que tipo de teste foi realizado e
-# data.name: uma cadeia de caracteres que fornece o nome dos dados.
+pdf("SA-pValues.pdf", width = 5, height = 2.5)
+plotPvalues(nSA$diff.matrix)
+dev.off()

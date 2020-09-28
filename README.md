@@ -9,7 +9,7 @@ Exploring Label Correlations for Partitioning the Label Space in Multi-label Cla
 You can download the multi-label datasets in this link: https://cometa.ujaen.es/datasets/
 
 ## Scripts
-This source code consists of a R project for R Studio and the following R scripts, folders and files:
+This source code consists of a R project for R Studio and the following R scripts:
 
 01. libraries.R
 02. utils.R

@@ -34,7 +34,7 @@ After downloading the dataset you want to use, place it in the */HPML-J/Datasets
 Place a copy of this code in _"C:/Users/[username]/HPML-J"_ or _"/home/username/HPML-J"_. Our files are configured to obtain the paths of the folders from the root. You can change this in the code if you want.
 
 ## File "datasets.csv"
-A file called "datasets.csv" must be in the root folder. This file is used to read informations about the dataset and they are used in the code. All 74 datasets available in cometa are in this file. If you want to use another dataset, please, add the following information about the dataset in the file:
+A file called "datasets.csv" must be in the *datasets* folder. This file is used to read informations about the dataset and they are used in the code. All 74 datasets available in cometa are in this file. If you want to use another dataset, please, add the following information about the dataset in the file:
 
 _Id, Name, Domain, Labels, Instances, Attributes, Inputs, Labelsets, Single, Max freq, Card, Dens, MeanIR, Scumble, TCS, AttStart, AttEnd, LabelStart, LabelEnd_
 

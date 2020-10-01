@@ -1,0 +1,13 @@
+﻿Dataset,HPML,Local,Global
+birds,2,3,1
+cal500,3,2,1
+emotions,2,2,2
+eukaPseAac,3,2,1
+flags,2.5,1,2.5
+gPositiveGo,1.5,1.5,3
+medical,3,2,1
+plantGo,3,2,1
+scene,2,2,2
+virusGo,2,2,2
+yeast,2.5,2.5,1
+yelp,2,2,2

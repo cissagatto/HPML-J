@@ -71,5 +71,7 @@ Rscript hpmlj.R 17 5 10
 
 
 ## Paper Results
+The results obtained for the paper can be found in the folder "resultsPaperExperiments". In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.
+
 
 

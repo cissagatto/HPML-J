@@ -22,7 +22,7 @@ This source code consists of a R project for R Studio and the following R script
 09. clusGlobal.R
 10. clusLocal.R
 11. run.R
-12. executeForOneDataset.R
+12. hpmlj.R
 
 ## Jars
 Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar and weka.jar. Without this jars the code not runs. 

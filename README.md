@@ -24,10 +24,10 @@ This source code consists of a R project for R Studio and the following R script
 11. run.R
 12. executeForOneDataset.R
 
-## External Libraries
-Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff. jar and weka.jar. Without this libraries the code not runs. 
+## Jars
+Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar and weka.jar. Without this jars the code not runs. 
 
-## Datasets Folder"
+## Datasets Folder
 After downloading the dataset you want to use, place it in the */HPML-J/Datasets/Originals* folder. Don't forget that the .xml and .arff files of the respective dataset are needed.
 
 ## Folder Path

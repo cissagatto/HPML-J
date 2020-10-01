@@ -28,7 +28,7 @@ This source code consists of a R project for R Studio and the following R script
 Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff. jar and weka.jar. Without this libraries the code not runs. 
 
 ## Datasets Folder"
-After downloading the dataset you want to use, place it in the / HPML-J / Datasets / Originals folder. Don't forget that the .xml and .arff files of the respective dataset are needed.
+After downloading the dataset you want to use, place it in the */HPML-J/Datasets/Originals* folder. Don't forget that the .xml and .arff files of the respective dataset are needed.
 
 ## Folder Path
 Place a copy of this code in _"C:/Users/[username]/HPML-J"_ or _"/home/username/HPML-J"_. Our files are configured to obtain the paths of the folders from the root. You can change this in the code if you want.

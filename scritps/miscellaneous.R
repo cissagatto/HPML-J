@@ -172,7 +172,7 @@ compareMethods <- function(FolderLocal, FolderGlobal, FolderHybrid, FolderDatase
 #   Return                                                                                       #
 #       files.csv                                                                                #
 ##################################################################################################
-analysePartitions <- function(Folder, namesLabels, number_folds){
+analysePartitions <- function(ds, Folder, namesLabels, number_folds){
   
   setwd(Folder)
   bestCoef = data.frame(read.csv("BestFoldsCoef.csv"))

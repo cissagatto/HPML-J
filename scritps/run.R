@@ -253,7 +253,7 @@ executeHPMLJ <- function(n_dataset, number_cores, number_folds){
   
   cat("\n\n################################################################################################")
   cat("\nAnalyse")
-  timeResume = system.time(resAnalyse <- analysePartitions(folders$folderHClust, namesLabels, number_folds))  
+  timeResume = system.time(resAnalyse <- analysePartitions(ds, folders$folderHClust, namesLabels, number_folds))  
   cat("\n\n################################################################################################")
   
   cat("\n\n################################################################################################")

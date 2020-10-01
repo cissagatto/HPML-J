@@ -363,8 +363,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
                                                                 numeroDeGrupos, grupo, rotulosDoGrupo))
           
           setwd(FolderHybPartSplit)
-          namae = paste("SummaryPartition-", g, ".csv", sep="")
-          write.csv(SumarioParticoes, namae, row.names = FALSE, append = TRUE)
+          write.csv(SumarioParticoes, "SummaryPartition.csv", row.names = FALSE)
           
           ####################################################################################
           cat("\nExecute CLUS\n")

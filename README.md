@@ -49,7 +49,7 @@ This code may or may not be executed in parallel, however, it is highly recommen
 Important: we used the CLUS classifier in this experiment. This implies generating all physical ARFF training, validating and testing files for each of the generated hybrid partitions. Our code generates the partitions first in memory and then saves them to the HD. However, to avoid memory problems, immediately after saving to HD, the files are validated (or tested) and then deleted. Even so, make sure you have enough space on your HD and RAM for this procedure.
 
 ## RUN
-To run the code, open the terminal, enter the / HPML-J / scripts / folder and type
+To run the code, open the terminal, enter the */HPML-J/scripts/* folder and type
 
 ```
 Rscript hpmlj.R [number_dataset] [number_cores] [number_folds]

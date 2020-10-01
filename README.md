@@ -63,7 +63,12 @@ _number_cores_ is the total colors you want to use in parallel execution.
 
 _number_folds_ is the number of folds you want for cross-validation
 
-All parameters are mandatory
+All parameters are mandatory. Example:
+
+```
+Rscript hpmlj.R 17 5 10
+```
+
 
 ## Paper Results
 

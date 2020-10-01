@@ -52,7 +52,7 @@ Important: we used the CLUS classifier in this experiment. This implies generati
 To run the code, open the terminal, enter the / HPML-J / scripts / folder and type
 
 ```
-Rscript hpmlj [number_dataset] [number_cores] [number_folds]
+Rscript hpmlj.R [number_dataset] [number_cores] [number_folds]
 ```
 
 Where:

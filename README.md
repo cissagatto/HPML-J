@@ -59,7 +59,7 @@ Where:
 
 _number_dataset_ is the dataset number in the datasets.csv file
 
-_number_cores_ is the total colors you want to use in parallel execution.
+_number_cores_ is the total cores you want to use in parallel execution.
 
 _number_folds_ is the number of folds you want for cross-validation
 

@@ -43,7 +43,7 @@ if (sistema[1] == "Linux"){
   setwd(FolderRoot)
 }
 
-FolderResults = paste(FolderRoot, "/ExperimentsResults", sep="")
+FolderResults = paste(FolderRoot, "/resultsPaperExperiments", sep="")
 FolderFN = paste(FolderResults, "/Nemenyi and Friedman Tests", sep="")
 FolderGraphics = paste(FolderFN, "/Graphics", sep="")
 FolderGraphics2 = paste(FolderGraphics, "/Critical Distances Version 1", sep="")
@@ -65,18 +65,18 @@ while(i<=total){
   ne = nemenyiTest(Ranking2, alpha=0.05)
   
   setwd(FolderGraphics2)
-  pdf(paste(files2[i], "-CD.pdf", sep=""), width = 4, height = 4)
-  plotCD(Ranking2, alpha=0.05, cex=1)
+  pdf(paste(files2[i], "-CD.pdf", sep=""), width = 4, height = 2)
+  print(plotCD(Ranking2, alpha=0.05, cex=1))
   dev.off()
   
   setwd(FolderGraphics3)
   pdf(paste(files2[i], "-Density.pdf", sep=""), width = 4, height = 2)
-  plotDensities(Ranking2)
+  print(plotDensities(Ranking2))
   dev.off()
   
   setwd(FolderGraphics4)
   pdf(paste(files2[i], "-pValues.pdf", sep=""), width = 5, height = 2.5)
-  plotPvalues(ne$diff.matrix)
+  print(plotPvalues(ne$diff.matrix))
   dev.off()
   
   i = i + 1

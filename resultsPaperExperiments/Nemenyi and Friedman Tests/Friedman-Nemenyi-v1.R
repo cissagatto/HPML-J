@@ -42,7 +42,7 @@ if (sistema[1] == "Linux"){
 }
 
 
-FolderResults = paste(FolderRoot, "/ExperimentsResults", sep="")
+FolderResults = paste(FolderRoot, "/resultsPaperExperiments", sep="")
 FolderFN = paste(FolderResults, "/Nemenyi and Friedman Tests", sep="")
 FolderGraphics = paste(FolderFN, "/Graphics", sep="")
 FolderGraphics2 = paste(FolderGraphics, "/Critical Distances Version 2", sep="")

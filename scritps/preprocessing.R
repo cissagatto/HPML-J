@@ -221,7 +221,7 @@ crossValidation <- function(ds, dataset_name, number_folds){
     write.csv(val_ds, str_csv_val, row.names = FALSE)
     
     cat("\n\t\tVALIDATION: Convert, and save, CSV to ARFF\n")
-    str_arff_val = paste(dataset_name, "-Split-Ts-", i, ".arff", sep="")
+    str_arff_val = paste(dataset_name, "-Split-Vl-", i, ".arff", sep="")
     arg1Tr = str_csv_val
     arg2Tr = str_arff_val
     arg3Tr = paste(inicio, "-", fim, sep="")

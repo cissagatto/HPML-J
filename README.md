@@ -42,7 +42,7 @@ _Id, Name, Domain, Labels, Instances, Attributes, Inputs, Labelsets, Single, Max
 The _"Id"_ of the dataset is a mandatory parameter (_n_dataset_) in the command line to run all code. The "LabelStart" and "LabelEnd" are used in a lot of internal functions. Please, make sure that these information are available before run the code.
 
 ## Folder Strucutre
-
+<img src="Images/estrutura_hpmlj.PNG">
 
 
 ## Software Requirements

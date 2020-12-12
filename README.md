@@ -21,8 +21,9 @@ This source code consists of a R project for R Studio and the following R script
 08. clusHybrid.R
 09. clusGlobal.R
 10. clusLocal.R
-11. run.R
-12. hpmlj.R
+11. clusRandom.R
+12. run.R
+13. hpmlj.R
 
 ## Jars
 Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar and weka.jar. Without this jars the code not runs. 
@@ -39,6 +40,39 @@ A file called "datasets.csv" must be in the *datasets* folder. This file is used
 _Id, Name, Domain, Labels, Instances, Attributes, Inputs, Labelsets, Single, Max freq, Card, Dens, MeanIR, Scumble, TCS, AttStart, AttEnd, LabelStart, LabelEnd_
 
 The _"Id"_ of the dataset is a mandatory parameter (_n_dataset_) in the command line to run all code. The "LabelStart" and "LabelEnd" are used in a lot of internal functions. Please, make sure that these information are available before run the code.
+
+## Folder Strucutre
+| - HPML-j
+
+  | -- datasets
+
+     |--- folds
+
+     |--- infoFolds
+
+     |--- originals
+
+  |datasets.csv
+ 
+  |-- results
+ 
+  |-- scripts 
+ 
+  |-- utils
+
+     |--- lib       
+     
+         weka.jar
+         
+     |weka.jar
+     
+     |Clus.jar
+     
+     |R_csv_2_arff.jar
+
+HPML-J.Rproj
+
+
 
 ## Software Requirements
 This code was develop in R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows. The R language version was 4.0.1 (2020-06-06) with x86_64-w64-mingw32 plataform.

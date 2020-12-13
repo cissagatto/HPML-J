@@ -402,22 +402,22 @@ bestCoefficient <- function(FolderHClust, number_folds){
     # if the result is FALSE then delete the folder
     # if the result is equal to TRUE you cannot delete it!
     # AVERAGE
-    if(result[1]==FALSE){
-      FD = paste(FolderSplit, "/average", sep="")
-      unlink(FD, recursive = TRUE)
-    } 
+    # if(result[1]==FALSE){
+    #  FD = paste(FolderSplit, "/average", sep="")
+    #  unlink(FD, recursive = TRUE)
+    #} 
     
     # COMPLETE
-    if(result[2]==FALSE){
-      FD = paste(FolderSplit, "/complete", sep="")
-      unlink(FD, recursive = TRUE)
-    }
+    #if(result[2]==FALSE){
+    #  FD = paste(FolderSplit, "/complete", sep="")
+    #  unlink(FD, recursive = TRUE)
+    #}
     
     # SINGLE
-    if(result[3]==FALSE){
-      FD = paste(FolderSplit, "/single", sep="")
-      unlink(FD, recursive = TRUE)
-    }
+    #if(result[3]==FALSE){
+    #  FD = paste(FolderSplit, "/single", sep="")
+    #  unlink(FD, recursive = TRUE)
+    #}
     
     s = s +1
     gc()

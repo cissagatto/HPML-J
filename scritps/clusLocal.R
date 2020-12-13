@@ -170,12 +170,16 @@ splitLabels <- function(namesLabels, ds, dataset_name, FolderCV, FolderLocal, nu
         arg2Tr = paste(namesLabels[j], "-tr-", f, ".arff", sep="")
         arg3Tr = paste(ncol(thisGroupTr), "-", ncol(thisGroupTr), sep="")
         str = paste("java -jar ", folderUtils, "/R_csv_2_arff.jar ", arg1Tr , " ", arg2Tr, " ", arg3Tr , sep="")
-        system(str)
+        cat("\n")
+        print(system(str))
+        cat("\n")
         
         cat("\n\t[", namesLabels[j], "]: Verify and correct {0} and {1}\n")
         arquivo = paste(FolderLabel, "/", arg2Tr, sep="")
         str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
-        system(str0)
+        cat("\n")
+        print(system(str0))
+        cat("\n")
         
         cat("\n\t[", namesLabels[j], "]: Save Test CSV\n")
         rotuloTs = paste(namesLabels[j], "-ts-", f, ".csv", sep="")
@@ -188,12 +192,16 @@ splitLabels <- function(namesLabels, ds, dataset_name, FolderCV, FolderLocal, nu
         arg2Ts = paste(namesLabels[j], "-ts-", f, ".arff", sep="")
         arg3Ts = paste(ncol(thisGroupTs), "-", ncol(thisGroupTs), sep="")
         str = paste("java -jar ", folderUtils, "/R_csv_2_arff.jar ", arg1Ts, " ", arg2Ts, " ", arg3Ts, sep="")
-        system(str)
+        cat("\n")
+        print(system(str))
+        cat("\n")
         
         cat("\n\t[", namesLabels[j], "]: Verify and correct {0} and {1}\n")
         arquivo = paste(FolderLabel, "/", arg2Ts, sep="")
         str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
-        system(str0)
+        cat("\n")
+        print(system(str0))
+        cat("\n")
         
         cat("\n\t[", namesLabels[j], "]: Generated Config File\n")
         
@@ -229,7 +237,9 @@ splitLabels <- function(namesLabels, ds, dataset_name, FolderCV, FolderLocal, nu
         
         cat("\n\tExecute CLUS\n")
         str = paste("java -jar ", folderUtils, "/Clus.jar ", nome_config, sep="")
-        system(str)
+        cat("\n")
+        print(system(str))
+        cat("\n")
         
         cinco = paste(namesLabels[j], "-", f, ".s", sep="")
         seis = paste(namesLabels[j], "-", f, ".model", sep="")
@@ -353,6 +363,11 @@ gatherLocalPredicts <- function(namesLabels, ds, dataset_name, FolderLocal, numb
 #       Assessment measures for each hybrid partition                                            #
 ##################################################################################################
 evaluateLocal <- function(ds, dataset_name, Folder, number_folds){  
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   apagar = c(0)
   resConfMatFinal = data.frame(apagar)
@@ -489,34 +504,41 @@ gatherEvalLocal <- function(ds, dataset_name, Folder, number_folds){
 ##################################################################################################
 clusLocal <- function(ds, dataset_name, FolderCV, FolderLocal, namesLabels, number_folds){ 
   
-  cat("\nLOCAL: Tests each Splits Localy\n")
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
-  cat("\nLOCAL: Joins training and test files in a single folder for running the clus\n")
+  cat("\n##################################################################################################")
+  cat("\n# CLUS LOCAL: Tests each Splits Localy                                                           #")
+  cat("\n##################################################################################################")
+  
+  cat("\nCLUS LOCAL: Joins training and test files in a single folder for running the clus\n")
   timeGatherFiles = system.time(gatherFilesFoldsLocal(ds, dataset_name, FolderCV, FolderLocal, number_folds))
   
-  cat("\nLOCAL: Split the labels\n")
+  cat("\nCLUS LOCAL: Split the labels\n")
   timeSplitLabels = system.time(splitLabels(namesLabels, ds, dataset_name, FolderCV, FolderLocal, number_folds))
   
   #cat("\nLOCAL: Execute CLUS\n")
   #timeClusLocal = system.time(executeClusLocal(ds, dataset_name, FolderLocal, namesLabels))
   
-  cat("\nLOCAL: Splits the real outputs and the predicted outputs\n")
+  cat("\nCLUS LOCAL: Splits the real outputs and the predicted outputs\n")
   timeGatherPreds = system.time(gatherLocalPredicts (namesLabels, ds, dataset_name, FolderLocal, number_folds))
   
-  cat("\nLOCAL: Evaluates the split classification\n")
+  cat("\nCLUS LOCAL: Evaluates the split classification\n")
   timeEvalLocal = system.time(evaluateLocal(ds, dataset_name, FolderLocal, number_folds))
   
-  cat("\nLOCAL: Gather Evaluated Measures\n")
+  cat("\nCLUS LOCAL: Gather Evaluated Measures\n")
   timeGE = system.time(gatherEvalLocal(ds, dataset_name, FolderLocal, number_folds))
   
-  cat("\nLOCAL: Save Runtime\n")
+  cat("\nCLUS LOCAL: Save Runtime\n")
   RunTimeLocal = rbind(timeGatherFiles, timeSplitLabels, timeGatherPreds, timeEvalLocal, timeGE)
   setwd(FolderLocal)
   write.csv(RunTimeLocal, "RunTimeLocal.csv")
   
   gc()
   cat("\n##################################################################################################")
-  cat("\n# CLUS LOCAL: END                                                                               #") 
+  cat("\n# CLUS LOCAL: END!!                                                                              #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }

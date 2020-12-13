@@ -174,6 +174,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
       particao2 = data.frame(read.csv(cluster, stringsAsFactors = F))
       names(particao2)[1] = "labels"
       particao = particao2[order(particao2$grupo, decreasing = FALSE),]
+      
       numeroDeGrupos = count(particao, vars=particao$grupo)
       names(numeroDeGrupos) = c("grupos", "totalRotulos")
       totalGroupsPart = nrow(numeroDeGrupos)

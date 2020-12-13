@@ -82,6 +82,10 @@ cat("\nLoad Source Clus Test Local\n")
 setwd(FolderScripts)
 source("clusLocal.R")
 
+cat("\nLoad Source Clus Random\n")
+setwd(FolderScripts)
+source("clusRandom.R")
+
 ##################################################################################################
 # Configures Scientific Notation                                                                #
 ##################################################################################################
@@ -102,178 +106,175 @@ cat("\nTotal of Datasets: ", n, "\n")
 cat("\nSet Workspace\n")
 setwd(FolderRoot)
 
+
 ##################################################################################################
 # Runs for all datasets listed in the "datasets.csv" file                                       #
 ##################################################################################################
 executeHPMLJ <- function(n_dataset, number_cores, number_folds){
+  
+  #n_dataset = 17
+  #number_cores = 2
+  #number_folds = 10
+  
+  cat("\n\n################################################################################################")
+  cat("\n# START EXECUTE HPML-J                                                                           #")
+  cat("\n##################################################################################################\n\n") 
   
   diretorios = directories()
   
   if(number_cores == 0){
     cat("\nZero is a disallowed value for number_cores. Please choose a value greater than or equal to 1.")
   } else {
-    cl <- makeCluster(number_cores, outfile="")
-    registerDoParallel(cl)
+    # pra rodar no servidor do mauri precisa comentar estas 2 linhas
+    # cl <- makeCluster(number_cores, outfile="")
+    # registerDoParallel(cl)
+    # inserir esta
+    # registerDoParallel(number_cores)
+    # print(cl)
+    
+    # Example registering clusters
+    cl <- parallel::makeCluster(number_cores)
+    doParallel::registerDoParallel(cl)
+    print(cl)
     
     if(number_cores==1){
       cat("\n\n################################################################################################")
-      cat("\nRunning Sequentially!")
-      cat("\n################################################################################################\n") 
+      cat("\n# Running Sequentially!                                                                          #")
+      cat("\n##################################################################################################\n\n") 
     } else {
       cat("\n\n################################################################################################")
-      cat("\nRunning in parallel with ", number_cores, " cores!")
-      cat("\n################################################################################################\n")
+      cat("\n# Running in parallel with ", number_cores, " cores!                                             #")
+      cat("\n##################################################################################################\n\n") 
     }
   }
   cl = cl
   
-  namae1 = paste("output-", n_dataset, ".txt", sep="")
+  #namae1 = paste("output-", n_dataset, ".txt", sep="")
   setwd(diretorios$folderResults)
-  sink(namae1, type="output")
+  #sink(namaegetwd()1, type="output")
   
   retorno = list()
   DataSetInfo = list()
   Results = list()
   
   cat("\n\n################################################################################################")
-  cat("\nGet dataset information: ", n_dataset)
+  cat("\n# RUN: Get dataset information: ", n_dataset, "                                                  #")
   ds = datasets[n_dataset,]
   names(ds)[1] = "Id"
   info = infoDataSet(ds)
   dataset_name = toString(ds$Name)
   cat("\nDataset: ", dataset_name)   
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nGenerate folders")
+  cat("\n# RUN: Generate folders                                                                          #")
   timeFolders = system.time(folders <- creatingFoldersPrincipals(dataset_name)) 
   folders = folders
-  cat("\n\n################################################################################################")
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nGenerate and save fols for cross-validation.")
+  cat("\n# RUN: Generate and save fols for cross-validation                                               #")
   timeCV = system.time(resCV <- crossValidation(ds, dataset_name, number_folds))
-  cat("\n\n################################################################################################")
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nVerifiy datasets")
-  # folders$folderDSFolds --> specific dataset folder (train, test and validation)
+  cat("\n# RUN: Verifiy datasets                                                                          #")
   timeVerify = system.time(resVerify <- verifyDataset(folders$folderDSFolds, ds, dataset_name, number_folds))
-  cat("\n\n################################################################################################")
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nSeparate the label space")
+  cat("\n# RUN: Separate the label space                                                                  #")
   timeLabelSpace = system.time(resLS <- labelSpace(ds, dataset_name, folders$folderDSFolds, number_folds))
   namesLabels = resLS$NamesLabels
-  cat("\n\n################################################################################################")
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nClus Local")
-  # folders$folderDSFolds --> specific folder of dataset results
-  # folders$folderLocal --> results folder for local partitions
+  cat("\n# RUN: Clus Local                                                                               #")
   timeLocal = system.time(clusLocal(ds, dataset_name, folders$folderResDataset, 
                                     folders$folderLocal, namesLabels, number_folds))
-  cat("\n\n################################################################################################")
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nClus Global")
-  # folders$folderGlobal --> results folder for global partitions
-  # folders$folderConfigFiles --> folder containing the clus configuration files
-  timeGlobal = system.time(clusGlobal(ds, dataset_name, folders$folderResDataset, 
-                                      folders$folderConfigFiles, folders$folderGlobal, number_folds))
-  cat("\n\n################################################################################################")
+  cat("\n# RUN: Clus Global                                                                               #")
+  timeGlobal = system.time(clusGlobal(ds, dataset_name, folders$folderResDataset, folders$folderConfigFiles, 
+                                      folders$folderGlobal, number_folds))
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nCalculate correlations using jaccard.")
-  # folders$folderHClust --> specific folder to store hclust and cutree results
+  cat("\n# Run: VALIDATION AND TEST RANDOM PARTITIONS                                                     #")
+  cat("\n# RUN: Clus Random                                                                               #")
+  timeRandom = system.time(clusRandom(ds, namesLabels, dataset_name, folders$folderDSFolds, 
+                                      folders$folderResDataset, folders$folderRandom, number_folds))
+  cat("\n##################################################################################################\n\n") 
+  
+  cat("\n\n################################################################################################")
+  cat("\n# Run: VALIDATION AND TEST HYBRID PARTITIONS                                                     #")
+  cat("\n# Run: Calculate correlations using jaccard                                                      #")
   timeJaccard = system.time(computeJaccard(ds, resLS, dataset_name, namesLabels, 
                                            folders$folderHClust, number_folds))
-  cat("\n\n################################################################################################")
   
-  cat("\n\n################################################################################################")
-  cat("\nCalculate HClust and Cutree.")
+  cat("\n# Run: Calculate HClust and Cutree                                                               #")
   timeHClust = system.time(CutreeHClust(ds, resLS, dataset_name, namesLabels, 
                                         folders$folderHClust, number_folds))
-  cat("\n\n################################################################################################")
   
-  cat("\n\n################################################################################################")
-  cat("\nChoose the highest HClust coefficient")
+  cat("\n# Run: Choose the highest HClust coefficient                                                     #")
   timeBestCoef = system.time(bestCoefficient(folders$folderHClust, number_folds))
-  cat("\n\n################################################################################################")
   
-  cat("\n\n################################################################################################")
-  cat("\nBuilds groups for each of the selected partitions, for each of the folds and Validating in clus")
-  # folders$folderHybPart --> specific folder to store hybrid partition validation results
-  timeHybPart = system.time(hybridPartitions(ds, dataset_name, folders$folderDSFolds, folders$folderHClust, 
+  cat("\n# Run: Builds groups for each of the selected partitions, for each of the folds and Validating in clus #")
+  timeHybPart = system.time(hybridPartitions(ds, dataset_name, folders$folderDSFolds,  folders$folderHClust, 
                                              folders$folderHybPart, number_folds)) 
-  cat("\n\n################################################################################################")
+  
+  cat("\n# Run: Clus Validation                                                                           #")
+  timeValidation = system.time(clusValidation(ds, dataset_name, number_folds, folders$folderHybPart))
+  
+  cat("\n# Run: Clus Test                                                                                 #")
+  timeHybTest = system.time(clusHybrid(ds, dataset_name, number_folds, folders$folderDSFolds, folders$folderHClust,
+                                    folders$folderHybPart, folders$folderHybrid))
+  
+  cat("\n# Run: END VALIDATION AND TEST HYBRID PARTITIONS                                                 #")
+  cat("\n\n################################################################################################\n\n")
   
   cat("\n\n################################################################################################")
-  cat("\nGather the Predicts Hybrid Partition")
-  timeGPHP = system.time(gatherPredsHybPart(ds, dataset_name, folders$folderHybPart, number_folds))
-  cat("\n\n################################################################################################")
-  
-  cat("\n\n################################################################################################")
-  cat("\nEvaluate Hybrid Partition")
-  timeEHP = system.time(evalHybPart(ds, dataset_name, folders$folderHybPart, number_folds))
-  cat("\n\n################################################################################################")
-  
-  cat("\n\n################################################################################################")
-  cat("\nGather Evaluations")
-  timeGEHP = system.time(gatherEvaluations(ds, dataset_name, folders$folderHybPart, number_folds))
-  cat("\n\n################################################################################################")
-  
-  cat("\n\n################################################################################################")
-  cat("\nGather F1 Macro")
-  timeGF1 = system.time(gatherF1macro(ds, dataset_name, folders$folderHybPart, number_folds))
-  cat("\n\n################################################################################################")
-  
-  cat("\n\n################################################################################################")
-  cat("\nClus Test")
-  # folders$folderHybrid --> specific folder to store the test results of the hybrid partitions
-  timeTest = system.time(clusHybrid(ds, dataset_name, folders$folderDSFolds, folders$folderHClust, 
-                                    folders$folderHybPart, folders$folderHybrid, number_folds))
-  cat("\n\n################################################################################################")
-  
-  cat("\n\n################################################################################################")
-  cat("\nDelete Hyb Part Files")
-  timeDelHP = system.time(deleteHybPart(ds, folders$folderHybPart, number_folds))
-  cat("\n\n################################################################################################")
-  
-  cat("\n\n################################################################################################")
-  cat("\nCompare the results")
-  timeCompara = system.time(resCompara <- compareMethods(folders$folderLocal, folders$folderGlobal, 
+  cat("\n# Run: Compare the results                                                                       #")
+  timeCompara = system.time(resCompara <- compareMethods(folders$folderRandom, folders$folderLocal, folders$folderGlobal, 
                                                          folders$folderHybrid, folders$folderResDataset))
-  cat("\n\n################################################################################################")
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nResume")
-  timeResume = system.time(resResume <- resumeResults(folders$folderHClust, folders$folderHybPart, 
-                                                      folders$folderResDataset))  
-  cat("\n\n################################################################################################")
+  cat("\n# Run: Resume                                                                                    #")
+  timeResume = system.time(resResume <- resumeResults(folders$folderHClust,  
+                                                      folders$folderHybPart,  folders$folderResDataset))  
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nAnalyse")
-  timeResume = system.time(resAnalyse <- analysePartitions(ds, folders$folderHClust, namesLabels, number_folds))  
-  cat("\n\n################################################################################################")
+  cat("\n# Run: Analyse                                                                                   #")
+  timeAnalyse = system.time(resAnalyse <- analysePartitions(ds, folders$folderHClust, 
+                                                            namesLabels, number_folds))  
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nRuntime")
-  timesExecute = rbind(timeFolders, timeCV, timeVerify, timeLabelSpace, timeJaccard, timeHClust, timeBestCoef, 
-                       timeHybPart, timeGPHP, timeEHP, timeGEHP, timeGF1, timeDelHP, timeTest, timeLocal,
-                       timeGlobal, timeCompara, timeResume)
-  
+  cat("\n# Run: Runtime                                                                                   #")
+  timesExecute = rbind(timeFolders, timeCV, timeVerify, timeLabelSpace, timeLocal, timeGlobal, timeRandom,
+                       timeJaccard, timeHClust, timeHybPart, timeValidation, timeHybTest, 
+                       timeCompara, timeResume, timeAnalyse)
+  #timesExecute = rbind(timeFolders, timeCV, timeVerify, timeLabelSpace, timeTest)
   setwd(folders$folderResDataset)
   write.csv(timesExecute, "RunTime.csv")
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nDelete files")
+  cat("\n# Run: Delete files                                                                              #")
   FolderCF = folders$folderResDataset
   setwd(FolderCF)
   unlink("ConfigFiles", recursive = TRUE)
+  cat("\n##################################################################################################\n\n") 
   
   cat("\n\n################################################################################################")
-  cat("\nStop Parallel")
+  cat("\n#Run: Stop Parallel                                                                              #")
+  # no servidor do mauri tem que comentar esta linha aqui
   on.exit(stopCluster(cl))
+  #parallel::stopCluster(cl)
+  cat("\n##################################################################################################\n\n") 
   
   gc()
   cat("\n##################################################################################################")
@@ -281,7 +282,7 @@ executeHPMLJ <- function(n_dataset, number_cores, number_folds){
   cat("\n##################################################################################################")
   cat("\n\n\n\n") 
   
-  sink() 
+  #sink() 
 }
 
 

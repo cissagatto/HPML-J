@@ -313,6 +313,18 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Local = length(dir_Local)
   }
   
+  folderRandom = paste(folderResDataset, "/ClusRandom", sep="")
+  if(dir.exists(folderRandom) == TRUE){
+    setwd(folderRandom)
+    dir_Random = dir(folderRandom)
+    n_Random = length(dir_Random)
+  } else {
+    dir.create(folderRandom)
+    setwd(folderRandom)
+    dir_Random = dir(folderRandom)
+    n_Random = length(dir_Random)
+  }
+  
   # return folders
   retorno$folderDSFolds = folderDSFolds
   retorno$folderResDataset = folderResDataset
@@ -322,6 +334,7 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$folderLocal = folderLocal
   retorno$folderGlobal = folderGlobal
   retorno$folderHybrid = folderHybrid
+  retorno$folderRandom = folderRandom
   
   # return of folder contents
   retorno$dir_DSFolds = dir_DSFolds
@@ -332,6 +345,7 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$dir_Local = dir_Local
   retorno$dir_Global = dir_Global
   retorno$dir_Hybrid = dir_Hybrid
+  retorno$dir_Random = dir_Random
   
   # return of the number of objects inside the folder
   retorno$n_DSFolds = n_DSFolds
@@ -341,6 +355,7 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$n_Local = n_Local
   retorno$n_Global = n_Global
   retorno$n_Hybrid = n_Hybrid
+  retorno$n_Random = n_Random
   
   return(retorno)
   

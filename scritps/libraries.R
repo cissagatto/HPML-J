@@ -35,31 +35,32 @@ setwd(FolderScripts)
 ##################################################################################################
 # LOAD EXTERNAL LIBRARIES                                                                        #
 ##################################################################################################
-library("readr")
-library("foreign")
-library("stringr")
-library("mldr")
-library("plyr")
-library("dplyr")
-library("reshape2")
-library("AggregateR")
-library("philentropy")
-library("ggplot2")
-library("dendextend")
-library("ape")
-library("pvclust")
-library("GGally")
-library("ggdendro")
-library("cluster")
-library("lme4")
-library("parallel")
-library("utiml")
-library("RWeka")
-library("rJava")
-library("foreach")
-library("doParallel")
-require("lattice")
-library("RColorBrewer")
+library("readr") #
+library("googledrive") #
+library("foreign") #
+library("stringr") #
+library("mldr") #
+library("plyr") #
+library("dplyr") #instalado
+library("reshape2") #NAO
+library("AggregateR") #instalado
+library("philentropy") #instalado
+library("ggplot2") #NAO
+library("dendextend") #NAO
+library("ape") #instalado
+library("pvclust") #instalado
+library("GGally") #instalado
+library("ggdendro") #instalado
+library("cluster") #instaldo
+library("lme4") #instalado 
+library("parallel") #NAO
+library("utiml") # não instalado
+library("RWeka") #instalado
+library("rJava") #instalado
+library("foreach") #instalado
+library("doParallel") #instalado
+require("lattice") # instalado 
+library("RColorBrewer") # instalado 
 
 ##################################################################################################
 # Please, any errors, contact us!                                                                #

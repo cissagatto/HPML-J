@@ -130,8 +130,21 @@ resumeResults <- function(FolderHClust, FolderHybPart, FolderD){
 #   Return                                                                                       #
 #       data frame with the results                                                              #
 ##################################################################################################
-compareMethods <- function(FolderLocal, FolderGlobal, FolderHybrid, FolderDataset){
+compareMethods <- function(FolderRandom, FolderLocal, FolderGlobal, FolderHybrid, FolderDataset){
   retorno = list()
+  
+  #FolderRandom = folders$folderRandom
+  # FolderLocal = folders$folderLocal
+  #FolderGlobal = folders$folderGlobal
+  # FolderHybrid = folders$folderHybrid
+  #FolderDataset = folders$folderResDataset
+  
+  # C:\Users\elain\HPML-J\results\flags\ClusRandom\Test
+  FolderRandomT = paste(FolderRandom, "/Test", sep="")
+  
+  setwd(FolderRandomT)
+  random = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
+  names(random) = c("measure", "random")
   
   setwd(FolderHybrid)
   hybrid = data.frame(read.csv("SummaryFoldsEvaluated.csv"))

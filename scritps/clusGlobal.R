@@ -196,20 +196,26 @@ executeClusGlobal <- function(ds, dataset_name, Folder, number_folds){
   setwd(sf$Folder)
   FolderRoot = sf$Folder
   diretorios = directories()  
+  
   folderUtils = paste(FolderRoot, "/utils", sep="")
   
     i = 1
     clusGlobalParalel <- foreach(i = 1:number_folds) %dopar% {
+      
       library("RWeka")
       library("rJava")
+      
       cat("\nFold: ", i)
       FolderSplit = paste(Folder, "/Split-", i, sep="")
-      nome_config = paste(dataset_name, "-Split-", i, ".s", sep="")
+      nome_config = paste(FolderSplit, "/", dataset_name, "-Split-", i, ".s", sep="")
       
       cat("\nExecute CLUS\n")
       setwd(FolderSplit)
       str = paste("java -jar ", folderUtils , "/Clus.jar ", nome_config, sep="")
-      system(str)
+      
+      cat("\n")
+      print(system(str))
+      cat("\n")
       
       um = paste(dataset_name, "-Split-", i, ".model", sep="")
       dois = paste(dataset_name, "-Split-", i, ".s", sep="")
@@ -255,14 +261,14 @@ gatherPredictsGlobal <- function(ds, dataset_name, Folder, number_folds){
   FolderRoot = sf$Folder
   diretorios = directories()   
   
-      f = 1
+    f = 1
     predGlobalParalel <- foreach(f = 1:number_folds) %dopar% {    
       library("foreign")    
       cat("\nFold: ", f)    
       FolderSplit = paste(Folder, "/Split-", f, sep="")    
       cat("\n\tOpen Test.Pred.Arff ", f)
       setwd(FolderSplit)    
-      nome = paste(dataset_name, "-Split-" , f, ".test.pred.arff", sep="")
+      nome = paste(FolderSplit, "/", dataset_name, "-Split-" , f, ".test.pred.arff", sep="")
       predicoes = data.frame(read.arff(nome))
       
       inicio = ds$LabelStart
@@ -320,11 +326,13 @@ gatherEvalGlobal <- function(ds, dataset_name, Folder, number_folds){
   setwd(sf$Folder)
   FolderRoot = sf$Folder
   diretorios = directories()
+  retorno = list()
   
   medidas = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
               "macro-F1","macro-precision","macro-recall","margin-loss","micro-AUC","micro-F1",
               "micro-precision","micro-recall","mlp","one-error","precision","ranking-loss",
               "recall","subset-accuracy","wlp")
+  
   confMatFinal = data.frame(medidas)
   folds = c("")
   
@@ -336,7 +344,7 @@ gatherEvalGlobal <- function(ds, dataset_name, Folder, number_folds){
     setwd(FolderSplit)
     
     cat("\n\tOpen ResConfMat ", f)
-    confMat = data.frame(read.csv("ResConfMat.csv"))
+    confMat = data.frame(read.csv(paste(FolderSplit, "/ResConfMat.csv", sep="")))
     names(confMat) = c("Measures", "Fold")
     confMatFinal = cbind(confMatFinal, confMat$Fold) 
     
@@ -369,6 +377,10 @@ gatherEvalGlobal <- function(ds, dataset_name, Folder, number_folds){
   names(sumary3) = c("Measures", "Summary")
   write.csv(sumary3, "SummaryFoldsEvaluated.csv", row.names = FALSE)
   
+  retorno$summaryEvaluation = sumary3
+  retorno$foldsEvaluated = confMatFinal
+  return(retorno)
+  
   gc()
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: END OF THE FUNCTION GATHER EVALUATED                                              #") 
@@ -389,6 +401,11 @@ gatherEvalGlobal <- function(ds, dataset_name, Folder, number_folds){
 #   Return                                                                                       #
 ##################################################################################################
 deleteGlobal <-function(ds, dataset_name, FolderGlobal, number_folds){
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
     f = 1
     apagaGlobal <- foreach (f = 1:number_folds) %dopar%{
@@ -429,31 +446,38 @@ deleteGlobal <-function(ds, dataset_name, FolderGlobal, number_folds){
 ##################################################################################################
 clusGlobal <- function(ds, dataset_name, FolderRD, FolderConfigFiles, FolderGlobal, number_folds){
   
-  cat("\nGLOBAL: Tests each Splits Globaly\n")
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
-  cat("\nGLOBAL: Generating the CLUS configuration files for the splits of each dataset\n")
+  cat("\n##################################################################################################")
+  cat("\nCLUS GLOBAL: Tests each Splits Globaly                                                           #")
+  cat("\n##################################################################################################")
+  
+  cat("\nCLUS GLOBAL: Generating the CLUS configuration files for the splits of each dataset\n")
   timeConfigFiles = system.time(configFilesClus(ds, dataset_name, FolderConfigFiles, number_folds))
   
-  cat("\nGLOBAL: Joins the configuration, training and test files in a single folder for running the clus\n")
+  cat("\nCLUS GLOBAL: Joins the configuration, training and test files in a single folder for running the clus\n")
   timeGatherFiles = system.time(gatherFilesFoldsGlobal(ds, dataset_name, FolderConfigFiles, 
                                                        FolderGlobal, number_folds))
   
-  cat("\nGLOBAL: Execute CLUS\n")
+  cat("\nCLUS GLOBAL: Execute CLUS\n")
   timeClusGlobal = system.time(executeClusGlobal(ds, dataset_name, FolderGlobal, number_folds))
   
-  cat("\nGLOBAL: Splits the real outputs and the predicted outputs\n")
+  cat("\nCLUS GLOBAL: Splits the real outputs and the predicted outputs\n")
   timeGatherPreds = system.time(gatherPredictsGlobal(ds, dataset_name, FolderGlobal, number_folds))
   
-  cat("\nGLOBAL: Evaluates the split classification\n")
+  cat("\nCLUS GLOBAL: Evaluates the split classification\n")
   timeEvalGlobal = system.time(evaluateGeneral(ds, dataset_name, FolderGlobal, number_folds))
   
-  cat("\nGLOBAL: Gather Evaluated Measures\n")
+  cat("\nCLUS GLOBAL: Gather Evaluated Measures\n")
   timeGE = system.time(gatherEvalGlobal(ds, dataset_name, FolderGlobal, number_folds))
   
-  cat("\nGLOBAL: Delete files\n")
+  cat("\nCLUS GLOBAL: Delete files\n")
   timeDel = system.time(deleteGlobal(ds, dataset_name, FolderGlobal, number_folds))
   
-  cat("\nGLOBAL: Save Runtime\n")
+  cat("\nCLUS GLOBAL: Save Runtime\n")
   RunTimeGlobal = rbind(timeConfigFiles, timeGatherFiles, timeClusGlobal, timeGatherPreds, 
                         timeEvalGlobal, timeGE, timeDel)
   setwd(FolderGlobal)

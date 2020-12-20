@@ -74,6 +74,25 @@ All parameters are mandatory. Example:
 Rscript hpmlj.R 17 5 10
 ```
 
+## Saved Results
+This code save some important results in csv files. 
+
+1. _Random Partitions_
+The random partitions are saved in "HPML-J\results\[dataset_name]\ClusRandom" in a file named "all-partitions.csv"
+ 
+2. _Hybrid Partitions_
+The hybrid partitions are saved in "\HPML-J\results\[dataset_name]\HClust\Split-X", where X is the number of the fold. The file names are "partitions-average.csv", "partitions-complete.csv" and "partitions-single.csv"
+  
+3. Chosen Partitions
+The chosen hybrid and random partitions with the best macro F1 for each fold is saved in "\HPML-J\results\[dataset_name]\HybridPartition", and "\HPML-J\results\[dataset_name]\ClusRandom. The file name is "BestF1Macro.csv".
+  
+4. _Evaluation measures for each partitions_
+The values of each measures are saved in "HPML-J\results\[dataset_name]\ClusHybrid" for hybrid partitions, "HPML-J\results\[dataset_name]\ClusRandom\Test" for random partitions, "HPML-J\results\[dataset_name]\ClusGlobal" for global partitions, and "HPML-J\results\[dataset_name]\ClusLocal" for local partitions. The file name is "SummaryFoldsEvaluated.csv"
+
+5. _Compared partitions_
+The file "ResultsFinal.csv" in "C:\Users\elain\HPML-J\results\[dataset_name]" contain the values for each evaluation measure in each partition.
+
+Other results are saved. You can explore the folders to see or, if you are not interesting, then you can delete all.
 
 ## Paper Results
 The results obtained for the paper can be found in the folder "resultsPaperExperiments". In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.

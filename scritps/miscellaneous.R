@@ -131,10 +131,11 @@ resumeResults <- function(FolderHClust, FolderHybPart, FolderD){
 #   Return                                                                                       #
 #       data frame with the results                                                              #
 ##################################################################################################
-compareMethods <- function(FolderRandom, FolderLocal, FolderGlobal, FolderHybrid, FolderDataset){
+compareMethods <- function(FolderRandom1, FolderRandom2, FolderLocal, FolderGlobal, FolderHybrid, FolderDataset){
   retorno = list()
   
-  #FolderRandom = folders$folderRandom
+  #FolderRandom1 = folders$folderRandom1
+  #FolderRandom2 = folders$folderRandom2
   #FolderLocal = folders$folderLocal
   #FolderGlobal = folders$folderGlobal
   # FolderHybrid = folders$folderHybrid
@@ -146,10 +147,13 @@ compareMethods <- function(FolderRandom, FolderLocal, FolderGlobal, FolderHybrid
   
   # C:\Users\elain\HPML-J\results\flags\ClusRandom\Test
   FolderRandomT = paste(FolderRandom, "/Test", sep="")
-  
   setwd(FolderRandomT)
-  randomPart = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
-  names(randomPart) = c("measure", "random")
+  randomPart1 = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
+  names(randomPart) = c("measure", "random1")
+  
+  setwd(FolderRandom2)
+  randomPart2 = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
+  names(localPart) = c("measure", "random2")
   
   setwd(FolderLocal)
   localPart = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
@@ -159,7 +163,8 @@ compareMethods <- function(FolderRandom, FolderLocal, FolderGlobal, FolderHybrid
   globalPart = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
   names(globalPart) = c("measure", "global")
   
-  Final = cbind(hybrid, random = randomPart$random, local = localPart$local, global = globalPart$global)
+  Final = cbind(hybrid, random1 = randomPart$random1, random2 = randomPart$random2,
+                local = localPart$local, global = globalPart$global)
   setwd(FolderDataset)
   write.csv(Final, "ResultsFinal.csv", row.names = FALSE)
   
@@ -173,6 +178,56 @@ compareMethods <- function(FolderRandom, FolderLocal, FolderGlobal, FolderHybrid
 }
 
 
+deleteAll <- function(number_folds, FolderHybrid, FolderHybPart, FolderHClust, 
+                                     FolderLocal, FolderGlobal, FolderRandom){
+  
+  #FolderHClust = folders$folderHClust
+  #FolderHybPart = folders$folderHybPart
+  #FolderLocal = folders$folderLocal
+  #FolderGlobal = folders$folderGlobal
+  # FolderHybrid = folders$folderHybrid
+  #FolderRandom = folders$folderRandom
+  
+  f = 1
+  daParalel <- foreach (f = 1:number_folds) %dopar%{    
+    
+    Folder1 = paste(FolderHybrid, "/Split-", f, sep="")
+    #unlink(Folder1)
+    str1 = paste("rm -r ", Folder1, sep="")
+    print(system(str1))
+    
+    Folder2 = paste(FolderHybPart, "/Split-", f, sep="")
+    #unlink(Folder2)
+    str2 = paste("rm -r ", Folder2, sep="")
+    print(system(str2))
+    
+    #Folder3 = paste(FolderHClust, "/Split-", f, sep="")
+    #unlink(Folder3)
+    
+    Folder4 = paste(FolderLocal, "/Split-", f, sep="")
+    #unlink(Folder4)
+    str4 = paste("rm -r ", Folder4, sep="")
+    print(system(str4))
+    
+    Folder5 = paste(FolderGlobal, "/Split-", f, sep="")
+    #unlink(Folder5)
+    str5 = paste("rm -r ", Folder5, sep="")
+    print(system(str5))
+    
+    Folder6 = paste(FolderRandom, "/Split-", f, "/Validation", sep="")
+    #unlink(Folder6)
+    str6 = paste("rm -r ", Folder6, sep="")
+    print(system(str6))
+    
+    Folder7 = paste(FolderRandom, "/Split-", f, "/Test", sep="")
+    #unlink(Folder7)
+    str7 = paste("rm -r ", Folder7, sep="")
+    print(system(str7))
+    gc()
+    
+  }
+  gc()
+}
 
 
 ##################################################################################################

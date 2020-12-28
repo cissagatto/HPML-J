@@ -8,7 +8,6 @@
 
 ##################################################################################################
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
-# www.professoracissagatto.com.br                                                                #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
@@ -16,7 +15,7 @@
 ##################################################################################################
 
 ##################################################################################################
-# Set working directory                                                                          #
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
 FolderRoot = ""
@@ -29,6 +28,7 @@ if (sistema[1] == "Linux"){
 }
 setwd(FolderRoot)
 FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+setwd(FolderScripts)
 
 
 ##################################################################################################
@@ -74,17 +74,17 @@ directories <- function(){
   
   retorno = list()
   
-  folderReports = paste(FolderRoot, "/reports", sep="")
-  if(dir.exists(folderReports) == TRUE){
-    setwd(folderReports)
-    dirReports = dir(folderReports)
-    n_Reports = length(folderReports)
-  } else {
-    dir.create(folderReports)
-    setwd(folderReports)
-    dirReports = dir(folderReports)
-    n_Reports = length(folderReports)
-  }
+  #folderReports = paste(FolderRoot, "/reports", sep="")
+  #if(dir.exists(folderReports) == TRUE){
+    #setwd(folderReports)
+    #dirReports = dir(folderReports)
+    #n_Reports = length(folderReports)
+  #} else {
+    #dir.create(folderReports)
+    #setwd(folderReports)
+    #dirReports = dir(folderReports)
+    #n_Reports = length(folderReports)
+  #}
   
   folderResults = paste(FolderRoot, "/results", sep="")
   if(dir.exists(folderResults) == TRUE){
@@ -165,7 +165,7 @@ directories <- function(){
   retorno$folderDO = folderDO
   retorno$folderFolds = folderFolds
   retorno$folderInfoFolds = folderInfoFolds
-  retorno$folderReports = folderReports
+  #retorno$folderReports = folderReports
   
   # return of folder contents
   retorno$dirResults = dirResults
@@ -174,7 +174,7 @@ directories <- function(){
   retorno$dirDO = dirDO
   retorno$dirFolds = dirFolds
   retorno$dirInfoFold = dirInfoFolds
-  retorno$dirReports = dirReports
+  #retorno$dirReports = dirReports
   
   # return of the number of objects inside the folder
   retorno$n_Results = n_Results
@@ -183,7 +183,7 @@ directories <- function(){
   retorno$n_DO = n_DO
   retorno$n_Folds = n_Folds
   retorno$n_InfoFolds = n_InfoFolds
-  retorno$n_Reports = n_Reports
+  #retorno$n_Reports = n_Reports
   
   return(retorno)
   gc()
@@ -253,6 +253,19 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_HClust = length(dir_HClust)
   }
   
+  
+  folderConfigFiles = paste(folderResDataset, "/ConfigFiles", sep="")
+  if(dir.exists(folderConfigFiles) == TRUE){
+    setwd(folderConfigFiles)
+    dir_ConfigFiles = dir(folderConfigFiles)
+    n_ConfigFiles = length(dir_ConfigFiles)
+  } else {
+    dir.create(folderConfigFiles)
+    setwd(folderConfigFiles)
+    dir_ConfigFiles = dir(folderConfigFiles)
+    n_ConfigFiles = length(dir_ConfigFiles)
+  }
+  
   folderHybPart = paste(folderResDataset, "/HybridPartition", sep="")
   if(dir.exists(folderHybPart) == TRUE){
     setwd(folderHybPart)
@@ -275,18 +288,6 @@ creatingFoldersPrincipals<- function(dataset_name){
     setwd(folderHybrid)
     dir_Hybrid = dir(folderHybrid)
     n_Hybrid = length(dir_Hybrid)
-  }
-  
-  folderConfigFiles = paste(folderResDataset, "/ConfigFiles", sep="")
-  if(dir.exists(folderConfigFiles) == TRUE){
-    setwd(folderConfigFiles)
-    dir_ConfigFiles = dir(folderConfigFiles)
-    n_ConfigFiles = length(dir_ConfigFiles)
-  } else {
-    dir.create(folderConfigFiles)
-    setwd(folderConfigFiles)
-    dir_ConfigFiles = dir(folderConfigFiles)
-    n_ConfigFiles = length(dir_ConfigFiles)
   }
   
   folderGlobal = paste(folderResDataset, "/ClusGlobal", sep="")
@@ -313,16 +314,28 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Local = length(dir_Local)
   }
   
-  folderRandom = paste(folderResDataset, "/ClusRandom", sep="")
-  if(dir.exists(folderRandom) == TRUE){
-    setwd(folderRandom)
-    dir_Random = dir(folderRandom)
-    n_Random = length(dir_Random)
+  folderRandom1 = paste(folderResDataset, "/ClusRandom_1", sep="")
+  if(dir.exists(folderRandom1) == TRUE){
+    setwd(folderRandom1)
+    dir_Random1 = dir(folderRandom1)
+    n_Random1 = length(dir_Random1)
   } else {
-    dir.create(folderRandom)
-    setwd(folderRandom)
-    dir_Random = dir(folderRandom)
-    n_Random = length(dir_Random)
+    dir.create(folderRandom1)
+    setwd(folderRandom1)
+    dir_Random1 = dir(folderRandom1)
+    n_Random1 = length(dir_Random1)
+  }
+  
+  folderRandom2 = paste(folderResDataset, "/ClusRandom_2", sep="")
+  if(dir.exists(folderRandom2) == TRUE){
+    setwd(folderRandom2)
+    dir_Random2 = dir(folderRandom2)
+    n_Random2 = length(dir_Random2)
+  } else {
+    dir.create(folderRandom2)
+    setwd(folderRandom2)
+    dir_Random2 = dir(folderRandom2)
+    n_Random2 = length(dir_Random2)
   }
   
   # return folders
@@ -334,7 +347,8 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$folderLocal = folderLocal
   retorno$folderGlobal = folderGlobal
   retorno$folderHybrid = folderHybrid
-  retorno$folderRandom = folderRandom
+  retorno$folderRandom1 = folderRandom1
+  retorno$folderRandom2 = folderRandom2
   
   # return of folder contents
   retorno$dir_DSFolds = dir_DSFolds
@@ -345,7 +359,8 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$dir_Local = dir_Local
   retorno$dir_Global = dir_Global
   retorno$dir_Hybrid = dir_Hybrid
-  retorno$dir_Random = dir_Random
+  retorno$dir_Random1 = dir_Random1
+  retorno$dir_Random2 = dir_Random2
   
   # return of the number of objects inside the folder
   retorno$n_DSFolds = n_DSFolds
@@ -355,11 +370,13 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$n_Local = n_Local
   retorno$n_Global = n_Global
   retorno$n_Hybrid = n_Hybrid
-  retorno$n_Random = n_Random
+  retorno$n_Random1 = n_Random1
+  retorno$n_Random2 = n_Random2
   
   return(retorno)
   
 }
+
 
 ##################################################################################################
 # FUNCTION CONVERT TO ARFF                                                                       #
@@ -375,7 +392,7 @@ creatingFoldersPrincipals<- function(dataset_name){
 ##################################################################################################
 converteArff <- function(arg1, arg2, arg3){  
   str = paste("java -jar ", diretorios$folderUtils, "/R_csv_2_arff.jar ", arg1, " ", arg2, " ", arg3, sep="")
-  system(str)
+  print(system(str))
   cat("\n\n")  
 }
 

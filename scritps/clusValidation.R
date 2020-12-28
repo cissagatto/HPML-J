@@ -272,8 +272,8 @@ gatherEvaluationVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
 #   Return                                                                                       #
 #       Best macro-f1 partitions                                                                 #
 ##################################################################################################
-gatherF1macroVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
-  
+gF1macroVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
+   
   sf = setFolder()
   setwd(sf$Folder)
   FolderRoot = sf$Folder
@@ -295,6 +295,14 @@ gatherF1macroVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
     
     cat("\n\nSplit: ", f)
     FolderSplit = paste(FolderHybPart, "/Split-", f, sep="")
+    if(dir.exists(FolderSplit)==TRUE){
+      cat("\nexiste")
+      cat("\n", FolderSplit)
+    } else {
+      cat("\nnao existe")
+      cat("\n", FolderSplit)
+    }
+    
     num.part = ds$Labels-1
     
     setwd(FolderSplit)
@@ -430,7 +438,7 @@ clusValidation <- function(ds, dataset_name, number_folds, FolderHybPart){
   
   cat("\n################################################################################################")
   cat("\n# Clus Validation: Gather F1 Macro Hybrid Partitions                                           #")
-  timeGF1 = system.time(gatherF1macroVAL(ds, dataset_name, number_folds, FolderHybPart))
+  timeGF1 = system.time(gF1macroVAL(ds, dataset_name, number_folds, FolderHybPart))
   cat("\n################################################################################################")
   
   cat("\n################################################################################################")

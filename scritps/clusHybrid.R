@@ -325,7 +325,7 @@ mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClu
 #   Return                                                                                       #
 #       true labels and predict labels                                                           #
 ##################################################################################################
-splitsPredSHybTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHybrid, FolderHybPart){
+splitsPredsHybTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHybrid, FolderHybPart){
   
   sf = setFolder()
   setwd(sf$Folder)

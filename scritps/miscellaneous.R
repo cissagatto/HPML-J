@@ -156,7 +156,7 @@ compareMethods <- function(FolderRandom1, FolderRandom2, FolderLocal, FolderGlob
   globalPart = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
   names(globalPart) = c("measure", "global")
   
-  Final = cbind(hybrid, random1 = randomPart$random1, random2 = randomPart$random2,
+  Final = cbind(hybrid, random1 = randomPart1$random1, random2 = randomPart2$random2,
                 local = localPart$local, global = globalPart$global)
   setwd(FolderDataset)
   write.csv(Final, "ResultsFinal.csv", row.names = FALSE)

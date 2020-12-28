@@ -21,9 +21,10 @@ This source code consists of a R project for R Studio and the following R script
 08. clusHybrid.R
 09. clusGlobal.R
 10. clusLocal.R
-11. clusRandom.R
-12. run.R
-13. hpmlj.R
+11. clusRandom_1.R
+12. clusRandom_2.R
+13. run.R
+14. hpmlj.R
 
 ## Jars
 Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar and weka.jar. Without this jars the code not runs. 
@@ -91,6 +92,7 @@ Other results are saved. You can explore the folders to see or, if you are not i
 
 ## Paper Results
 The results obtained for the paper can be found in the folder "resultsPaperExperiments". In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.
+
 
 
 

@@ -696,8 +696,8 @@ evalRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
 #  Return
 #       Predictions, assessment measures and execution time                                      #
 ##################################################################################################
-clusRandom_2 <- function(ds, namesLabels, dataset_name, FolderDSF, FolderResDataset,
-                       FolderRandom, number_folds){
+clusRandom_2 <- function(ds, namesLabels, dataset_name, number_folds, FolderDSF, FolderResDataset,
+                       FolderRandom, FolderReports){
   
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2                                                                                  #")
@@ -728,8 +728,9 @@ clusRandom_2 <- function(ds, namesLabels, dataset_name, FolderDSF, FolderResData
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2: Save Runtime                                                                    #")
   RunTimeRandom = rbind(timeSplit, timeBuild, timePreds, timeEval)
-  setwd(FolderRandom)
-  write.csv(RunTimeRandom, "RunTimeRandom.csv")
+  
+  setwd(FolderReports)
+  write.csv(RunTimeRandom, "RunTimeRandom2.csv")
   cat("\n##################################################################################################")
   
   gc()

@@ -116,8 +116,6 @@ if(dir.exists(Folder1)==TRUE){
 ##################################################################################################
 cat("\nExecute HPMLJ\n")
 timeFinal <- system.time(results <- executeHPMLJ(args[1], number_cores, number_folds))
-#timeFinal <- system.time(results <- executeHPMLJ(9, 2, 10))
-
 
 ##################################################################################################
 # save the total time in rds format in the dataset folder                                        #

@@ -431,7 +431,8 @@ deleteGlobal <-function(ds, dataset_name, FolderGlobal, number_folds){
 #   Return                                                                                       #
 #       Predictions, assessment measures and execution time                                      #
 ##################################################################################################
-clusGlobal <- function(ds, dataset_name, FolderRD, FolderConfigFiles, FolderGlobal, number_folds){
+clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFiles,
+                       FolderGlobal, FolderReports){
   
   sf = setFolder()
   setwd(sf$Folder)
@@ -482,7 +483,7 @@ clusGlobal <- function(ds, dataset_name, FolderRD, FolderConfigFiles, FolderGlob
   cat("\n# CLUS GLOBAL: Save Runtime                                                                      #")
   RunTimeGlobal = rbind(timeConfigFiles, timeGatherFiles, timeClusGlobal, timeGatherPreds, 
                         timeEvalGlobal, timeGE, timeDel)
-  setwd(FolderGlobal)
+  setwd(FolderReports)
   write.csv(RunTimeGlobal, "RunTimeGlobal.csv")
   cat("\n##################################################################################################")
   

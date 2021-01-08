@@ -653,7 +653,8 @@ delHybTEST <-function(ds, dataset_name, number_folds, FolderHybrid, FolderHybPar
 #   Return                                                                                       #
 #       Predictions, assessment measures and execution time                                      #
 ##################################################################################################
-clusHybrid <- function(ds, dataset_name, number_folds, DsFolds, FolderHClust, FolderHybPart, FolderHybrid){
+clusHybrid <- function(ds, dataset_name, number_folds, DsFolds, FolderHClust, 
+                       FolderHybPart, FolderHybrid, FolderReports){
   
   sf = setFolder()
   setwd(sf$Folder)
@@ -695,7 +696,8 @@ clusHybrid <- function(ds, dataset_name, number_folds, DsFolds, FolderHClust, Fo
   cat("\n################################################################################################")
   cat("\n# CLUS HYBRID: Save Runtime                                                                   #")
   RuntimeTest = rbind(tempoMonta, tempoSplitPred, tempoJuntaPred, tempoEval, tempoD)
-  setwd(FolderHybrid)
+  
+  setwd(FolderReports)
   write.csv(RuntimeTest, "RuntimeHybrid.csv")
   cat("\n################################################################################################")
   

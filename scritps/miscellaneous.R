@@ -91,7 +91,7 @@ evaluateGeneral <- function(ds, dataset_name, Folder, number_folds){
 #   Return                                                                                       #
 #       data frame with the results                                                              #
 ##################################################################################################
-resumeResults <- function(FolderHClust, FolderHybPart, FolderD){
+resumeHP <- function(dataset_name, FolderHClust, FolderHybPart, FolderReports){
   retorno = list()
   
   setwd(FolderHClust)
@@ -104,8 +104,8 @@ resumeResults <- function(FolderHClust, FolderHybPart, FolderD){
   resumo = cbind(coeficientes, bestPerformance)
   resumo = resumo[,-4]
   
-  setwd(FolderD)
-  write.csv(resumo, "summaryHybPart.csv", row.names = FALSE)
+  setwd(FolderReports)
+  write.csv(resumo, paste(dataset_name, "-summaryHybPart.csv", sep=""), row.names = FALSE)
   
   retorno$Resumo = resumo 
   return(retorno)
@@ -116,6 +116,7 @@ resumeResults <- function(FolderHClust, FolderHybPart, FolderD){
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
+
 
 
 ##################################################################################################
@@ -130,14 +131,24 @@ resumeResults <- function(FolderHClust, FolderHybPart, FolderD){
 #   Return                                                                                       #
 #       returns a dataframe with the results of all partitions                                   #                                                              #
 ##################################################################################################
-compareMethods <- function(FolderRandom1, FolderRandom2, FolderLocal, FolderGlobal, 
-                           FolderHybrid, FolderDataset){
+compareMethods <- function(dataset_name, FolderRandom1, FolderRandom2, FolderRandom3, FolderLocal, FolderGlobal, 
+                           FolderHybrid, FolderDataset, FolderReports){
+  
+  # FolderRandom1 = folders$folderRandom1
+  # FolderRandom2 = folders$folderRandom2
+  # FolderRandom3 = folders$folderRandom3
+  # FolderLocal = folders$folderLocal
+  # FolderGlobal = folders$folderGlobal
+  # FolderHybrid = folders$folderHybrid
+  # FolderDataset = folders$folderResDataset
   
   retorno = list()
   
   setwd(FolderHybrid)
   hybrid = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
   names(hybrid) = c("measure", "hybrid")
+  
+  measures = c(hybrid[,1])
   
   FolderR1 = paste(FolderRandom1, "/Test", sep="")
   setwd(FolderR1)
@@ -148,6 +159,11 @@ compareMethods <- function(FolderRandom1, FolderRandom2, FolderLocal, FolderGlob
   randomPart2 = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
   names(randomPart2) = c("measure", "random2")
   
+  FolderR3 = paste(FolderRandom3, "/Test", sep="")
+  setwd(FolderR3)
+  randomPart3 = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
+  names(randomPart3) = c("measure", "random3")
+  
   setwd(FolderLocal)
   localPart = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
   names(localPart) = c("measure", "local")
@@ -156,10 +172,12 @@ compareMethods <- function(FolderRandom1, FolderRandom2, FolderLocal, FolderGlob
   globalPart = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
   names(globalPart) = c("measure", "global")
   
-  Final = cbind(hybrid, random1 = randomPart1$random1, random2 = randomPart2$random2,
-                local = localPart$local, global = globalPart$global)
-  setwd(FolderDataset)
-  write.csv(Final, "ResultsFinal.csv", row.names = FALSE)
+  Final = cbind(measures, hybrid = hybrid[, 2, drop = FALSE], random1 = randomPart1[, 2, drop = FALSE], 
+                random2 = randomPart2[, 2, drop = FALSE], random3 = randomPart3[, 2, drop = FALSE], 
+                local = localPart[, 2, drop = FALSE], global = globalPart[, 2, drop = FALSE])
+  
+  setwd(FolderReports)
+  write.csv(Final, paste(dataset_name, " - ResultsFinal.csv", sep=""), row.names = FALSE)
   
   retorno$Compare = Final
   return(retorno)
@@ -221,6 +239,11 @@ deleteAll <- function(number_folds, FolderHybrid, FolderHybPart, FolderHClust,
     print(system(str7))
     gc()
     
+    Folder8 = paste(FolderRandom3, "/Split-", f, "/Test", sep="")
+    str8 = paste("rm -r ", Folder8, sep="")
+    print(system(str8))
+    gc()
+    
   }
   
   gc()
@@ -247,13 +270,13 @@ deleteAll <- function(number_folds, FolderHybrid, FolderHybPart, FolderHClust,
 #   Return                                                                                       #
 #       returns a dataframe with the number of times each partition was chosen by the method     #                                                              #
 ##################################################################################################
-resumePartitions <- function(ds, dataset_name, FolderRandom1, FolderRandom2, 
-                             FolderHybPart, FolderDataset){
+resumePartitions <- function(ds, dataset_name, FolderRandom1, FolderRandom2, FolderRandom3,
+                             FolderHybPart, FolderDataset, FolderReports){
   
-  cat("\n", dataset_name)
+  cat("\nDataset: ", dataset_name)
   
   num.partitions = ds$Labels - 2
-  cat("\n", num.partitions)
+  cat("\nNumber of partitions: ", num.partitions)
   
   cat("\nRandom1\n")
   setwd(FolderRandom1)
@@ -271,6 +294,15 @@ resumePartitions <- function(ds, dataset_name, FolderRandom1, FolderRandom2,
   contaR2 = count(R2, vars=R2$number_groups)
   names(contaR2) = c("partition", "R2")
   names(R2) = "Random2"
+  
+  cat("\nRandom3\n")
+  setwd(FolderRandom3)
+  random3 = data.frame(read.csv("BestF1Macro.csv"))
+  names(random3) = c("fold","name.part", "num.part","MaF1")
+  R3 = random3[,3, drop = FALSE]
+  contaR3 = count(R3, vars=R3$num.part)
+  names(contaR3) = c("partition", "R3")
+  names(R3) = "Random3"
 
   cat("\nHYBRID\n")
   setwd(FolderHybPart)
@@ -281,10 +313,11 @@ resumePartitions <- function(ds, dataset_name, FolderRandom1, FolderRandom2,
   names(contaH) = c("partition", "H")
   names(H) = "Hybrid"
   
-  setwd(FolderDataset)
-  write.csv(contaH, "h-partitions.csv")
-  write.csv(contaR1, "r1-partitions.csv")
-  write.csv(contaR2, "r2-partitions.csv")
+  setwd(FolderReports)
+  write.csv(contaH, paste(dataset_name, "-hp-count-p.csv", sep=""))
+  write.csv(contaR1, paste(dataset_name, "-r1-count-p.csv", sep=""))
+  write.csv(contaR2, paste(dataset_name, "-r2-count-p.csv", sep=""))
+  write.csv(contaR3, paste(dataset_name, "-r3-count-p.csv", sep=""))
   
   gc()
   cat("\n##################################################################################################")
@@ -293,6 +326,7 @@ resumePartitions <- function(ds, dataset_name, FolderRandom1, FolderRandom2,
   cat("\n\n\n\n")
   
 }
+
 
 
 ##################################################################################################

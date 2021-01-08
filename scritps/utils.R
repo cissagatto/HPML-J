@@ -165,7 +165,6 @@ directories <- function(){
   retorno$folderDO = folderDO
   retorno$folderFolds = folderFolds
   retorno$folderInfoFolds = folderInfoFolds
-  #retorno$folderReports = folderReports
   
   # return of folder contents
   retorno$dirResults = dirResults
@@ -174,7 +173,6 @@ directories <- function(){
   retorno$dirDO = dirDO
   retorno$dirFolds = dirFolds
   retorno$dirInfoFold = dirInfoFolds
-  #retorno$dirReports = dirReports
   
   # return of the number of objects inside the folder
   retorno$n_Results = n_Results
@@ -183,7 +181,6 @@ directories <- function(){
   retorno$n_DO = n_DO
   retorno$n_Folds = n_Folds
   retorno$n_InfoFolds = n_InfoFolds
-  #retorno$n_Reports = n_Reports
   
   return(retorno)
   gc()
@@ -229,17 +226,17 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_ResDataset = length(dir_ResDataset)
   }
   
-  #folderResReports = paste(diretorios$folderReports, "/", dataset_name, sep="")
-  #if(dir.exists(folderResReports) == TRUE){
-    #setwd(folderResReports)
-    #dir_ResReports = dir(folderResReports)
-    #n_ResReports = length(dir_ResReports)
-  #} else {
-  #  dir.create(folderResReports)
-   # setwd(folderResReports)
-   # dir_ResReports = dir(folderResReports)
-  #  n_ResReports = length(dir_ResReports)
-  #}
+  folderResReports = paste(folderResDataset, "/Reports", sep="")
+  if(dir.exists(folderResReports) == TRUE){
+    setwd(folderResReports)
+    dir_ResReports = dir(folderResReports)
+    n_ResReports = length(dir_ResReports)
+  } else {
+    dir.create(folderResReports)
+    setwd(folderResReports)
+    dir_ResReports = dir(folderResReports)
+    n_ResReports = length(dir_ResReports)
+  }
   
   folderHClust = paste(folderResDataset, "/HClust", sep="")
   if(dir.exists(folderHClust) == TRUE){
@@ -338,6 +335,18 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Random2 = length(dir_Random2)
   }
   
+  folderRandom3 = paste(folderResDataset, "/ClusRandom_3", sep="")
+  if(dir.exists(folderRandom3) == TRUE){
+    setwd(folderRandom3)
+    dir_Random3 = dir(folderRandom3)
+    n_Random3 = length(dir_Random3)
+  } else {
+    dir.create(folderRandom3)
+    setwd(folderRandom3)
+    dir_Random3 = dir(folderRandom3)
+    n_Random3 = length(dir_Random3)
+  }
+  
   # return folders
   retorno$folderDSFolds = folderDSFolds
   retorno$folderResDataset = folderResDataset
@@ -349,6 +358,8 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$folderHybrid = folderHybrid
   retorno$folderRandom1 = folderRandom1
   retorno$folderRandom2 = folderRandom2
+  retorno$folderRandom3 = folderRandom3
+  retorno$folderReports = folderResReports
   
   # return of folder contents
   retorno$dir_DSFolds = dir_DSFolds
@@ -361,6 +372,8 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$dir_Hybrid = dir_Hybrid
   retorno$dir_Random1 = dir_Random1
   retorno$dir_Random2 = dir_Random2
+  retorno$dir_Random3 = dir_Random3
+  retorno$dir_ResReports = dir_ResReports 
   
   # return of the number of objects inside the folder
   retorno$n_DSFolds = n_DSFolds
@@ -372,6 +385,8 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$n_Hybrid = n_Hybrid
   retorno$n_Random1 = n_Random1
   retorno$n_Random2 = n_Random2
+  retorno$n_Random3 = n_Random3
+  retorno$n_ResReports = n_ResReports
   
   return(retorno)
   

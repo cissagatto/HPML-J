@@ -499,7 +499,8 @@ gatherEvalLocal <- function(ds, dataset_name, Folder, number_folds){
 #   Return                                                                                       #
 #       Predictions, assessment measures and execution time                                      #
 ##################################################################################################
-clusLocal <- function(ds, dataset_name, FolderCV, FolderLocal, namesLabels, number_folds){ 
+clusLocal <- function(ds, dataset_name, namesLabels, number_folds,  
+                      FolderCV, FolderLocal, FolderReports){ 
   
   sf = setFolder()
   setwd(sf$Folder)
@@ -538,7 +539,8 @@ clusLocal <- function(ds, dataset_name, FolderCV, FolderLocal, namesLabels, numb
   cat("\n##################################################################################################")
   cat("\n# CLUS LOCAL: Save Runtime                                                                       #")
   RunTimeLocal = rbind(timeGatherFiles, timeSplitLabels, timeGatherPreds, timeEvalLocal, timeGE)
-  setwd(FolderLocal)
+  
+  setwd(FolderReports)
   write.csv(RunTimeLocal, "RunTimeLocal.csv")
   cat("\n##################################################################################################")
   

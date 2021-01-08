@@ -298,6 +298,7 @@ CutreeHClust <- function(ds, resLS, dataset_name, namesLabels, FolderHClust, num
         clusters3 = data.frame(c(0))
         tables = data.frame()
         
+        
         k = 1
         for(k in 1:ds$Labels){
           cat("\ncluster: ", k)                

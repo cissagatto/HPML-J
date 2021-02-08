@@ -36,14 +36,14 @@ After downloading the dataset you want to use, place it in the */HPML-J/Datasets
 Place a copy of this code in _"C:/Users/[username]/HPML-J"_ or _"/home/username/HPML-J"_. Our files are configured to obtain the paths of the folders from the root. You can change this in the code if you want.
 
 ## File "datasets.csv"
-A file called "datasets.csv" must be in the *datasets* folder. This file is used to read informations about the dataset and they are used in the code. All 74 datasets available in cometa are in this file. If you want to use another dataset, please, add the following information about the dataset in the file:
+A file called "datasets.csv" must be in the *datasets* folder. This file is used to read informations about the datasets and they are used in the code. All 74 datasets available in cometa are in this file. If you want to use another dataset, please, add the following information about the dataset in the file:
 
-_Id, Name, Domain, Labels, Instances, Attributes, Inputs, Labelsets, Single, Max freq, Card, Dens, MeanIR, Scumble, TCS, AttStart, AttEnd, LabelStart, LabelEnd_
+_Id, Name, Domain, Labels, Instances, Attributes, Inputs, Labelsets, Single, Max freq, Card, Dens, MeanIR, Scumble, TCS, AttStart, AttEnd, LabelStart, LabelEnd
 
 The _"Id"_ of the dataset is a mandatory parameter (_n_dataset_) in the command line to run all code. The "LabelStart" and "LabelEnd" are used in a lot of internal functions. Please, make sure that these information are available before run the code.
 
 ## Folder Strucutre
-<img src="https://raw.githubusercontent.com/cissagatto/HPML-J/master/Images/estrutura_hpmj.PNG?token=AC7DF5OGNEZDZOKK4BEBPZC72TRQC">
+<img src="https://github.com/cissagatto/HPML-J/blob/master/Images/estrutura_hpmj.PNG">
 
 
 ## Software Requirements
@@ -80,7 +80,7 @@ This code save some important results in csv files.
 
 
 ## Paper Results
-The results obtained for the paper can be found in the folder "resultsPaperExperiments". In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.
+The results obtained for the paper can be found in the folder "ResultsPaper". In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.
 
 
 

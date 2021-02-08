@@ -23,8 +23,9 @@ This source code consists of a R project for R Studio and the following R script
 10. clusLocal.R
 11. clusRandom_1.R
 12. clusRandom_2.R
-13. run.R
-14. hpmlj.R
+13. clusRandom_3.R
+14. run.R
+15. hpmlj.R
 
 ## Jars
 Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar and weka.jar. Without this jars the code not runs. 

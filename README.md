@@ -85,4 +85,6 @@ This code save some important results in csv files.
 ## Paper Results
 The results obtained for the paper can be found in the folder "ResultsPaper". In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.
 
+# Thanks
+
 

@@ -1,6 +1,6 @@
 # HPML-J
 
-This code is a part of my doctoral research at PPG-CC/DC/UFSCar. HPML-J is the name of the first experiment carried out: Hybrid Partitions for Multi-Label Classification with index Jaccard. Other two versions will be available soon: HPML-KN and HPML-KT (K = kohonen, N = normal, T = transpose).
+This code is a part of my doctoral research at PPG-CC/DC/UFSCar. HPML-J is the name of the first experiment carried out: Hybrid Partitions for Multi-Label Classification with index Jaccard.
 
 ## Paper
 Exploring Label Correlations for Partitioning the Label Space in Multi-label Classification

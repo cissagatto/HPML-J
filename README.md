@@ -5,6 +5,9 @@ This code is a part of my doctoral research at PPG-CC/DC/UFSCar. HPML-J is the n
 ## Paper
 Exploring Label Correlations for Partitioning the Label Space in Multi-label Classification
 
+## Abstract
+Recent works on Multi-Label Classification (MLC) present multiple strategies to explore label correlations, in a way to improve classifiers performances. However, these works focus only in the traditional local and global approaches, i.e., transforming the original problem into a set of binary local problems, or dealing globally with all classes simultaneously. Very few works have investigated strategies to use label correlations in order to partition the label space in a different way. While in local partitions several binary classifiers are used (one per label), global partitions use only one classifier to deal with all labels. On the contrary, here we propose a strategy that explores the correlations between labels to partition the label space aiming to find partitions in-between (hybrid) local and global ones. We believe in-between local and global partitions better cluster similar labels, improving the multi-label classifiers ability to explore label correlations. We compared the hybrid partitions with global, local and random generated partitions. Our experimental results showed that the hybrid partitions lead to competitive results and, in general, were slightly better than global an local partitions. The random partitions were also competitive with the global and local partitions, showing that the current local and global approaches still need improvements in order to consider label correlations.
+
 ## Multi-Label Datasets
 You can download the multi-label datasets in this link: https://cometa.ujaen.es/datasets/
 
@@ -46,9 +49,8 @@ The _"Id"_ of the dataset is a mandatory parameter (_n_dataset_) in the command 
 ## Folder Strucutre
 <img src="https://github.com/cissagatto/HPML-J/blob/master/Images/estrutura_hpmj.PNG">
 
-
 ## Software Requirements
-This code was develop in R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows. The R language version was 4.0.1 (2020-06-06) with x86_64-w64-mingw32 plataform.
+This code was develop in R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows. The R language version was 4.0.1 (2020-06-06) with x86_64-w64-mingw32 plataform. Please make sure all the dependencies are installed (verify libraries.R).
 
 ## Hardware Requirements
 This code may or may not be executed in parallel, however, it is highly recommended that you run it in parallel. The number of cores can be configured via the command line (_number_cores_). If *number_cores = 1* the code will run sequentially. In our experiments, we used ten cores. For reproducibility, we recommend that you also use ten cores.
@@ -77,12 +79,10 @@ Rscript hpmlj.R 17 5 10
 ```
 
 ## Saved Results
-This code save some important results in csv files. 
+This code save some important results in csv files.
 
 
 ## Paper Results
 The results obtained for the paper can be found in the folder "ResultsPaper". In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.
-
-
 
 

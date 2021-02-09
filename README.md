@@ -85,6 +85,21 @@ This code save some important results in csv files.
 ## Paper Results
 The results obtained for the paper can be found in the folder "ResultsPaper". In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.
 
+## Acknowledgment
+This study is financed in part by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior - Brasil (CAPES) - Finance Code 001}
+
+## Links
+http://ppgcc.dc.ufscar.br/pt-br
+http://www.biomal.ufscar.br/
+https://site.dc.ufscar.br/
+https://www.gov.br/capes/pt-br
+https://www.linkedin.com/in/elainececiliagatto/
+https://www.embarcados.com.br/author/cissa/
+https://www.instagram.com/professoracissa/
+https://www.facebook.com/ProfessoraCissa/
+https://twitter.com/professoracissa
+https://www.linkedin.com/company/27241216
+
 # Thanks
 
 

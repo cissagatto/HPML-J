@@ -1,10 +1,9 @@
 ##################################################################################################
-# In-between Global and Local Partitions for Multi-label Classification                          #
+# HPML-J                                                                                         #
 ##################################################################################################
 
 ##################################################################################################
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
-# www.professoracissagatto.com.br                                                                #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
@@ -13,9 +12,7 @@
 
 ##################################################################################################
 # Script 7 - Clus Validation                                                                     #
-# LAST UPDATE: 2020-06-28                                                                        #
 ##################################################################################################
-
 
 ##################################################################################################
 # Workspace configuration                                                                        #
@@ -27,18 +24,28 @@ diretorios = directories()
 
 
 ##################################################################################################
-# FUNCTION AVALIA PARTICAO                                                                       #
-# Objective:                                                                                     #
-#
-# Parameters:                                                                                    #
-#     None                                                                                       #
-# Return:                                                                                        #
-#     None                                                                                       #
+# FUNCTION GATHER PREDICTS HYBRID PARTITIONS                                                     #
+#   Objective                                                                                    #
+#      From the file "test.pred.arff", separates the real labels and the predicted labels to     # 
+#      generate the confusion matrix to evaluate the partition.                                  #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       FolderHybrid: path of hybrid partition results                                           #
+#   Return                                                                                       #
+#       true labels and predicts labels                                                          #
 ##################################################################################################
-gatherPredsHybPart <- function(ds, dataset_name, FolderHybPart){
+gatherPredsHybPartVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   f = 1
-  gphpParallel <- foreach(f = 1:10) %dopar%{  
+  gPHP3 <- foreach(f = 1:number_folds) %dopar%{  
+ 
     cat("\n\nSplit: ", f)
     FolderSplitHyb = paste(FolderHybPart, "/Split-", f, sep="")
     cat("\n\t\tFolder: ", FolderSplitHyb)
@@ -85,35 +92,47 @@ gatherPredsHybPart <- function(ds, dataset_name, FolderHybPart){
       p = p + 1
       gc()
     }
-    f = f + 1
+    
     gc()
   }
+  
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO GATHER PREDICTS HYBRID PARTITIONS                                                #")
+  cat("\n# CLUS VALIDATION: END FUNCTION GATHER PREDICTS HYBRID PARTITIONS                                #")
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
 
-
 ##################################################################################################
-# FUNCTION AVALIA PARTICAO                                                                       #
-# Objective:                                                                                     #
-#
-# Parameters:                                                                                    #
-#     None                                                                                       #
-# Return:                                                                                        #
-#     None                                                                                       #
+# FUNCTION EVALUATION HYBRID PARTITIONS                                                          #
+#   Objective                                                                                    #
+#      Evaluates the hybrid partitions                                                           #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       FolderHybrid: path of hybrid partition results                                           #
+#   Return                                                                                       #
+#       Assessment measures for each hybrid partition                                            #
 ##################################################################################################
-evalHybPart <- function(ds, dataset_name, FolderHybPart){
+evalHybPartVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   apagar = c(0)
   confMatPartitions = data.frame(apagar)
   partitions = c()
   
   f = 1
-  evalHybPartParallel <- foreach(f = 1:10) %dopar%{  
+  evalHybPartParallel <- foreach(f = 1:number_folds) %dopar%{  
+    
+    library("mldr")
+    library("utiml")
+    
     cat("\n\nSplit: ", f)
     FolderSplitHyb = paste(FolderHybPart, "/Split-", f, sep="")
     num.part = ds$Labels-1
@@ -156,27 +175,35 @@ evalHybPart <- function(ds, dataset_name, FolderHybPart){
       p = p + 1
       gc()
     }
-    f = f + 1
+    
     gc()
   }
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO EVALUATION HYBRID PARTITIONS                                                     #")
+  cat("\n# CLUS VALIDATION: END FUNCTION EVALUATION HYBRID PARTITIONS                                     #")
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
 
 ##################################################################################################
-# FUNCTION SELECT BEST PARTITION                                                                 #
-#   Objective:                                                                                   #
-#     
-#   Parameters:                                                                                  #
-#      FolderEval = pastas$FolderEval = "/PJ10Fold/Evaluation/DATASET"                           #
-#   Return:                                                                                      #
-#
+# FUNCTION GATHER EVALUATIONS                                                                    #
+#   Objective                                                                                    #
+#       Gather metrics for all folds                                                             #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       FolderHybrid: path of hybrid partition results                                           #
+#   Return                                                                                       #
+#       Assessment measures for all folds                                                        #
 ##################################################################################################
-gatherEvaluations <- function(ds, dataset_name, FolderHybPart){
+gatherEvaluationVAL <- function(ds, dataset_name, number_folds, FolderHybPart){  
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   measures = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
                "macro-F1","macro-precision","macro-recall","margin-loss","micro-AUC","micro-F1",
@@ -184,7 +211,8 @@ gatherEvaluations <- function(ds, dataset_name, FolderHybPart){
                "recall","subset-accuracy","wlp")
   
   f = 1
-  gatheEVParel <- foreach(f = 1:10) %dopar%{  
+  while(f<=number_folds){  
+    
     cat("\n\nSplit: ", f)
     
     apagar = c(0)
@@ -192,6 +220,7 @@ gatherEvaluations <- function(ds, dataset_name, FolderHybPart){
     partitions = c(0)
     
     FolderSplit = paste(FolderHybPart, "/Split-", f, sep="")
+    
     num.part = ds$Labels-1
     
     p = 2
@@ -202,7 +231,8 @@ gatherEvaluations <- function(ds, dataset_name, FolderHybPart){
       FolderPart = paste(FolderSplit, "/Partition-", p, sep="")
       setwd(FolderPart)
       
-      avaliado = data.frame(read.csv("EvaluatedPartition.csv"))
+      str = paste(FolderPart, "/EvaluatedPartition.csv", sep="")
+      avaliado = data.frame(read.csv(str))
       names(avaliado)[1] = "medidas"
       avaliado3 = data.frame(avaliado[,-1])
       avaliado2 = cbind(avaliado2, avaliado3)
@@ -218,28 +248,36 @@ gatherEvaluations <- function(ds, dataset_name, FolderHybPart){
     setwd(FolderSplit)
     write.csv(avaliado2, "EvalPartFold.csv", row.names = FALSE)
     
-    f = f + 1 # incrementa folds
-    gc() # garbage collection
+    f = f + 1
+    gc() 
   } 
+  
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO GATHER EVALUATIONS                                                               #")
+  cat("\n# CLUS VALIDATION: END FUNCTION GATHEER EVALUATIONS                                              #")
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
 
-
 ##################################################################################################
-# FUNCTION SELECT BEST PARTITION                                                                 #
-#   Objective:                                                                                   #
-#     
-#   Parameters:                                                                                  #
-#      FolderEval = pastas$FolderEval = "/PJ10Fold/Evaluation/DATASET"                           #
-#   Return:                                                                                      #
-#
+# FUNCTION GATHER F1 MACRO                                                                       #
+#   Objective                                                                                    #
+#       Get the partitions with the best macro-f1                                                #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       FolderHybrid: path of hybrid partition results                                           #
+#   Return                                                                                       #
+#       Best macro-f1 partitions                                                                 #
 ##################################################################################################
-gatherF1macro <- function(ds, dataset_name, FolderHybPart){
+gF1macroVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
+   
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   measures = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
                "macro-F1","macro-precision","macro-recall","margin-loss","micro-AUC","micro-F1",
@@ -247,15 +285,24 @@ gatherF1macro <- function(ds, dataset_name, FolderHybPart){
                "recall","subset-accuracy","wlp")
   
   split = c(0)
-  nome_particao = c(0)
-  numero_particao = c(0)
+  name.part = c(0)
+  num.part = c(0)
   macroF1 = c(0)
-  F1MacroSummary = data.frame(split, nome_particao, numero_particao, macroF1)
+  F1MacroSummary = data.frame(split, name.part, num.part, macroF1)
   
   f = 1
-  while(f<=10){
+  while(f<=number_folds){
+    
     cat("\n\nSplit: ", f)
     FolderSplit = paste(FolderHybPart, "/Split-", f, sep="")
+    if(dir.exists(FolderSplit)==TRUE){
+      cat("\nexiste")
+      cat("\n", FolderSplit)
+    } else {
+      cat("\nnao existe")
+      cat("\n", FolderSplit)
+    }
+    
     num.part = ds$Labels-1
     
     setwd(FolderSplit)
@@ -271,39 +318,47 @@ gatherF1macro <- function(ds, dataset_name, FolderHybPart){
     bestF1Macro = f1Macro5[1,]
     
     split = f
-    nome_particao = toString(bestF1Macro$particao)
-    numero_particao = as.numeric(str_sub(nome_particao, start = 11))
+    name.part = toString(bestF1Macro$particao)
+    num.part = as.numeric(str_sub(name.part, start = 11))
     macroF1 = as.numeric(bestF1Macro$F1macro)
-    F1MacroSummary = rbind(F1MacroSummary, data.frame(split, nome_particao, numero_particao, macroF1))
+    F1MacroSummary = rbind(F1MacroSummary, data.frame(split, name.part, num.part, macroF1))
     
-    f = f + 1 # incrementa folds
-    gc() # garbage collection
+    f = f + 1 
+    gc() 
   } 
+  
   setwd(FolderHybPart)
   F1MacroSummary = F1MacroSummary[-1,]
   write.csv(F1MacroSummary, "BestF1Macro.csv", row.names = FALSE)
   
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO GATHER F1 MACRO                                                                  #")
+  cat("\n# CLUS VALIDATION: END FUNCTION GATHER F1 MACRO                                                  #")
   cat("\n##################################################################################################")
   cat("\n\n\n\n")  
 }
 
 
 ##################################################################################################
-# FUNCTION AVALIA PARTICAO                                                                       #
-# Objective:                                                                                     #
-#
-# Parameters:                                                                                    #
-#     None                                                                                       #
-# Return:                                                                                        #
-#     None                                                                                       #
+# FUNCTION DELETE HYBRID PARTITION                                                               #
+#   Objective                                                                                    #
+#       deletes all unnecessary files                                                            #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       number_folds: number of folds created                                                    #
+#       FolderHybrid: path of hybrid partition results                                           #
+#   Return                                                                                       #
 ##################################################################################################
-deleteHybPart <- function(ds, FolderHybPart){
+delHybPartVAL <- function(ds, number_folds, FolderHybPart){
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   f = 1
-  apagaVal <- foreach (f = 1:10) %dopar%{
+  apagaVal <- foreach (f = 1:number_folds) %dopar%{
+    
     setwd(FolderHybPart) 
     FolderSplit = paste(FolderHybPart, "/Split-", f, sep="")
     num.part = ds$Labels-1
@@ -329,17 +384,82 @@ deleteHybPart <- function(ds, FolderHybPart){
     setwd(FolderSplit)
     nome = paste(FolderSplit, "/Partition-", ds$Labels, sep="")
     unlink(nome, recursive = TRUE)
-    f = f + 1
+    
     gc()
   }
   
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO DELETE HYBRID PARTITIONS                                                         #")
+  cat("\n# CLUS VALIDATION: END FUNCTION DELETE HYBRID PARTITIONS                                         #")
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
+
+
+
+##################################################################################################
+# FUNCTION CLUS VALIDATION                                                                       #
+#   Objective                                                                                    #
+#       validate and evaluate the hybrid partitions                                              #
+#   Parameters                                                                                   #
+#       dataset_name: name dataset                                                               #
+#       ds: specific dataset information                                                         #
+#       number_folds: number of folds created                                                    #
+#       FolderHybPart: path of hybrid partition validation                                       #
+#   Return                                                                                       #
+#       Predictions, assessment measures and execution time                                      #
+##################################################################################################
+clusValidation <- function(ds, dataset_name, number_folds, FolderHybPart){
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
+  
+  cat("\n################################################################################################")
+  cat("\n# CLUS VALIDATION:                                                                             #")
+  cat("\n################################################################################################")
+  
+  cat("\n################################################################################################")
+  cat("\n# Clus Validation: Gather the Predicts Hybrid Partition                                        #") 
+  timeGPHP = system.time(gatherPredsHybPartVAL(ds, dataset_name, number_folds, FolderHybPart))
+  cat("\n################################################################################################")
+  
+  cat("\n################################################################################################")
+  cat("\n# Clus Validation: Evaluate Hybrid Partitions                                                  #")
+  timeEHP = system.time(evalHybPartVAL(ds, dataset_name, number_folds, FolderHybPart))
+  cat("\n################################################################################################")
+  
+  cat("\n################################################################################################")
+  cat("\n# Clus Validation: Gather Evaluations Hybrid Partitions                                        #")
+  timeGEHP = system.time(gatherEvaluationVAL(ds, dataset_name, number_folds, FolderHybPart))
+  cat("\n################################################################################################")
+  
+  cat("\n################################################################################################")
+  cat("\n# Clus Validation: Gather F1 Macro Hybrid Partitions                                           #")
+  timeGF1 = system.time(gF1macroVAL(ds, dataset_name, number_folds, FolderHybPart))
+  cat("\n################################################################################################")
+  
+  cat("\n################################################################################################")
+  cat("\n# Clus Validation: Gather F1 Macro Hybrid Partitions                                           #")
+  timeDel = system.time(delHybPartVAL(ds, number_folds, FolderHybPart))
+  cat("\n################################################################################################")
+  
+  cat("\n################################################################################################")
+  cat("\n# CLUS HYBRID: Save Runtime                                                                    #")
+  RuntimeTest = rbind(timeGPHP, timeEHP, timeGEHP, timeGF1, timeDel)
+  setwd(FolderHybPart)
+  write.csv(RuntimeTest, "RuntimeValidation.csv")
+  cat("\n################################################################################################")
+  
+  gc()
+  cat("\n################################################################################################")
+  cat("\n# CLUS VALIDATION: END!!!                                                                      #") 
+  cat("\n################################################################################################")
+  cat("\n\n\n\n")
+  
+}
 
 ##################################################################################################
 # Please, any errors, contact us!                                                                #

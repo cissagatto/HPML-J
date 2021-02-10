@@ -1,10 +1,9 @@
-#################################################################################################
-# In-between Global and Local Partitions for Multi-label Classification                          #
+##################################################################################################
+# HPML-J                                                                                         #
 ##################################################################################################
 
 ##################################################################################################
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
-# www.professoracissagatto.com.br                                                                #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
@@ -13,7 +12,6 @@
 
 ##################################################################################################
 # Script 8 - CLUS HYBRID                                                                         #
-# LAST UPDATE: 2020-06-28                                                                        #
 ##################################################################################################
 
 ##################################################################################################
@@ -51,24 +49,35 @@ F1 = data.frame(numero_split, f1Sample, f1Weighted, f1Macro, f1Micro)
 
 
 ##################################################################################################
-# FUNCTION TEST SPLIT                                                                            #
-#   Objective:                                                                                   #
-#     
-#   Parameters:                                                                                  #
-#      FolderHClust: "/PJ10Fold/HClust/DATASET"                                                     #
-#      FolderEvalHybPart = pastas$FolderEvalHybPart = "/PJ10Fold/Evaluation/DATASET"                           #
-#   Return:                                                                                      #
-#
+# FUNCTION MOUNT HYBRID PARTITION                                                                #
+#   Objective                                                                                    #
+#       Mount hybrid partitions to test on clus                                                  #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       FolderHClust: hclust and cutree folder path                                              #
+#       DsFolds: folder dataset                                                                  #
+#       FolderHybPart: path of hybrid partition validation                                       #
+#       FolderHybrid: path of hybrid partition test                                              #
+#   Return                                                                                       #
+#       partitions mounted to test                                                               #
 ##################################################################################################
-mountHybPart <- function(ds, dataset_name, Folder10F, FolderHClust, FolderHybPart, FolderHybrid){
+mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClust, 
+                             FolderHybPart, FolderHybrid){
   
-  FolderTr = paste(Folder10F, "/Tr", sep="")
-  FolderTs = paste(Folder10F, "/Ts", sep="")
-  FolderUtils = paste(FolderRoot, "/Utils", sep="")
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
+  
+  FolderTr = paste(DsFolds, "/Tr", sep="")
+  FolderTs = paste(DsFolds, "/Ts", sep="")
+  FolderUtils = paste(FolderRoot, "/utils", sep="")
   
   # 10 FOLDS
   f = 1
-  mountHybParalel <- foreach(f = 1:10) %dopar% {
+  mountHybParalel <- foreach(f = 1:number_folds) %dopar% {
     cat("\n\nFold: ", f)
     
     library("RWeka")
@@ -81,7 +90,7 @@ mountHybPart <- function(ds, dataset_name, Folder10F, FolderHClust, FolderHybPar
     setwd(FolderHybPart)
     bestPartition = data.frame(read.csv("BestF1Macro.csv"))
     bestPartition2 = bestPartition[f,]
-    particaoEscolhida = bestPartition2$numero_particao
+    particaoEscolhida = bestPartition2$num.part
     cat("\n\tChoose Partition:", particaoEscolhida, "\n")
     
     cat("\nSelect hclust coefficient for", f, "\n")
@@ -101,7 +110,7 @@ mountHybPart <- function(ds, dataset_name, Folder10F, FolderHClust, FolderHybPar
     cat("\nOpen File Config Best Partition for ", f, "\n")
     FolderClusterSplitPart = paste(FolderClusterSplit, "/", metodo_fold, "/Clusters", sep="")
     setwd(FolderClusterSplitPart)
-    nome_arquivo = paste("cluster_", particaoEscolhida, ".csv", sep="")
+    nome_arquivo = paste(FolderClusterSplitPart, "/cluster_", particaoEscolhida, ".csv", sep="")
     configParticao = data.frame(read.csv(nome_arquivo))
     names(configParticao)[1] = "Labels"
     
@@ -156,12 +165,16 @@ mountHybPart <- function(ds, dataset_name, Folder10F, FolderHClust, FolderHybPar
       arg2Tr = nome_arquivo_2
       arg3Tr = paste(inicio, "-", fim, sep="")
       str = paste("java -jar ", FolderUtils, "/R_csv_2_arff.jar ", arg1Tr, " ", arg2Tr, " ", arg3Tr, sep="")
-      system(str)
+      cat("\n")		
+      print(system(str))
+      cat("\n")		
       
       cat("\n\tTRAIN: Verify and correct {0} and {1} ", k , "\n")
       arquivo = paste(FolderHybridFClus, "/", arg2Tr, sep="")
       str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
-      system(str0)
+      cat("\n")
+      print(system(str0))
+      cat("\n")
       
       cat("\n\tTEST: Mount Group: ", k, "\n")
       atributos_ts = arquivo_ts[ds$AttStart:ds$AttEnd]
@@ -182,12 +195,16 @@ mountHybPart <- function(ds, dataset_name, Folder10F, FolderHClust, FolderHybPar
       arg2Ts = nome_arquivo_3
       arg3Ts = paste(inicio, "-", fim, sep="")
       str = paste("java -jar ", FolderUtils, "/R_csv_2_arff.jar ", arg1Ts, " ", arg2Ts, " ", arg3Ts, sep="")
-      system(str)
+      cat("\n")
+      print(system(str))
+      cat("\n")
       
       cat("\n\tTEST: Verify and correct {0} and {1} ", k , "\n")
       arquivo = paste(FolderHybridFClus, "/", arg2Ts, sep="")
       str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
-      system(str0)
+      cat("\n")
+      print(system(str0))
+      cat("\n")
       
       if(inicio == fim){
         cat("\nCreate config file for clus: ", k , "\n")
@@ -222,7 +239,8 @@ mountHybPart <- function(ds, dataset_name, Folder10F, FolderHClust, FolderHybPar
         cat("\nExecute CLUS: ", k , "\n")
         nome_config2 = paste(FolderHybridFClus, "/", nome_config, sep="")
         str = paste("java -jar ", FolderUtils, "/Clus.jar ", nome_config2, sep="")
-        system(str)
+        cat("\n")
+        print(system(str))
         cat("\n")
         
       } else {
@@ -258,10 +276,10 @@ mountHybPart <- function(ds, dataset_name, Folder10F, FolderHClust, FolderHybPar
         cat("\nExecute CLUS: ", k , "\n")
         nome_config2 = paste(FolderHybridFClus, "/", nome_config, sep="")
         str = paste("java -jar ", FolderUtils, "/Clus.jar ", nome_config2, sep="")
-        system(str)
+        cat("\n")
+        print(system(str))
         cat("\n")
       }
-      
       
       um = paste(dataset_name, "-split-", f, "-group-", k, ".model", sep="")
       dois = paste(dataset_name, "-split-", f, "-group-", k, ".s", sep="")
@@ -281,24 +299,41 @@ mountHybPart <- function(ds, dataset_name, Folder10F, FolderHClust, FolderHybPar
       k = k + 1
       gc()
     }
-    f = f + 1
+    
     gc()
   } 
   gc()
   cat("\n##################################################################################################")
-  cat("\n# CLUS HYBRID: FIM DA FUNCAO MOUNT AND EXECUTE CLUS                                              #") 
+  cat("\n# CLUS HYBRID: END OF MOUNT HYBRID PARTITION FOR TEST ON CLUS                                     #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
 
 ##################################################################################################
-#
+# FUNCTION SPLITS PREDCTIONS HYBRIDS                                                             #
+#   Objective                                                                                    #
+#      From the file "test.pred.arff", separates the real labels and the predicted labels to     # 
+#      generate the confusion matrix to evaluate the partition.                                  #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       DsFolds: folder dataset                                                                  #
+#       FolderHybPart: path of hybrid partition validation                                       #
+#       FolderHybrid: path of hybrid partition test                                              #
+#   Return                                                                                       #
+#       true labels and predict labels                                                           #
 ##################################################################################################
-splitsPredictionsHybrid <- function(ds, dataset_name, Folder10F, FolderHybrid, FolderHybPart){
+splitsPredsHybTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHybrid, FolderHybPart){
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   f = 1
-  gfhParalel <- foreach(f = 1:10) %dopar% {
+  gfhParalel <- foreach(f = 1:number_folds) %dopar% {
     cat("\nFold: ", f, "\n")
     
     setwd(FolderHybrid)
@@ -307,7 +342,7 @@ splitsPredictionsHybrid <- function(ds, dataset_name, Folder10F, FolderHybrid, F
     setwd(FolderHybPart)
     bestPartition = data.frame(read.csv("BestF1Macro.csv"))
     bestPartition2 = bestPartition[f,]
-    num.part = bestPartition2$numero_particao
+    num.part = bestPartition2$num.part
     
     g = 1
     while(g<=num.part){
@@ -320,7 +355,7 @@ splitsPredictionsHybrid <- function(ds, dataset_name, Folder10F, FolderHybrid, F
       FolderSplitClusGroup = paste(FolderSplitClus, "/Group-", g, sep="")
       
       setwd(FolderSplitClusGroup)
-      nome = paste(dataset_name, "-split-", f, "-group-", g, ".test.pred.arff", sep="")
+      nome = paste(FolderSplitClusGroup, "/", dataset_name, "-split-", f, "-group-", g, ".test.pred.arff", sep="")
       predicoes = data.frame(read.arff(nome))
       
       ifr = data.frame(read.csv("inicioFimRotulos.csv"))
@@ -373,12 +408,12 @@ splitsPredictionsHybrid <- function(ds, dataset_name, Folder10F, FolderHybrid, F
       g = g + 1
       gc()
     }
-    f = f + 1
+    
     gc()
   }
   gc()
   cat("\n##################################################################################################")
-  cat("\n# CLUS HYBRID: FIM DA FUNCAO SPLIT Y TRUE AND Y PREDICT                                          #") 
+  cat("\n# CLUS HYBRID: END OF FUNCTION SPLIT Y TRUE AND Y PREDICT                                        #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
@@ -386,12 +421,27 @@ splitsPredictionsHybrid <- function(ds, dataset_name, Folder10F, FolderHybrid, F
 
 
 ##################################################################################################
-#
+# FUNCTION GATHER PREDICTS HYBRID                                                                #
+#   Objective                                                                                    #
+#       Joins the real outputs and the predicted outputs in a single file                        #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       FolderHybPart: path of hybrid partition validation                                       #
+#       FolderHybrid: path of hybrid partition test                                              #
+#   Return                                                                                       #
+#       true labels and predict labels                                                           #
 ##################################################################################################
-gatherPredsHybrid <- function(ds, dataset_name, FolderHybrid, FolderHybPart){
+gatherPredsHybTEST <- function(ds, dataset_name, number_folds, FolderHybrid, FolderHybPart){
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   f = 1
-  gaTestParalel <- foreach(f = 1:10) %dopar% {
+  gaTestParalel <- foreach(f = 1:number_folds) %dopar% {
     cat("\nFold: ", f, "\n")
     
     setwd(FolderHybrid)
@@ -400,7 +450,7 @@ gatherPredsHybrid <- function(ds, dataset_name, FolderHybrid, FolderHybPart){
     setwd(FolderHybPart)
     bestPartition = data.frame(read.csv("BestF1Macro.csv"))
     bestPartition2 = bestPartition[f,]
-    num.part = bestPartition2$numero_particao
+    num.part = bestPartition2$num.part
     
     apagar = c(0)
     y_true = data.frame(apagar)
@@ -432,22 +482,35 @@ gatherPredsHybrid <- function(ds, dataset_name, FolderHybrid, FolderHybPart){
     write.csv(y_pred, "y_predict.csv", row.names = FALSE)
     write.csv(y_true, "y_true.csv", row.names = FALSE)
     
-    f = f + 1
+    #f = f + 1
     gc()
   }
   gc()
   cat("\n##################################################################################################")
-  cat("\n# CLUS HYBRID: FIM DA FUNCAO GATHER PREDICTIS                                                    #") 
+  cat("\n# CLUS HYBRID: END OF FUNCTION GATHER PREDICTIS                                                  #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
 
-
 ##################################################################################################
-#
+# FUNCTION EVALUATION HYBRID                                                                     #
+#   Objective                                                                                    #
+#       Evaluation the test                                                                      #
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       FolderHybrid: path of hybrid partition test                                              #
+#   Return                                                                                       #
+#       Assessment measures for each hybrid partition                                            #
 ##################################################################################################
-evalHybrid <- function(ds, dataset_name, FolderHybrid){
+evalHybTEST <- function(ds, dataset_name, number_folds, FolderHybrid){
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   medidas = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
               "macro-F1","macro-precision","macro-recall","margin-loss","micro-AUC","micro-F1",
@@ -457,8 +520,11 @@ evalHybrid <- function(ds, dataset_name, FolderHybrid){
   folds = c("")
   
   f = 1
-  while(f<=10){  
+  while(f<=number_folds){  
     cat("\nFold: ", f, "\n")
+    
+    library("mldr")
+    library("utiml")
     
     setwd(FolderHybrid)
     FolderSplitClus = paste(FolderHybrid, "/Split-", f, sep="")
@@ -516,19 +582,34 @@ evalHybrid <- function(ds, dataset_name, FolderHybrid){
   
   gc()
   cat("\n##################################################################################################")
-  cat("\n# CLUS HYBRID: FIM DA FUNCAO EVALUATE                                                            #") 
+  cat("\n# CLUS HYBRID: END OF FUNCTION EVALUATE                                                          #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
 
+
 ##################################################################################################
-#
+# FUNCTION DELETE HYBRID                                                                         #
+#   Objective                                                                                    #
+#       deletes all unnecessary files                                                            #
+#   Parameters                                                                                   #
+#       dataset_name: name dataset                                                               #
+#       ds: specific dataset information                                                         #
+#       number_folds: number of folds created                                                    #
+#       FolderHybPart: path of hybrid partition validation                                       #
+#       FolderHybrid: path of hybrid partition test                                              #
+#   Return                                                                                       #
 ##################################################################################################
-deleteHybrid <-function(ds, dataset_name, FolderHybrid, FolderHybPart){
+delHybTEST <-function(ds, dataset_name, number_folds, FolderHybrid, FolderHybPart){
+  
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
   f = 1
-  apagaHybrid <- foreach (f = 1:10) %dopar%{
+  apagaHybrid <- foreach (f = 1:number_folds) %dopar%{
     
     cat("\nFold  ", f)
     FolderSplit = paste(FolderHybrid, "/Split-", f, sep="")
@@ -536,7 +617,7 @@ deleteHybrid <-function(ds, dataset_name, FolderHybrid, FolderHybPart){
     setwd(FolderHybPart)
     bestPartition = data.frame(read.csv("BestF1Macro.csv"))
     bestPartition2 = bestPartition[f,]
-    num.part = bestPartition2$numero_particao
+    num.part = bestPartition2$num.part
     
     g = 1
     while(g<=num.part){
@@ -546,45 +627,83 @@ deleteHybrid <-function(ds, dataset_name, FolderHybrid, FolderHybPart){
       g = g + 1
       gc()
     }
-    f = f + 1
+    #f = f + 1
     gc()
   }
   gc()
   cat("\n##################################################################################################")
-  cat("\n# CLUS HYBRID: FIM DA FUNCAO DELETE FILES                                                          #") 
+  cat("\n# CLUS HYBRID: END OF FUNCTION DEELETE FILES                                                     #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
 
-
-clusHybrid <- function(ds, dataset_name, Folder10F, FolderHClust, FolderHybPart, FolderHybrid){
+##################################################################################################
+# FUNCTION CLUS HYBRID                                                                           #
+#   Objective                                                                                    #
+#       Tests and evaluate the hybrid partitions                                                 #
+#   Parameters                                                                                   #
+#       dataset_name: name dataset                                                               #
+#       ds: specific dataset information                                                         #
+#       number_folds: number of folds created                                                    #
+#       FolderHClust: hclust and cutree folder path                                              #
+#       DsFolds: folder dataset                                                                  #
+#       FolderHybPart: path of hybrid partition validation                                       #
+#       FolderHybrid: path of hybrid partition test                                              #
+#   Return                                                                                       #
+#       Predictions, assessment measures and execution time                                      #
+##################################################################################################
+clusHybrid <- function(ds, dataset_name, number_folds, DsFolds, FolderHClust, 
+                       FolderHybPart, FolderHybrid, FolderReports){
   
-  cat("\ CLUS HYBRID: Tests each Splits in the best found partition configuration\n")
+  sf = setFolder()
+  setwd(sf$Folder)
+  FolderRoot = sf$Folder
+  diretorios = directories()
   
-  cat("\n CLUS HYBRID: Set up the Split groups and execute CLUS\n")
-  tempoMonta= system.time(mountHybPart(ds, dataset_name, Folder10F, FolderHClust, FolderHybPart, FolderHybrid))  
+  cat("\n#################################################################################################")
+  cat("\n# CLUS HYBRID: Tests each Splits in the best found partition configuration                     #")
+  cat("\n#################################################################################################")
   
-  cat("\n CLUS HYBRID: Split predictions")
-  tempoSplitPred = system.time(splitsPredictionsHybrid(ds, dataset_name, Folder10F, FolderHybrid, FolderHybPart))  
+  cat("\n################################################################################################")
+  cat("\n# CLUS HYBRID: Set up the Split groups and execute CLUS                                        #")
+  tempoMonta= system.time(mountHybPartTEST(ds, dataset_name, number_folds, DsFolds, FolderHClust, 
+                                           FolderHybPart, FolderHybrid))  
+  cat("\n################################################################################################")
   
-  cat("\n CLUS HYBRID: Joins the real outputs and the predicted outputs in a single file")
-  tempoJuntaPred = system.time(gatherPredsHybrid(ds, dataset_name, FolderHybrid, FolderHybPart))
+  cat("\n################################################################################################")
+  cat("\n# CLUS HYBRID: Split predictions                                                              #")
+  tempoSplitPred = system.time(splitsPredsHybTEST(ds, dataset_name, number_folds, DsFolds, 
+                                                  FolderHybrid, FolderHybPart))  
+  cat("\n################################################################################################")
   
-  cat("\n CLUS HYBRID: Evaluation ")
-  tempoEval = system.time(evalHybrid(ds, dataset_name, FolderHybrid))
+  cat("\n################################################################################################")
+  cat("\n# CLUS HYBRID: Joins the real outputs and the predicted outputs in a single file               #")
+  tempoJuntaPred = system.time(gatherPredsHybTEST(ds, dataset_name, number_folds, FolderHybrid,
+                                                  FolderHybPart))
+  cat("\n################################################################################################")
   
-  cat("\n CLUS HYBRID: Delete ")
-  tempoD = system.time(deleteHybrid(ds, dataset_name, FolderHybrid, FolderHybPart))
+  cat("\n################################################################################################")
+  cat("\n# CLUS HYBRID: Evaluation                                                                     #")
+  tempoEval = system.time(evalHybTEST(ds, dataset_name, number_folds, FolderHybrid))
+  cat("\n################################################################################################")
   
-  cat("\n CLUS HYBRID: Save Runtime")
+  cat("\n################################################################################################")
+  cat("\n# CLUS HYBRID: Delete                                                                         #")
+  tempoD = system.time(delHybTEST(ds, dataset_name,  number_folds, FolderHybrid, FolderHybPart))
+  cat("\n################################################################################################")
+  
+  cat("\n################################################################################################")
+  cat("\n# CLUS HYBRID: Save Runtime                                                                   #")
   RuntimeTest = rbind(tempoMonta, tempoSplitPred, tempoJuntaPred, tempoEval, tempoD)
-  setwd(FolderHybrid)
+  
+  setwd(FolderReports)
   write.csv(RuntimeTest, "RuntimeHybrid.csv")
+  cat("\n################################################################################################")
   
   gc()
-  cat("\n##################################################################################################")
-  cat("\n# CLUS HYBRID: FIM!!!                                                                            #") 
-  cat("\n##################################################################################################")
+  cat("\n################################################################################################")
+  cat("\n# CLUS HYBRID: END!!!                                                                          #") 
+  cat("\n################################################################################################")
   cat("\n\n\n\n")
 }

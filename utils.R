@@ -1,10 +1,13 @@
 ##################################################################################################
-# In-between Global and Local Partitions for Multi-label Classification                          #
+# HPML-J                                                                                         #
+##################################################################################################
+
+##################################################################################################
+# Script 2 - Utilities                                                                           #
 ##################################################################################################
 
 ##################################################################################################
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
-# www.professoracissagatto.com.br                                                                #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
@@ -12,45 +15,49 @@
 ##################################################################################################
 
 ##################################################################################################
-# Script 2 - Utilities                                                                           #
-# LAST UPDATE: 2020-06-28                                                                        #
-##################################################################################################
-
-##################################################################################################
-# FUNCTION SET FOLDER                                                                            #
-#   Objective:                                                                                   #
-#       Set the workspace                                                                        #  
-#   Parameters:                                                                                  #
-#      None                                                                                      #
-#   Return:                                                                                      #
-#      Workspace                                                                                 #
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
 FolderRoot = ""
 if (sistema[1] == "Linux"){
-  FolderRoot = paste("/home/", sistema[7], "/GLPML", sep="")
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
   setwd(FolderRoot)
 } else {
-  FolderRoot = paste("C:/Users/", sistema[7], "/GLPML", sep="")
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
   setwd(FolderRoot)
 }
+setwd(FolderRoot)
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+setwd(FolderScripts)
+
+
+##################################################################################################
+# FUNCTION SET FOLDER                                                                            #
+#   Objective:                                                                                   #
+#       Set the folder path                                                                      #  
+#   Parameters:                                                                                  #
+#      None                                                                                      #
+#   Return:                                                                                      #
+#      The correct path of the root folder                                                       #
+##################################################################################################
 setwd(FolderRoot)
 setFolder <- function(){
   retorno = list()
   sistema = c(Sys.info())
+  
   if (sistema[1] == "Linux"){
-    Folder = paste("/home/", sistema[7], "/GLPML", sep="")
+    Folder = paste("/home/", sistema[7], "/HPML-J", sep="")
     setwd(Folder)
   } else {
-    Folder = paste("C:/Users/", sistema[7], "/GLPML", sep="")
+    Folder = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
     setwd(Folder)
   }
+  
   FolderRoot = Folder
   retorno$sistema = sistema
   retorno$Folder = Folder
   return(retorno)
 }
-
 
 
 ##################################################################################################
@@ -66,8 +73,20 @@ setFolder <- function(){
 directories <- function(){
   
   retorno = list()
-  # folder that have scripts for plot curves roc/aupc
-  folderResults = paste(FolderRoot, "/Results", sep="")
+  
+  #folderReports = paste(FolderRoot, "/reports", sep="")
+  #if(dir.exists(folderReports) == TRUE){
+    #setwd(folderReports)
+    #dirReports = dir(folderReports)
+    #n_Reports = length(folderReports)
+  #} else {
+    #dir.create(folderReports)
+    #setwd(folderReports)
+    #dirReports = dir(folderReports)
+    #n_Reports = length(folderReports)
+  #}
+  
+  folderResults = paste(FolderRoot, "/results", sep="")
   if(dir.exists(folderResults) == TRUE){
     setwd(folderResults)
     dirResults = dir(folderResults)
@@ -79,8 +98,7 @@ directories <- function(){
     n_Results = length(folderResults)
   }
   
-  # folder that have scripts for plot curves roc/aupc
-  folderUtils = paste(FolderRoot, "/Utils", sep="")
+  folderUtils = paste(FolderRoot, "/utils", sep="")
   if(dir.exists(folderUtils) == TRUE){
     setwd(folderUtils)
     dirUtils = dir(folderUtils)
@@ -92,8 +110,7 @@ directories <- function(){
     n_Utils = length(dirUtils)
   }
   
-  # folder where datasets are stored
-  folderDatasets = paste(FolderRoot, "/Datasets", sep="")
+  folderDatasets = paste(FolderRoot, "/datasets", sep="")
   if(dir.exists(folderDatasets) == TRUE){
     setwd(folderDatasets)
     dirDatasets = dir(folderDatasets)
@@ -105,8 +122,7 @@ directories <- function(){
     n_Datasets = length(dirDatasets)
   }
   
-  # folder where originals datasets are stored
-  folderDO = paste(folderDatasets, "/Originals", sep="")
+  folderDO = paste(folderDatasets, "/originals", sep="")
   if(dir.exists(folderDO) == TRUE){
     setwd(folderDO)
     dirDO = dir(folderDO)
@@ -118,30 +134,28 @@ directories <- function(){
     n_DO = length(dirDO)
   }
   
-  # folder where the 10-fold calculated for each dataset will be stored
-  folder10F = paste(folderDatasets, "/10-Folds", sep="")
-  if(dir.exists(folder10F) == TRUE){
-    setwd(folder10F)
-    dir10F = dir(folder10F)
-    n_10F = length(dir10F)
+  folderFolds = paste(folderDatasets, "/folds", sep="")
+  if(dir.exists(folderFolds) == TRUE){
+    setwd(folderFolds)
+    dirFolds = dir(folderFolds)
+    n_Folds = length(dirFolds)
   } else {
-    dir.create(folder10F)
-    setwd(folder10F)
-    dir10F = dir(folder10F)
-    n_10F = length(dir10F)
+    dir.create(folderFolds)
+    setwd(folderFolds)
+    dirFolds = dir(folderFolds)
+    n_Folds = length(dirFolds)
   }
   
-  # folder where the 10-fold calculated for each dataset will be stored
-  folderInfo10F = paste(folderDatasets, "/Info10Folds", sep="")
-  if(dir.exists(folderInfo10F) == TRUE){
-    setwd(folderInfo10F)
-    dirInfo10F = dir(folderInfo10F)
-    n_Info10F = length(dirInfo10F)
+  folderInfoFolds = paste(folderDatasets, "/infoFolds", sep="")
+  if(dir.exists(folderInfoFolds) == TRUE){
+    setwd(folderInfoFolds)
+    dirInfoFolds = dir(folderInfoFolds)
+    n_InfoFolds = length(dirInfoFolds)
   } else {
-    dir.create(folderInfo10F)
-    setwd(folderInfo10F)
-    dirInfo10F = dir(folderInfo10F)
-    n_Info10F = length(dirInfo10F)
+    dir.create(folderInfoFolds)
+    setwd(folderInfoFolds)
+    dirInfoFolds = dir(folderInfoFolds)
+    n_InfoFolds = length(dirInfoFolds)
   }
   
   # return folders
@@ -149,52 +163,57 @@ directories <- function(){
   retorno$folderUtils = folderUtils
   retorno$folderDatasets = folderDatasets
   retorno$folderDO = folderDO
-  retorno$folder10F = folder10F
-  retorno$folderInfo10F = folderInfo10F
+  retorno$folderFolds = folderFolds
+  retorno$folderInfoFolds = folderInfoFolds
   
   # return of folder contents
   retorno$dirResults = dirResults
   retorno$dirUtils = dirUtils
   retorno$dirDatasets = dirDatasets
   retorno$dirDO = dirDO
-  retorno$dir10F = dir10F
-  retorno$dirInfo10F = dirInfo10F
+  retorno$dirFolds = dirFolds
+  retorno$dirInfoFold = dirInfoFolds
   
   # return of the number of objects inside the folder
   retorno$n_Results = n_Results
   retorno$n_Utils = n_Utils
   retorno$n_Datasets = n_Datasets
   retorno$n_DO = n_DO
-  retorno$n_10F = n_10F
-  retorno$n_Info10F = n_Info10F
+  retorno$n_Folds = n_Folds
+  retorno$n_InfoFolds = n_InfoFolds
   
   return(retorno)
   gc()
 }
 
 
-diretorios = directories()
-
+##################################################################################################
+# FUNCTION CREATING FOLDER PRINCIPALS                                                            #
+#   Objective                                                                                    #
+#       Creates the specific folders for the specific dataset                                    #
+#   Parameters                                                                                   #
+#       dataset_name: dataset name. It is used to create the folders.                            #
+#   Return:                                                                                      #
+#      All path directories                                                                      #
+##################################################################################################
 creatingFoldersPrincipals<- function(dataset_name){
   
   diretorios = directories()
   
   retorno = list()
   
-  # folder to store only the labels for each dataset
-  folderDS10F = paste(diretorios$folder10F, "/", dataset_name, sep="")
-  if(dir.exists(folderDS10F) == TRUE){
-    setwd(folderDS10F)
-    dir_DS10F = dir(folderDS10F)
-    n_DS10F = length(dir_DS10F)
+  folderDSFolds = paste(diretorios$folderFolds, "/", dataset_name, sep="")
+  if(dir.exists(folderDSFolds) == TRUE){
+    setwd(folderDSFolds)
+    dir_DSFolds = dir(folderDSFolds)
+    n_DSFolds = length(dir_DSFolds)
   } else {
-    dir.create(folderDS10F)
-    setwd(folderDS10F)
-    dir_DS10F = dir(folderDS10F)
-    n_DS10F = length(dir_DS10F)
+    dir.create(folderDSFolds)
+    setwd(folderDSFolds)
+    dir_DSFolds = dir(folderDSFolds)
+    n_DSFolds = length(dir_DSFolds)
   }
   
-  # folder to store only the labels for each dataset
   folderResDataset = paste(diretorios$folderResults, "/", dataset_name, sep="")
   if(dir.exists(folderResDataset) == TRUE){
     setwd(folderResDataset)
@@ -207,7 +226,18 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_ResDataset = length(dir_ResDataset)
   }
   
-  # Folder to save HCLUST/CUTREE results
+  folderResReports = paste(folderResDataset, "/Reports", sep="")
+  if(dir.exists(folderResReports) == TRUE){
+    setwd(folderResReports)
+    dir_ResReports = dir(folderResReports)
+    n_ResReports = length(dir_ResReports)
+  } else {
+    dir.create(folderResReports)
+    setwd(folderResReports)
+    dir_ResReports = dir(folderResReports)
+    n_ResReports = length(dir_ResReports)
+  }
+  
   folderHClust = paste(folderResDataset, "/HClust", sep="")
   if(dir.exists(folderHClust) == TRUE){
     setwd(folderHClust)
@@ -220,33 +250,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_HClust = length(dir_HClust)
   }
   
-  # folder where the partition files mounted for each FOLD will be stored for later use
-  folderHybPart = paste(folderResDataset, "/HybridPartition", sep="")
-  if(dir.exists(folderHybPart) == TRUE){
-    setwd(folderHybPart)
-    dir_HybPart = dir(folderHybPart)
-    n_HybPart = length(dir_HybPart)
-  } else {
-    dir.create(folderHybPart)
-    setwd(folderHybPart)
-    dir_HybPart = dir(folderHybPart)
-    n_HybPart = length(dir_HybPart)
-  }  
   
-  # folder 
-  folderHybrid = paste(folderResDataset, "/ClusHybrid", sep="")
-  if(dir.exists(folderHybrid) == TRUE){
-    setwd(folderHybrid)
-    dir_Hybrid = dir(folderHybrid)
-    n_Hybrid = length(dir_Hybrid)
-  } else {
-    dir.create(folderHybrid)
-    setwd(folderHybrid)
-    dir_Hybrid = dir(folderHybrid)
-    n_Hybrid = length(dir_Hybrid)
-  }
-  
-  # folder to store config files of each split for execute clus
   folderConfigFiles = paste(folderResDataset, "/ConfigFiles", sep="")
   if(dir.exists(folderConfigFiles) == TRUE){
     setwd(folderConfigFiles)
@@ -259,7 +263,30 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_ConfigFiles = length(dir_ConfigFiles)
   }
   
-  # folder 
+  folderHybPart = paste(folderResDataset, "/HybridPartition", sep="")
+  if(dir.exists(folderHybPart) == TRUE){
+    setwd(folderHybPart)
+    dir_HybPart = dir(folderHybPart)
+    n_HybPart = length(dir_HybPart)
+  } else {
+    dir.create(folderHybPart)
+    setwd(folderHybPart)
+    dir_HybPart = dir(folderHybPart)
+    n_HybPart = length(dir_HybPart)
+  }  
+  
+  folderHybrid = paste(folderResDataset, "/ClusHybrid", sep="")
+  if(dir.exists(folderHybrid) == TRUE){
+    setwd(folderHybrid)
+    dir_Hybrid = dir(folderHybrid)
+    n_Hybrid = length(dir_Hybrid)
+  } else {
+    dir.create(folderHybrid)
+    setwd(folderHybrid)
+    dir_Hybrid = dir(folderHybrid)
+    n_Hybrid = length(dir_Hybrid)
+  }
+  
   folderGlobal = paste(folderResDataset, "/ClusGlobal", sep="")
   if(dir.exists(folderGlobal) == TRUE){
     setwd(folderGlobal)
@@ -272,7 +299,6 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Global = length(dir_Global)
   }
   
-  # folder 
   folderLocal = paste(folderResDataset, "/ClusLocal", sep="")
   if(dir.exists(folderLocal) == TRUE){
     setwd(folderLocal)
@@ -285,21 +311,44 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Local = length(dir_Local)
   }
   
-  # folder 
-  folderBR = paste(folderResDataset, "/BinRel", sep="")
-  if(dir.exists(folderBR) == TRUE){
-    setwd(folderBR)
-    dir_BR = dir(folderBR)
-    n_BR = length(dir_BR)
+  folderRandom1 = paste(folderResDataset, "/ClusRandom_1", sep="")
+  if(dir.exists(folderRandom1) == TRUE){
+    setwd(folderRandom1)
+    dir_Random1 = dir(folderRandom1)
+    n_Random1 = length(dir_Random1)
   } else {
-    dir.create(folderBR)
-    setwd(folderBR)
-    dir_BR = dir(folderBR)
-    n_BR = length(dir_BR)
+    dir.create(folderRandom1)
+    setwd(folderRandom1)
+    dir_Random1 = dir(folderRandom1)
+    n_Random1 = length(dir_Random1)
+  }
+  
+  folderRandom2 = paste(folderResDataset, "/ClusRandom_2", sep="")
+  if(dir.exists(folderRandom2) == TRUE){
+    setwd(folderRandom2)
+    dir_Random2 = dir(folderRandom2)
+    n_Random2 = length(dir_Random2)
+  } else {
+    dir.create(folderRandom2)
+    setwd(folderRandom2)
+    dir_Random2 = dir(folderRandom2)
+    n_Random2 = length(dir_Random2)
+  }
+  
+  folderRandom3 = paste(folderResDataset, "/ClusRandom_3", sep="")
+  if(dir.exists(folderRandom3) == TRUE){
+    setwd(folderRandom3)
+    dir_Random3 = dir(folderRandom3)
+    n_Random3 = length(dir_Random3)
+  } else {
+    dir.create(folderRandom3)
+    setwd(folderRandom3)
+    dir_Random3 = dir(folderRandom3)
+    n_Random3 = length(dir_Random3)
   }
   
   # return folders
-  retorno$folderDS10F = folderDS10F
+  retorno$folderDSFolds = folderDSFolds
   retorno$folderResDataset = folderResDataset
   retorno$folderHClust = folderHClust
   retorno$folderHybPart = folderHybPart
@@ -307,10 +356,13 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$folderLocal = folderLocal
   retorno$folderGlobal = folderGlobal
   retorno$folderHybrid = folderHybrid
-  retorno$folderBR = folderBR
+  retorno$folderRandom1 = folderRandom1
+  retorno$folderRandom2 = folderRandom2
+  retorno$folderRandom3 = folderRandom3
+  retorno$folderReports = folderResReports
   
   # return of folder contents
-  retorno$dir_DS10F = dir_DS10F
+  retorno$dir_DSFolds = dir_DSFolds
   retorno$dir_ResDataset = dir_ResDataset
   retorno$dir_HClust = dir_HClust
   retorno$dir_HybPart = dir_HybPart
@@ -318,34 +370,44 @@ creatingFoldersPrincipals<- function(dataset_name){
   retorno$dir_Local = dir_Local
   retorno$dir_Global = dir_Global
   retorno$dir_Hybrid = dir_Hybrid
-  retorno$dir_BR = dir_BR
+  retorno$dir_Random1 = dir_Random1
+  retorno$dir_Random2 = dir_Random2
+  retorno$dir_Random3 = dir_Random3
+  retorno$dir_ResReports = dir_ResReports 
   
   # return of the number of objects inside the folder
-  retorno$n_DS10F = n_DS10F
+  retorno$n_DSFolds = n_DSFolds
   retorno$n_ResDataset = n_ResDataset
   retorno$n_HClust = n_HClust
   retorno$n_HybPart = n_HybPart
   retorno$n_Local = n_Local
   retorno$n_Global = n_Global
   retorno$n_Hybrid = n_Hybrid
-  retorno$n_BR = n_BR
+  retorno$n_Random1 = n_Random1
+  retorno$n_Random2 = n_Random2
+  retorno$n_Random3 = n_Random3
+  retorno$n_ResReports = n_ResReports
   
   return(retorno)
   
 }
 
+
 ##################################################################################################
 # FUNCTION CONVERT TO ARFF                                                                       #
-# Objective:                                                                                     #
-#
-# Parameters:                                                                                    #
-#
-# Return:                                                                                        #
-# 
+#     Objective                                                                                  #
+#        Convert csv file correctly to arff file                                                 #
+#     Parameters                                                                                 #
+#        arg1: existing csv file name                                                            #
+#        arg 2: name of the arff file to be created                                              #
+#        arg 3: specific number of labels that are part of the file. Example: starts at label    # 
+#        30 and ends at label 50.                                                                #
+#     Return:                                                                                    #
+#        The arff file in the specific folder                                                    #
 ##################################################################################################
 converteArff <- function(arg1, arg2, arg3){  
   str = paste("java -jar ", diretorios$folderUtils, "/R_csv_2_arff.jar ", arg1, " ", arg2, " ", arg3, sep="")
-  system(str)
+  print(system(str))
   cat("\n\n")  
 }
 
@@ -353,22 +415,21 @@ converteArff <- function(arg1, arg2, arg3){
 
 ##################################################################################################
 # FUNCTION CRIA PASTAS CLUS                                                                      #
-# Objective:                                                                                     #
-#
-# Parameters:                                                                                    #
-#     None                                                                                       #
-# Return:                                                                                        #
-#     None                                                                                       #
+#     Objective                                                                                  #
+#       Creates folders to store the clus configuration files for running the global clus        #
+#     Parameters                                                                                 #
+#       dataset_name: dataset name. It is used to create the folders.                            #
+#     Return                                                                                     #
+#       Created folders                                                                          #
 ##################################################################################################
 criaPastasCSC <- function(dataset_name){
   diretorios = directories()
-  #setwd(FolderRoot)
-  # "C:/Users/elain/PJ10Fold/ConfigSplitsClus/DATASET
+  
   Pasta1 = paste(diretorios$folderCSC, "/", dataset_name, sep="")
   dir.create(Pasta1)
   print(Pasta1)
   cat("\n")    
-  # do primeiro fold ate o ultimo --> sao 10 folds
+  
   j = 1
   while(j<=10){
     cat("\n\tFOLD: ", j)
@@ -388,11 +449,11 @@ criaPastasCSC <- function(dataset_name){
 
 ##################################################################################################
 # FUNCTION INFO DATA SET                                                                         #
-# Objective:                                                                                     #
+#  Objective                                                                                     #
 #     Gets the information that is in the "datsets.csv" file.                                    #  
-# Parameters:                                                                                    #
+#  Parameters                                                                                    #
 #     dataset: the specific dataset                                                              #
-# Return:                                                                                        #
+#  Return                                                                                        #
 #     Everything in the spreadsheet                                                              #
 ##################################################################################################
 infoDataSet <- function(dataset){
@@ -422,11 +483,11 @@ infoDataSet <- function(dataset){
 
 ##################################################################################################
 # FUNCTION ADD CSV                                                                               #
-# Objective:                                                                                     #
+#   Objective                                                                                    #
 #     Add ".csv" in the file name                                                                #
-# Parameters:                                                                                    #
+#   Parameters                                                                                   #
 #     fileNames: a vector with file names                                                        #
-# Return:                                                                                        #
+#   Return                                                                                       #
 #     filenames: filename with ".csv"                                                            #
 ##################################################################################################
 AddCSV <- function(filenames){
@@ -443,11 +504,11 @@ AddCSV <- function(filenames){
 
 ##################################################################################################
 # FUNCTION REMOVE CSV                                                                            #
-# Objective:                                                                                     #
+#   Objective                                                                                    #
 #     Remove ".csv" from the file name                                                           #
-# Parameters:                                                                                    #
+#   Parameters                                                                                   #
 #     fileNames: a vector with file names                                                        #
-# Return:                                                                                        #
+#   Return                                                                                       #
 #     folderNames: a vector with folder names whithout ".csv"                                    #
 ##################################################################################################
 RemoveCSV <- function(filenames){
@@ -466,11 +527,11 @@ RemoveCSV <- function(filenames){
 
 ##################################################################################################
 # FUNCTION REMOVE ARFF                                                                           #
-# Objective:                                                                                     #
+#   Objective                                                                                    #
 #     Remove ".arff" from the file name                                                          #
-# Parameters:                                                                                    #
+#   Parameters                                                                                   #
 #     fileNames: a vector with file names                                                        #
-# Return:                                                                                        #
+#   Return                                                                                       #
 #     folderNames: a vector with folder names without ".arff"                                    #
 ##################################################################################################
 RemoveARFF <- function(filenames){

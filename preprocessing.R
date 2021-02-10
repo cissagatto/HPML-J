@@ -1,10 +1,9 @@
 ##################################################################################################
-# In-between Global and Local Partitions for Multi-label Classification                          #
+# HPML-J                                                                                         #
 ##################################################################################################
 
 ##################################################################################################
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
-# www.professoracissagatto.com.br                                                                #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
@@ -12,24 +11,30 @@
 ##################################################################################################
 
 ##################################################################################################
-# Script 4 - Pre Processing                                                                      #
-# LAST UPDATE: 2020-06-28                                                                        #
+# Script 3 - Preprocessing                                                                      #
 ##################################################################################################
 
 ##################################################################################################
-# Workspace configuration                                                                        #
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
-diretorios = directories()
+sistema = c(Sys.info())
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  setwd(FolderRoot)
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  setwd(FolderRoot)
+}
+setwd(FolderRoot)
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+setwd(FolderScripts)
 
 
 ##################################################################################################
 # Scientific notation setup                                                                      #
 ##################################################################################################
 options(scipen=30)
-
 
 ##################################################################################################
 # DATA FRAMES                                                                                    #
@@ -55,14 +60,16 @@ informacoesDatasets = data.frame(nomeDataset, num.attributes, num.instances, num
 
 ##################################################################################################
 # FUNCTION CROSS VALIDATION                                                                      #
-#   Objective:                                                                                   #
-#                                                                                                #  
-#   Parameters:                                                                                  #
-#
-#   Return:                                                                                      #
-#                                                                                                #
+#   Objective                                                                                    #
+#      Creates the folds of the cross validation                                                 #  
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds to be created                                              #
+#   Return                                                                                       #
+#       k-folds test, train and validation                                                       #
 ##################################################################################################
-crossValidation <- function(ds, dataset_name){ 
+crossValidation <- function(ds, dataset_name, number_folds){ 
   
   sf = setFolder()
   FolderRoot = sf$Folder
@@ -71,7 +78,7 @@ crossValidation <- function(ds, dataset_name){
   diretorios = directories()
   
   # creates the folder to store the 10-fold files
-  FolderCV = paste(diretorios$folder10F, "/", dataset_name, sep="")
+  FolderCV = paste(diretorios$folderFolds, "/", dataset_name, sep="")
   if(dir.exists(FolderCV)==TRUE){
     cat("\n")
   } else {
@@ -114,7 +121,7 @@ crossValidation <- function(ds, dataset_name){
   
   cat("\nCreates folds for cross-validation\n")
   set.seed(1234)
-  cvdata <- create_kfold_partition(arquivo, 10, "iterative")
+  cvdata <- create_kfold_partition(arquivo, number_folds, "iterative")
   cvDataFolds = cvdata$fold
   
   cat("\nSaves cross validation in RDS format\n")
@@ -123,7 +130,7 @@ crossValidation <- function(ds, dataset_name){
   
   # from the first fold to the last
   i = 1
-  while(i<=10){
+  while(i<=number_folds){
     
     cat("\nFOLD ", i)
     
@@ -131,7 +138,7 @@ crossValidation <- function(ds, dataset_name){
     FoldSpecific = partition_fold(cvdata, i, has.validation = TRUE)
     
     #########################################################
-    cat("\n\tTrain ", i, "\n")
+    cat("\n\tTRAIN ", i, "\n")
     setwd(FolderTr)
     
     inicio = ds$LabelStart
@@ -158,7 +165,7 @@ crossValidation <- function(ds, dataset_name){
     cat("\n\t\tTRAIN: Verify and correct {0} and {1}\n")
     arquivo = paste(FolderTr, "/", str_arff_treino, sep="")
     str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
-    system(str0)
+    print(system(str0))
     
     cat("\n\t\tTRAIN: saves measurement information from FOLD")
     str_t3 = paste(dataset_name, "-Split-Tr-", i, sep="")
@@ -167,7 +174,7 @@ crossValidation <- function(ds, dataset_name){
     
     
     #########################################################
-    cat("\n\tTest ", i, "\n")
+    cat("\n\tTEST ", i, "\n")
     setwd(FolderTs)
     
     cat("\n\t\tTEST: separates the measurements and the testing FOLD\n")
@@ -191,7 +198,7 @@ crossValidation <- function(ds, dataset_name){
     cat("\n\t\tTEST: Verify and correct {0} and {1}\n")
     arquivo = paste(FolderTs, "/", str_arff_teste, sep="")
     str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
-    system(str0)
+    print(system(str0))
     
     cat("\n\t\tTEST: saves measurement information from FOLD\n")
     str_t7 = paste(dataset_name, "-Split-Ts-", i, sep="")
@@ -199,7 +206,7 @@ crossValidation <- function(ds, dataset_name){
     medidasTs = cbind(nomeDataset, data.frame(FoldSpecific$test$measures))
     
     #########################################################
-    cat("\n\tValidation ", i, "\n")
+    cat("\n\tVALIDATION ", i, "\n")
     setwd(FolderVl)
     
     cat("\n\t\tVALIDATION: separates the measurements and the testing FOLD\n")
@@ -214,7 +221,7 @@ crossValidation <- function(ds, dataset_name){
     write.csv(val_ds, str_csv_val, row.names = FALSE)
     
     cat("\n\t\tVALIDATION: Convert, and save, CSV to ARFF\n")
-    str_arff_val = paste(dataset_name, "-Split-Ts-", i, ".arff", sep="")
+    str_arff_val = paste(dataset_name, "-Split-Vl-", i, ".arff", sep="")
     arg1Tr = str_csv_val
     arg2Tr = str_arff_val
     arg3Tr = paste(inicio, "-", fim, sep="")
@@ -223,7 +230,7 @@ crossValidation <- function(ds, dataset_name){
     cat("\n\t\tVALIDATION: Verify and correct {0} and {1}\n")
     arquivo = paste(FolderVl, "/", str_arff_val, sep="")
     str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
-    system(str0)
+    print(system(str0))
     
     cat("\n\t\tVALIDATION: saves measurement information from FOLD\n")
     str_11 = paste(dataset_name, "-Split-Vl-", i, sep="")
@@ -233,8 +240,8 @@ crossValidation <- function(ds, dataset_name){
     ###########################################################
     cat("\n\t\tSaves measurement information from ALL FOLDS\n")
     informacoesDatasets = rbind(informacoesDatasets, medidasTr, medidasTs, medidasVl)
-    setwd(diretorios$folderInfo10F)
-    ab = paste("Info-10F-", dataset_name, ".csv", sep="")
+    setwd(diretorios$folderInfoFolds)
+    ab = paste("Info-Fold-", dataset_name, ".csv", sep="")
     write.csv(informacoesDatasets, ab, row.names = FALSE)
     
     i = i + 1
@@ -242,7 +249,7 @@ crossValidation <- function(ds, dataset_name){
   }    
   gc()
   cat("\n##################################################################################################")
-  cat("\n# CROSS VALIDATION: END                                                                          #") 
+  cat("\n# FUNCTION CROSS VALIDATION: END                                                                 #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
@@ -250,17 +257,20 @@ crossValidation <- function(ds, dataset_name){
 
 
 ##################################################################################################
-# FUNCTION CROSS VALIDATION                                                                      #
-#   Objective:                                                                                   #
-#                                                                                                #  
-#   Parameters:                                                                                  #
-#
+# FUNCTION VERIFY DATASET                                                                        #
+#   Objective                                                                                    #
+#     Checks the number of instances per label in each fold                                      #  
+#   Parameters                                                                                   #
+#       Folder: folder where the folds are                                                       #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
 #   Return:                                                                                      #
-#                                                                                                #
+#       dataframes with the frequencies of each label for each of the training, test and         # 
+#       validation folds.                                                                        #
 ##################################################################################################
-verificaDataset <- function(Folder, ds, dataset_name){
+verifyDataset <- function(Folder, ds, dataset_name, number_folds){
   
-  #Folder = pastas$folderDS10F
   retorno = list()
   
   FolderTR = paste(Folder, "/Tr", sep="")
@@ -275,7 +285,7 @@ verificaDataset <- function(Folder, ds, dataset_name){
   frequencia = c(0)
   somaTR = data.frame(frequencia)
   f = 1
-  verifyParalelTR <- foreach (f = 1:10) %dopar%{
+  while(f<=number_folds){
     cat("\n\tFold: ", f)
     setwd(FolderTR)
     nome_arquivo = paste(dataset_name, "-Split-Tr-", f, ".csv", sep="")
@@ -287,12 +297,14 @@ verificaDataset <- function(Folder, ds, dataset_name){
     f = f + 1
     gc()
   }
+  somaTR2 = somaTR
+  somaTR3 = somaTR2[,-1]
   
   cat("\nAnalyze test folds")
   frequencia = c(0)
   somaTS = data.frame(frequencia)
   f = 1
-  verifyParalelTS <- foreach (f = 1:10) %dopar%{
+  while(f<=number_folds){
     cat("\n\tFold: ", f)
     setwd(FolderTS)
     nome_arquivo = paste(dataset_name, "-Split-Ts-", f, ".csv", sep="")
@@ -304,35 +316,36 @@ verificaDataset <- function(Folder, ds, dataset_name){
     f = f + 1
     gc()
   }
+  somaTS2 = somaTS
+  somaTS3 = somaTS2[,-1]
   
   cat("\nAnalyze validation folds")
   frequencia = c(0)
   somaVL = data.frame(frequencia)
   f = 1
-  verifyParalelVL <- foreach (f = 1:10) %dopar%{
-    cat("\n\tFold: ", f)
-    setwd(FolderVL)
-    nome_arquivo = paste(dataset_name, "-Split-Vl-", f, ".csv", sep="")
-    dataset = data.frame(read.csv(nome_arquivo))
-    classes = dataset[,ds$LabelStart:ds$LabelEnd]
-    soma = data.frame(apply(classes, 2, sum))
-    names(soma) = paste("Fold-", f, sep="")
-    somaVL = cbind(somaVL, soma)
-    f = f + 1
-    gc()
+  while(f<=number_folds){
+      cat("\n\tFold: ", f)
+      setwd(FolderVL)
+      nome_arquivo = paste(dataset_name, "-Split-Vl-", f, ".csv", sep="")
+      dataset = data.frame(read.csv(nome_arquivo))
+      classes = dataset[,ds$LabelStart:ds$LabelEnd]
+      soma = data.frame(apply(classes, 2, sum))
+      names(soma) = paste("Fold-", f, sep="")
+      somaVL = cbind(somaVL, soma)
+      f = f + 1
+      gc() 
   }
+  somaVL2 = somaVL
+  somaVL3 = somaVL2[,-1]
   
-  somaTR = somaTR[,-1]
-  somaVL = somaVL[,-1]
-  somaTS = somaTS[,-1]
-  
-  retorno$FrequencyTR = somaTR
-  retorno$FrequencyTS = somaTS
-  retorno$FrequencyVL = somaVL
+  retorno$FrequencyTR = somaTR3
+  retorno$FrequencyTS = somaTS3
+  retorno$FrequencyVL = somaVL3
   return(retorno)
+  
   gc()
   cat("\n##################################################################################################")
-  cat("\n# VERIFY DATASET: END                                                                            #") 
+  cat("\n# FUNCTION VERIFY DATASET: END                                                                   #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
@@ -340,22 +353,26 @@ verificaDataset <- function(Folder, ds, dataset_name){
 
 
 ##################################################################################################
-# FUNCTION SPLIT SPACES                                                                          #
-#   Objective:                                                                                   #
-#                                                                                                #  
-#   Parameters:                                                                                  #
-#      None                                                                                      #
+# FUNCTION LABEL SPACE                                                                           #
+#   Objective                                                                                    #
+#       Separates the label space from the rest of the data to be used as input for              # 
+#       calculating correlations                                                                 #                                                                                        
+#   Parameters                                                                                   #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds created                                                    #
+#       Folder: folder where the folds are                                                       #
 #   Return:                                                                                      #
-#                                                                                                #
+#       Training set labels space                                                                #
 ##################################################################################################
-labelSpace <- function(ds, dataset_name, Folder){
-  #Folder = pastas$folderDS10F
+labelSpace <- function(ds, dataset_name, Folder, number_folds){
+  
   retorno = list()
   classes = list()
   
   # from the first FOLD to the last
   k = 1
-  while(k<=10){
+  while(k<=number_folds){
     cat("\n\tFold: ", k)
     setwd(Folder)
     FolderTR = paste(Folder, "/Tr", sep="")
@@ -373,7 +390,7 @@ labelSpace <- function(ds, dataset_name, Folder){
   return(retorno)
   gc()
   cat("\n##################################################################################################")
-  cat("\n# LABEL SPACE: END                                                                               #") 
+  cat("\n# FUNCTION LABEL SPACE: END                                                                      #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }

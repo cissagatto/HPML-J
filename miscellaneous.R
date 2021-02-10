@@ -1,10 +1,9 @@
 ##################################################################################################
-# In-between Global and Local Partitions for Multi-label Classification                          #
+# HPML-J                                                                                         #
 ##################################################################################################
 
 ##################################################################################################
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
-# www.professoracissagatto.com.br                                                                #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
@@ -12,75 +11,92 @@
 ##################################################################################################
 
 ##################################################################################################
-# Script 3 - Miscellaneuous                                                                      #
-# LAST UPDATE: 2020-06-28                                                                        #
+# Script 4 - Miscellaneuous                                                                      #
 ##################################################################################################
 
 ##################################################################################################
-# Workspace configuration                                                                        #
+# SET WORKING DIRECTORY                                                                          #
 ##################################################################################################
 sf = setFolder()
 setwd(sf$Folder)
 FolderRoot = sf$Folder
 diretorios = directories()
 
-
 ##################################################################################################
-#
+# FUNCTION EVALUATE GENERAL                                                                      #
+#   Objective:                                                                                   #
+#       Evaluate Global Partitions                                                               #  
+#   Parameters:                                                                                  #
+#       ds: specific dataset information                                                         #
+#       dataset_name: dataset name. It is used to save files.                                    #
+#       number_folds: number of folds to be created                                              #
+#       Folder: folder where the folds are                                                       #
+#   Return:                                                                                      #
+#       Confusion Matrix                                                                         #
 ##################################################################################################
-avalia <- function(ds, dataset_name, Folder){  
+evaluateGeneral <- function(ds, dataset_name, Folder, number_folds){  
   
   apagar = c(0)
   resConfMatFinal = data.frame(apagar)
   
-  f = 1
-  avaliaParalel <- foreach (f = 1:10) %dopar%{    
-    library("utiml")
-    library("mldr")    
-    cat("\n\nSplit: ", f)    
-    setwd(Folder)
-    FolderSplit = paste(Folder, "/Split-", f, sep="")
-    
-    setwd(FolderSplit)
-    y_pred = data.frame(read.csv("y_predict.csv"))
-    y_true = data.frame(read.csv("y_true.csv"))
-    
-    y_true2 = data.frame(sapply(y_true, function(x) as.numeric(as.character(x))))
-    y_true3 = mldr_from_dataframe(y_true2 , labelIndices = seq(1,ncol(y_true2 )), name = "y_true2")
-    y_pred2 = sapply(y_pred, function(x) as.numeric(as.character(x)))
-    
-    salva3 = paste("ConfMatFold-", f, ".txt", sep="")
-    setwd(FolderSplit)
-    sink(file=salva3, type="output")
-    confmat = multilabel_confusion_matrix(y_true3, y_pred2)
-    print(confmat)
-    sink()
-    
-    resConfMat = multilabel_evaluate(confmat)
-    resConfMat = data.frame(resConfMat)
-    names(resConfMat) = paste("Fold-", f, sep="")
-    setwd(FolderSplit)
-    write.csv(resConfMat, "ResConfMat.csv")    
-    
-    f = f + 1
-    gc()
-  }
+    f = 1
+    avaliaParalel <- foreach (f = 1:number_folds) %dopar%{    
+      library("utiml")
+      library("mldr")    
+      cat("\n\nSplit: ", f)    
+      setwd(Folder)
+      FolderSplit = paste(Folder, "/Split-", f, sep="")
+      
+      setwd(FolderSplit)
+      y_pred = data.frame(read.csv("y_predict.csv"))
+      y_true = data.frame(read.csv("y_true.csv"))
+      
+      y_true2 = data.frame(sapply(y_true, function(x) as.numeric(as.character(x))))
+      y_true3 = mldr_from_dataframe(y_true2 , labelIndices = seq(1,ncol(y_true2 )), name = "y_true2")
+      y_pred2 = sapply(y_pred, function(x) as.numeric(as.character(x)))
+      
+      salva3 = paste("ConfMatFold-", f, ".txt", sep="")
+      setwd(FolderSplit)
+      sink(file=salva3, type="output")
+      confmat = multilabel_confusion_matrix(y_true3, y_pred2)
+      print(confmat)
+      sink()
+      
+      resConfMat = multilabel_evaluate(confmat)
+      resConfMat = data.frame(resConfMat)
+      names(resConfMat) = paste("Fold-", f, sep="")
+      setwd(FolderSplit)
+      write.csv(resConfMat, "ResConfMat.csv")    
+      
+      gc()
+    }
+
+
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO AVALIA MISCELLANEOUS                                                             #") 
+  cat("\n# END OF THE EVALUATION MISCELLANEOUS FUNCTION                                                   #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
 
 ##################################################################################################
-#
+# FUNCTION RESUME RESULTS                                                                        #
+#   Objective                                                                                    #
+#       Summarizes the results                                                                   #  
+#   Parameters                                                                                   #
+#       FolderHClust: path of files generated by HClust and Cutree                               #
+#       FolderHybPart: file path of the generated hybrid partitions                              #
+#       FolderD: specific dataset path                                                           #
+#   Return                                                                                       #
+#       data frame with the results                                                              #
 ##################################################################################################
-resume <- function(FolderHClust, FolderHybPart, FolderD){
+resumeHP <- function(dataset_name, FolderHClust, FolderHybPart, FolderReports){
   retorno = list()
   
   setwd(FolderHClust)
   coeficientes = data.frame(read.csv("BestFoldsCoef.csv"))
+  names(coeficientes) = c("fold", "method", "coefficient")
   
   setwd(FolderHybPart)
   bestPerformance = data.frame(read.csv("BestF1Macro.csv"))
@@ -88,28 +104,65 @@ resume <- function(FolderHClust, FolderHybPart, FolderD){
   resumo = cbind(coeficientes, bestPerformance)
   resumo = resumo[,-4]
   
-  setwd(FolderD)
-  write.csv(resumo, "resumoDataset.csv", row.names = FALSE)
+  setwd(FolderReports)
+  write.csv(resumo, paste(dataset_name, "-summaryHybPart.csv", sep=""), row.names = FALSE)
   
   retorno$Resumo = resumo 
   return(retorno)
+  
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO RESUME                                                                           #") 
+  cat("\n# END OF THE RESUME RESULTS FUNCTION                                                             #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
 
 
+
 ##################################################################################################
-#
+# FUNCTION COMPARE METHODS                                                                       #
+#   Objective                                                                                    #
+#       compares the results between the methods                                                 #
+#   Parameters                                                                                   #
+#       FolderLocal: path of local partition results                                             #
+#       FolderGlobal: global partition results path                                              #
+#       FolderHybrid: path of hybrid partition results                                           #
+#       FolderDataset: specific dataset path                                                     #
+#   Return                                                                                       #
+#       returns a dataframe with the results of all partitions                                   #                                                              #
 ##################################################################################################
-compara <- function(FolderLocal, FolderGlobal, FolderHybrid, FolderBR, FolderDataset, ds, dataset_name){
+compareMethods <- function(dataset_name, FolderRandom1, FolderRandom2, FolderRandom3, FolderLocal, FolderGlobal, 
+                           FolderHybrid, FolderDataset, FolderReports){
+  
+  # FolderRandom1 = folders$folderRandom1
+  # FolderRandom2 = folders$folderRandom2
+  # FolderRandom3 = folders$folderRandom3
+  # FolderLocal = folders$folderLocal
+  # FolderGlobal = folders$folderGlobal
+  # FolderHybrid = folders$folderHybrid
+  # FolderDataset = folders$folderResDataset
+  
   retorno = list()
   
   setwd(FolderHybrid)
   hybrid = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
   names(hybrid) = c("measure", "hybrid")
+  
+  measures = c(hybrid[,1])
+  
+  FolderR1 = paste(FolderRandom1, "/Test", sep="")
+  setwd(FolderR1)
+  randomPart1 = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
+  names(randomPart1) = c("measure", "random1")
+  
+  setwd(FolderRandom2)
+  randomPart2 = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
+  names(randomPart2) = c("measure", "random2")
+  
+  FolderR3 = paste(FolderRandom3, "/Test", sep="")
+  setwd(FolderR3)
+  randomPart3 = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
+  names(randomPart3) = c("measure", "random3")
   
   setwd(FolderLocal)
   localPart = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
@@ -119,22 +172,161 @@ compara <- function(FolderLocal, FolderGlobal, FolderHybrid, FolderBR, FolderDat
   globalPart = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
   names(globalPart) = c("measure", "global")
   
-  setwd(FolderBR)
-  brPart = data.frame(read.csv("SummaryFoldsEvaluated.csv"))
-  names(brPart) = c("measure", "br")
+  Final = cbind(measures, hybrid = hybrid[, 2, drop = FALSE], random1 = randomPart1[, 2, drop = FALSE], 
+                random2 = randomPart2[, 2, drop = FALSE], random3 = randomPart3[, 2, drop = FALSE], 
+                local = localPart[, 2, drop = FALSE], global = globalPart[, 2, drop = FALSE])
   
-  Final = cbind(hybrid, br = brPart$br, local = localPart$local, global = globalPart$global)
-  setwd(FolderDataset)
-  write.csv(Final, "ResultadoFinal.csv", row.names = FALSE)
+  setwd(FolderReports)
+  write.csv(Final, paste(dataset_name, " - ResultsFinal.csv", sep=""), row.names = FALSE)
   
   retorno$Compare = Final
   return(retorno)
+  
   gc()
   cat("\n##################################################################################################")
-  cat("\n# FIM DA FUNCAO COMPARA                                                                          #") 
+  cat("\n# END OF THE COMPARE METHODS FUNCTION                                                            #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
+
+
+
+##################################################################################################
+# FUNCTION DELETE ALL                                                                            #
+#   Objective                                                                                    #
+#       delete all files and folders                                                             #
+#   Parameters                                                                                   #
+#       number_folds: number of folds                                                            #
+#       FolderLocal: path of local partition results                                             #
+#       FolderGlobal: global partition results path                                              #
+#       FolderHybrid: path of test hybrid partition results                                      #
+#       FolderHClust: path of hclust results                                                     #
+#       FolderHybPart: path of validation hybrid partition results                               #
+#       FolderRandom1: path of random partitions version 1                                       #
+#       FolderRandom2: path of random partitions version 2                                       #
+#       FolderDataset: specific dataset path                                                     #
+#   Return                                                                                       #
+#      none                                                                                      #
+##################################################################################################
+deleteAll <- function(number_folds, FolderHybrid, FolderHybPart, FolderHClust, 
+                                     FolderLocal, FolderGlobal, FolderRandom1, FolderRandom2){
+  
+  f = 1
+  daParalel <- foreach (f = 1:number_folds) %dopar%{    
+    
+    Folder1 = paste(FolderHybrid, "/Split-", f, sep="")
+    str1 = paste("rm -r ", Folder1, sep="")
+    print(system(str1))
+    
+    Folder2 = paste(FolderHybPart, "/Split-", f, sep="")
+    str2 = paste("rm -r ", Folder2, sep="")
+    print(system(str2))
+    
+    Folder4 = paste(FolderLocal, "/Split-", f, sep="")
+    str4 = paste("rm -r ", Folder4, sep="")
+    print(system(str4))
+    
+    Folder5 = paste(FolderGlobal, "/Split-", f, sep="")
+    str5 = paste("rm -r ", Folder5, sep="")
+    print(system(str5))
+    
+    Folder6 = paste(FolderRandom1, "/Split-", f, "/Validation", sep="")
+    str6 = paste("rm -r ", Folder6, sep="")
+    print(system(str6))
+    
+    Folder7 = paste(FolderRandom2, "/Split-", f, "/Test", sep="")
+    str7 = paste("rm -r ", Folder7, sep="")
+    print(system(str7))
+    gc()
+    
+    Folder8 = paste(FolderRandom3, "/Split-", f, "/Test", sep="")
+    str8 = paste("rm -r ", Folder8, sep="")
+    print(system(str8))
+    gc()
+    
+  }
+  
+  gc()
+  cat("\n##################################################################################################")
+  cat("\n# END OF THE DELETE ALL FUNCTION                                                                #") 
+  cat("\n##################################################################################################")
+  cat("\n\n\n\n")
+  
+}
+
+
+
+##################################################################################################
+# FUNCTION RESUME PARTITIONS                                                                     #
+#   Objective                                                                                    #
+#       delete all files and folders                                                             #
+#   Parameters                                                                                   #
+#       FolderHybPart: path of validation hybrid partition results                               #
+#       FolderRandom1: path of random partitions version 1                                       #
+#       FolderRandom2: path of random partitions version 2                                       #
+#       FolderDataset: specific dataset path                                                     #
+#       ds: information about the dataset                                                        #
+#       dataset_name: name of the dataset                                                        #
+#   Return                                                                                       #
+#       returns a dataframe with the number of times each partition was chosen by the method     #                                                              #
+##################################################################################################
+resumePartitions <- function(ds, dataset_name, FolderRandom1, FolderRandom2, FolderRandom3,
+                             FolderHybPart, FolderDataset, FolderReports){
+  
+  cat("\nDataset: ", dataset_name)
+  
+  num.partitions = ds$Labels - 2
+  cat("\nNumber of partitions: ", num.partitions)
+  
+  cat("\nRandom1\n")
+  setwd(FolderRandom1)
+  random1 = data.frame(read.csv("BestF1Macro.csv"))
+  names(random1) = c("fold","name.part", "num.part","MaF1")
+  R1 = random1[,3, drop = FALSE]
+  contaR1 = count(R1, vars=R1$num.part)
+  names(contaR1) = c("partition", "R1")
+  names(R1) = "Random1"
+  
+  cat("\nRandom2\n")
+  setwd(FolderRandom2)
+  random2 = data.frame(read.csv("summary_partitions.csv"))
+  R2 = random2[,3, drop = FALSE]
+  contaR2 = count(R2, vars=R2$number_groups)
+  names(contaR2) = c("partition", "R2")
+  names(R2) = "Random2"
+  
+  cat("\nRandom3\n")
+  setwd(FolderRandom3)
+  random3 = data.frame(read.csv("BestF1Macro.csv"))
+  names(random3) = c("fold","name.part", "num.part","MaF1")
+  R3 = random3[,3, drop = FALSE]
+  contaR3 = count(R3, vars=R3$num.part)
+  names(contaR3) = c("partition", "R3")
+  names(R3) = "Random3"
+
+  cat("\nHYBRID\n")
+  setwd(FolderHybPart)
+  hybrid = data.frame(read.csv("BestF1Macro.csv"))
+  names(hybrid) = c("fold","name.part", "num.part","MaF1")
+  H = hybrid[,3, drop = FALSE]
+  contaH = count(H, vars=H$num.part)
+  names(contaH) = c("partition", "H")
+  names(H) = "Hybrid"
+  
+  setwd(FolderReports)
+  write.csv(contaH, paste(dataset_name, "-hp-count-p.csv", sep=""))
+  write.csv(contaR1, paste(dataset_name, "-r1-count-p.csv", sep=""))
+  write.csv(contaR2, paste(dataset_name, "-r2-count-p.csv", sep=""))
+  write.csv(contaR3, paste(dataset_name, "-r3-count-p.csv", sep=""))
+  
+  gc()
+  cat("\n##################################################################################################")
+  cat("\n# END OF THE RESUME PARTITIONS                                                                  #") 
+  cat("\n##################################################################################################")
+  cat("\n\n\n\n")
+  
+}
+
 
 
 ##################################################################################################

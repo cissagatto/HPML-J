@@ -218,7 +218,7 @@
 	11. gatherPartitionsT3(ds, namesLabels, number_folds, FolderRandom3)
 	
 	# delete unecessary files
-	12. deleteRandomFiles3 <- function(ds, namesLabels, number_folds, FolderRandom3)
+	12. deleteRandomFiles3(ds, namesLabels, number_folds, FolderRandom3)
 	
 	# validate and test the random partitions v3
 	13. clusRandom_3(ds, dataset_name, number_folds, namesLabels, FolderDSF, FolderResDataset, FolderRandom3, FolderReports)
@@ -227,11 +227,4 @@
 14. run.R
 
 
-15. hpmlj.R 
-
-
-
-
-
-				   
-
+15. hpmlj.R

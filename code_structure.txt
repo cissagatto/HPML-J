@@ -1,0 +1,237 @@
+1. libraries.R
+
+2. utils.R
+	1. setFolder()
+	2. directories()
+	3. creatingFoldersPrincipals(dataset_name)
+	4. converteArff(arg1, arg2, arg3) 
+	5. criaPastasCSC(dataset_name)
+	6. infoDataSet(dataset)
+	7. AddCSV(filenames)
+	8. RemoveCSV(filenames)
+	9. RemoveARFF(filenames)	
+
+3. preprocessing.R
+	1. crossValidation(ds, dataset_name, number_folds)
+	2. verifyDataset(ds, dataset_name, number_folds, Folder)
+	3. labelSpace(ds, dataset_name, number_folds, Folder)	
+
+4. miscellaneous.R
+	1. evaluateGeneral(ds, dataset_name, number_folds, Folder) 
+	2. resumeHP(dataset_name, FolderHClust, FolderHybPart, FolderReports)
+	3. compareMethods(dataset_name, FolderRandom1, FolderRandom2, FolderRandom3, FolderLocal, FolderGlobal, FolderHybrid, FolderDataset, FolderReports)
+	4. deleteAll(number_folds, FolderHybrid, FolderHybPart, FolderHClust, FolderLocal, FolderGlobal, FolderRandom1, FolderRandom2, FolderRandom3)
+	5. resumePartitions(ds, dataset_name, FolderRandom1, FolderRandom2, FolderRandom3, FolderHybPart, FolderDataset, FolderReports)
+
+5. correlations.R
+	1. computeJaccard(ds, dataset_name, number_folds, namesLabels, resLS, FolderHC)	
+	2. CutreeHClust(ds, dataset_name, number_folds, namesLabels, resLS, FolderHClust)
+	3. bestCoefficient(number_folds, FolderHClust)
+	
+6. partitions.R 
+	1.hybridPartitions(ds, dataset_name, number_folds, DsFolders, FolderHClust, FolderHybPart)  
+
+7. clusValidation.R
+
+	# Gather the Predicts Hybrid Partition	
+	1. gatherPredsHybPartVAL(ds, dataset_name, number_folds, FolderHybPart) 		
+	
+	# Evaluate Hybrid Partitions Validated
+	2. evalHybPartVAL(ds, dataset_name, number_folds, FolderHybPart) 				
+	
+	# Gather Evaluations Hybrid Partitions
+	3. gatherEvaluationVAL(ds, dataset_name, number_folds, FolderHybPart) 			
+	
+	# Gather F1 Macro Hybrid Partitions 
+	4. gF1macroVAL(ds, dataset_name, number_folds, FolderHybPart, FolderReports)	
+	
+	# Delete Files Hybrid Partitions Validated
+	5. delHybPartVAL(ds, number_folds, FolderHybPart) 								
+	
+	# Validate and evaluate Hybrid Partitions Generated
+	6. clusValidation(ds, dataset_name, number_folds, FolderHybPart, FolderReports)	
+
+8. clusHybrid.R 
+
+	# Set up the Split groups and execute CLUS 
+	1. mountHybPartTEST(ds, dataset_name, number_folds, DsFolds, FolderHClust, FolderHybPart, FolderHybrid) 		
+	
+	# Split predictions
+	2. splitsPredsHybTEST(ds, dataset_name, number_folds, DsFolds, FolderHybrid, FolderHybPart) 					
+	
+	# Joins the real outputs and the predicted outputs in a single file
+	3. gatherPredsHybTEST(ds, dataset_name, number_folds, FolderHybrid, FolderHybPart) 								
+	
+	# Evaluation Choosen Hybrid Partition
+	4. evalHybTEST(ds, dataset_name, number_folds, FolderHybrid, FolderReports) 									
+	
+	# Delete Files Hybrid Partitions Tested
+	5. delHybTEST(ds, dataset_name, number_folds, FolderHybrid, FolderHybPart) 										
+	
+	# Test and evaluate Choosen Hybrid Partitions
+	6. clusHybrid(ds, dataset_name, number_folds, DsFolds, FolderHClust, FolderHybPart, FolderHybrid, FolderReports)
+
+9. clusLocal.R	
+
+	# Joins training and test files in a single folder for running the clus
+	1. gatherFilesFoldsLocal(ds, dataset_name, number_folds, FolderCV, FolderLocal)
+	
+	# Split the labels
+	2. splitLabels(ds, dataset_name, namesLabels, number_folds, FolderCV, FolderLocal)
+	
+	# Splits the real outputs and the predicted outputs
+	3. gatherLocalPredicts(ds, dataset_name, number_folds, namesLabels, FolderLocal)
+	
+	# Evaluates Local Partition 
+	4. evaluateLocal(ds, dataset_name, number_folds, Folder)
+	
+	# Gather Evaluated Measures
+	5. gatherEvalLocal(ds, dataset_name, number_folds, Folder, FolderReports)
+	
+	# Test and evaluate the local partitions
+	6. clusLocal(ds, dataset_name, number_folds, namesLabels, FolderCV, FolderLocal, FolderReports)
+
+10. clusGlobal.R
+
+	# Generating the CLUS configuration files for the splits of each dataset
+	1. configFilesClus(ds, dataset_name, number_folds, FolderConfigFiles)
+	
+	# Joins the configuration, training and test files for running the clus
+	2. gatherFilesFoldsGlobal(ds, dataset_name, number_folds, FolderConfigFiles, FolderGlobal)
+	
+	#  Execute CLUS GLOBAL
+	3. executeClusGlobal(ds, dataset_name, number_folds, Folder)
+	
+	# Splits the real outputs and the predicted outputs 
+	4. gatherPredictsGlobal(ds, dataset_name, number_folds, Folder)
+
+	# Evaluates Global Partitions 
+	5. evaluateGlobal(ds, dataset_name, number_folds, FolderGlobal)
+	
+	# Gather Evaluated Measures	
+	6. gatherEvalGlobal(ds, dataset_name, number_folds, Folder, FolderReports)
+	
+	# Delete files
+	7. deleteGlobal(ds, dataset_name, number_folds, FolderGlobal)
+	
+	# Test and evaluate the global partitions
+	8. clusGlobal(ds, dataset_name, number_folds, FolderRD, FolderConfigFiles,FolderGlobal, FolderReports)
+
+
+11. clusRandom1.R
+
+	# VALIDATING RANDOM PARTITIONS V1
+	
+	# generated random partitions v1
+	1. generatedRandomPartitionsVAL(ds, namesLabels, dataset_name, number_folds, FolderRandom)
+	
+	# build and validate random partitions v1
+	2. RandomPartitionsVAL(ds, namesLabels, dataset_name, number_folds, FolderRandom, FolderDSF)
+	
+	# gather predictions random partitions v1
+	3. gatherPredsRandomVAL(ds, dataset_name, number_folds, FolderRandom)
+	
+	# eval random partitions v1
+	4. evalRandomVAL(ds, dataset_name, number_folds, FolderRandom)
+	
+	# gather eval random partitions v1
+	5. gatherEvaluationsVALfunction(ds, dataset_name, number_folds, FolderRandom)
+	 
+	# gather f1 random partitions v1
+	6. gatherF1macroVAL(ds, dataset_name, number_folds, FolderRandom, FolderReports)
+	
+	# TEST BEST RANDOM PARTITIONS V1
+	
+	# test clus random partitions v1
+	7. mountRandomParTEST(ds, dataset_name, number_folds, FolderDSF, FolderRandom)
+	
+	# predictions random partitions v1
+	8. splitsPredictionsRandomTEST(ds, dataset_name, number_folds, FolderDSF, FolderRandom)
+	
+	# gather random predictions v1
+	9. gatherPredsRandomTEST(ds, dataset_name, number_folds, FolderRandom)
+	
+	# evaluation random partitions v1
+	10. evalRandomTEST(ds, dataset_name, number_folds, FolderRandom, FolderReports)
+		
+	# delete files 
+	11. deleteRandomFiles(ds, namesLabels, number_folds, FolderRandom)
+	
+	# validate and test the random partitions v1
+	12. clusRandom_1(ds, dataset_name, number_folds, namesLabels, FolderDSF, FolderResDataset, FolderRandom, FolderReports)
+	
+12. clusRandom2.R
+
+	# generated random partitions v2
+	1. generatedRandomPartitions2(ds, dataset_name, number_folds, namesLabels, FolderRandom)
+	
+	# build and validate partitions v2
+	2. RandomPartitions2(ds, namesLabels, dataset_name, number_folds, FolderRandom, FolderDSF)
+	
+	# gather predictions
+	3. gatherPredsRandom2(ds, dataset_name, number_folds, FolderRandom)
+	
+	# eval random partitions 2
+	4. evalRandom2 <- function(ds, dataset_name, number_folds, FolderRandom)
+	
+	# Validate and test the random partitions v2
+	5. clusRandom_2(ds, namesLabels, dataset_name, number_folds, FolderDSF, FolderResDataset, FolderRandom, FolderReports)
+	
+
+13. clusRandom3.R
+
+	# VALIDATE RANDOM PARTTIONS V3
+	
+	# generated random partitions v3
+	1. generatedRandomPartitionsV3(ds, namesLabels, dataset_name, number_folds, FolderRandom3)
+	
+	# build and validate partitions
+	2. RandomPartitionsV3(ds, namesLabels, dataset_name, number_folds, FolderRandom3, FolderDSF)
+	
+	# gather predictions partitions
+	3. gatherPredsRandomV3(ds, dataset_name, number_folds, FolderRandom3)
+
+	# eval partitions
+	4. evalRandomV3(ds, dataset_name, number_folds, FolderRandom3)
+	
+	# gather eval partitions 
+	5. gatherEvaluationsV3(ds, dataset_name, number_folds, FolderRandom3)
+	
+	# gather f1 partitions
+	6. gatherF1macroV3(ds, dataset_name, number_folds, FolderRandom3, FolderReports)
+	
+	# TEST BEST RANDOM PARTITION 3
+	
+	# test clus
+	7. mountRandomParT3(ds, dataset_name, number_folds, FolderDSF, FolderRandom3)
+	
+	# predictions
+	8. splitsPredictionsRandomT3(ds, dataset_name, number_folds, FolderDSF, FolderRandom3)
+	
+	# gather predictions
+	9. gatherPredsRandomT3(ds, dataset_name, number_folds, FolderRandom3)
+	
+	# evaluation
+	10. evalRandomT3(ds, dataset_name, number_folds, FolderRandom3)
+	
+	# gather partitions 
+	11. gatherPartitionsT3(ds, namesLabels, number_folds, FolderRandom3)
+	
+	# delete unecessary files
+	12. deleteRandomFiles3 <- function(ds, namesLabels, number_folds, FolderRandom3)
+	
+	# validate and test the random partitions v3
+	13. clusRandom_3(ds, dataset_name, number_folds, namesLabels, FolderDSF, FolderResDataset, FolderRandom3, FolderReports)
+	
+
+14. run.R
+
+
+15. hpmlj.R 
+
+
+
+
+
+				   
+

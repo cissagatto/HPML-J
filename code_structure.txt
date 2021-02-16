@@ -225,7 +225,7 @@
 	
 
 14. run.R
-	hpmlj(dataset_number, number_cores, number_folds)
-
+	hpmlj(number_dataset, number_cores, number_folds)
+	
 15. hpmlj.R
 	# Rscript

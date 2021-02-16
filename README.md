@@ -31,7 +31,7 @@ This source code consists of a R project for R Studio and the following R script
 15. hpmlj.R
 
 ## Jars
-Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar and weka.jar. Without this jars the code not runs. 
+Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar and weka.jar. Without these jars the code not runs. 
 
 ## Datasets Folder
 After downloading the dataset you want to use, place it in the */HPML-J/Datasets/Originals* folder. Don't forget that the .xml and .arff files of the respective dataset are needed.

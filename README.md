@@ -50,7 +50,7 @@ The _"Id"_ of the dataset is a mandatory parameter (_n_dataset_) in the command 
 <img src="https://github.com/cissagatto/HPML-J/blob/master/Images/estrutura_hpmj.PNG">
 
 ## Software Requirements
-This code was develop in R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows. The R language version was 4.0.1 (2020-06-06) with x86_64-w64-mingw32 plataform. Please make sure all the dependencies are installed (verify libraries.R).
+This code was develop in R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows. The R language version was 4.0.1 (2020-06-06) with x86_64-w64-mingw32 plataform. Please make sure all the dependencies are installed (verify libraries.R). This code does not provide an installation of libraries.
 
 ## Hardware Requirements
 This code may or may not be executed in parallel, however, it is highly recommended that you run it in parallel. The number of cores can be configured via the command line (_number_cores_). If *number_cores = 1* the code will run sequentially. In our experiments, we used ten cores. For reproducibility, we recommend that you also use ten cores.

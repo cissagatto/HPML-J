@@ -1,13 +1,21 @@
 ##################################################################################################
 # HPML-J                                                                                         #
-##################################################################################################
-
-##################################################################################################
+# Hybrid Partitions for Multi-label Classification version Jaccard                               #
+# Copyright (C) 2021                                                                             #
+#                                                                                                #
+# This program is free software: you can redistribute it and/or modify it under the terms of the #
+# GNU General Public License as published by the Free Software Foundation, either version 3 of   #  
+# the License, or (at your option) any later version. This program is distributed in the hope    #
+# that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    #
+# more details.                                                                                  #     
+#                                                                                                #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
 # Bioinformatics and Machine Learning Group (BIOMAL: http://www.biomal.ufscar.br/)               #
+#                                                                                                #
 ##################################################################################################
 
 ##################################################################################################
@@ -17,7 +25,7 @@
 ##################################################################################################
 # SET WORKING DIRECTORY                                                                          #
 ##################################################################################################
-cat("\nSet Working Directory\n")
+#cat("\nSet Working Directory\n")
 sistema = c(Sys.info())
 FolderRoot = ""
 if (sistema[1] == "Linux"){
@@ -27,7 +35,9 @@ if (sistema[1] == "Linux"){
   FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
   setwd(FolderRoot)
 }
-print(FolderRoot)
+write.table(sistema, "info_sistema.csv")
+#print(FolderRoot)
+
 
 ##################################################################################################
 # ARGS COMMAND LINE                                                                              #
@@ -89,18 +99,17 @@ dataset_name <- toString(ds$Name)
 # to avoid conflicts, before starting to execute the code, it is necessary to delete the         #
 # specific folder from the dataset, if it exists                                                 #
 ##################################################################################################
-
 Folder1 = paste(diretorios$folderResults, "/", dataset_name, sep="") 
 cat("\n", Folder1)
 
-cat("\nCleaning the folder results\n")
-if(dir.exists(Folder1)==TRUE){
-  setwd(Folder1)
-  str10 = paste("rm -r ", dataset_name, sep="")
-  print(system(str10))
-} else {
-  cat("\nNao existe\n")
-}
+#cat("\nCleaning the folder results\n")
+#if(dir.exists(Folder1)==TRUE){
+#  setwd(Folder1)
+#  str10 = paste("rm -r ", dataset_name, sep="")
+#  print(system(str10))
+#} else {
+#  cat("\nNao existe\n")
+#}
 
 ##################################################################################################
 # save output                                                                                    #
@@ -117,10 +126,13 @@ if(dir.exists(Folder1)==TRUE){
 cat("\nExecute HPMLJ\n")
 timeFinal <- system.time(results <- executeHPMLJ(args[1], number_cores, number_folds))
 
+#timeFinal <- system.time(results <- executeHPMLJ(17, number_cores, number_folds))
+
+
 ##################################################################################################
 # save the total time in rds format in the dataset folder                                        #
 ##################################################################################################
-cat("\nSave all runtime\n")
+cat("\nSave Runtime\n")
 str0 <- paste(Folder1, "/", dataset_name, "time-final.rds", sep="")
 str00 <- paste(dataset_name, "time-final.rds", sep="")
 str000 <- paste("HPML-J/Resultados",  str00, sep="")
@@ -132,7 +144,7 @@ save(timeFinal, file = str0)
 ##################################################################################################
 # save results in RDATA form in the dataset folder                                               #
 ##################################################################################################
-cat("\nSave rdata\n")
+cat("\nSave Rdata\n")
 str1 <- paste(Folder1, "/", dataset_name, "-results.RData", sep="")
 str11 <- paste(dataset_name, "-results.RData", sep="")
 str111 <- paste("HPML-J/Resultados",  str11, sep="")
@@ -168,7 +180,7 @@ system(str33)
 ##################################################################################################
 # compress 10-folds for later transfer                                                           #
 ##################################################################################################
-cat("\ncompress datasets\n")
+cat("\nCompress datasets\n")
 Folder3 <- paste(diretorios$folderFolds, "/", dataset_name, sep="") 
 setwd(Folder3)
 str4 <- paste("tar -zcvf ", dataset_name, "-10-folds.tar.gz " , dataset_name, sep="")
@@ -180,6 +192,6 @@ system(str4)
 #sink()
 
 ##################################################################################################
-# Please, any errors, contact us!                                                                #
+# Please, any errors, contact us: elainececiliagatto@gmail.com                                   #
 # Thank you very much!                                                                           #
 ##################################################################################################

@@ -1,14 +1,21 @@
 ##################################################################################################
 # HPML-J                                                                                         #
-##################################################################################################
-
-##################################################################################################
+# Hybrid Partitions for Multi-label Classification version Jaccard                               #
+# Copyright (C) 2021                                                                             #
+#                                                                                                #
+# This program is free software: you can redistribute it and/or modify it under the terms of the #
+# GNU General Public License as published by the Free Software Foundation, either version 3 of   #  
+# the License, or (at your option) any later version. This program is distributed in the hope    #
+# that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    #
+# more details.                                                                                  #     
+#                                                                                                #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
-# www.professoracissagatto.com.br                                                                #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
 # Bioinformatics and Machine Learning Group (BIOMAL: http://www.biomal.ufscar.br/)               #
+#                                                                                                #
 ##################################################################################################
 
 ##################################################################################################
@@ -35,8 +42,7 @@ diretorios = directories()
 #   Return                                                                                       #
 #       configuration partitions                                                                 #
 ##################################################################################################
-generatedRandomPartitions2 <- function(ds, namesLabels, dataset_name,
-                                      FolderRandom, number_folds){
+generatedRandomPartitions2 <- function(ds, dataset_name, number_folds, namesLabels, FolderRandom){
   
   number_groups = c(0)
   fold = c(0)
@@ -44,7 +50,7 @@ generatedRandomPartitions2 <- function(ds, namesLabels, dataset_name,
   
   f = 1
   while(f<=number_folds){
-    cat("\n\n\nFold = ", f)
+    cat("\nFold = ", f)
     
     FolderSplit = paste(FolderRandom, "/Split-", f, sep="")
     if(dir.exists(FolderSplit)==TRUE){
@@ -122,8 +128,7 @@ generatedRandomPartitions2 <- function(ds, namesLabels, dataset_name,
 #   Return                                                                                       #
 #       partitions mounted to test                                                               #
 ##################################################################################################
-RandomPartitions2 <- function(ds, namesLabels, dataset_name, 
-                             FolderRandom, FolderDSF, number_folds){
+RandomPartitions2 <- function(ds, namesLabels, dataset_name, number_folds, FolderRandom, FolderDSF){
   
   sf = setFolder()
   setwd(sf$Folder)
@@ -145,10 +150,10 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
   f = 1  
   randomP <- foreach(f = 1:number_folds) %dopar%{  
     
-    cat("\n\n\nFOLD: ", f)
+    cat("\nFold: ", f)
     
     ############################################################################################################
-    cat("\nLOAD LIBRARY \n")
+    #cat("\nLOAD LIBRARY \n")
     library("stringr")
     library("AggregateR")    
     library("plyr")
@@ -158,7 +163,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
     library("foreign")
     
     ############################################################################################################
-    cat("\nSET WORKSPACE \n")
+    #cat("\nSET WORKSPACE \n")
     sistema = c(Sys.info())
     FolderRoot = ""
     if (sistema[1] == "Linux"){
@@ -183,7 +188,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
     setwd(FolderScripts)
     
     ############################################################################################################
-    cat("\nLOAD FUNCTION CONVERT ARFF \n")
+    #cat("\nLOAD FUNCTION CONVERT ARFF \n")
     converteArff <- function(arg1, arg2, arg3){
       str = paste("java -jar ", folderUtils, "/R_csv_2_arff.jar ", arg1, " ", arg2, " ", arg3, sep="")
       print(system(str))
@@ -208,8 +213,8 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
     nomeTs = paste(dataset_name, "-Split-Ts-", f, ".csv", sep="")  
       
     ####################################################################################
-    cat("\nTOTAL GROUPS < > 1\n")
-    cat("\nSTART MOUNT GROUPS OF LABELS FOR EACH PARTITION\n")
+    #cat("\nTOTAL GROUPS < > 1\n")
+    #cat("\nSTART MOUNT GROUPS OF LABELS FOR EACH PARTITION\n")
     
     ng = summaryPartitions[f,]$number_groups
     
@@ -220,7 +225,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       setwd(FolderSplit)
         
       ############################################################################################################
-      cat("\nLOAD LIBRARY \n")
+      #cat("\nLOAD LIBRARY \n")
       library("stringr")
       library("AggregateR")    
       library("plyr")
@@ -249,7 +254,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       if(dir.exists(FolderGroup)==FALSE){
         dir.create(FolderGroup)
       }
-      cat("\n\n\t", FolderGroup, "\n\n")
+      #cat("\n\n\t", FolderGroup, "\n\n")
       setwd(FolderGroup)
       
       ####################################################################################
@@ -260,13 +265,14 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       grSpecThisPart = a
       totalLabelsThisGr = nrow(a)
       
+      cat("\nTrain File")
       ####################################################################################
-      cat("\nTRAIN: Get the original file\n")
+      #cat("\nTRAIN: Get the original file\n")
       setwd(FolderTr)
       nomeTr2 = paste(FolderTr, "/", nomeTr, sep="")
       
       ####################################################################################
-      cat("\nTRAIN: MOUNT GROUP\n")
+      #cat("\nTRAIN: MOUNT GROUP\n")
       arquivoTr = data.frame(read.csv(nomeTr2), stringsAsFactors = F)
       atributosTr = arquivoTr[ds$AttStart:ds$AttEnd]
       rotulosTr = toString(grSpecThisPart$names.labels)
@@ -274,14 +280,14 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       thisGroupTr = cbind(atributosTr, classesTr)
       
       ####################################################################################
-      cat("\nTRAIN: Save CSV\n")
+      #cat("\nTRAIN: Save CSV\n")
       nomeCsTr = paste("grupo_Tr_", g, ".csv", sep="")
       nomeArTr = paste("grupo_Tr_", g, ".arff", sep="")
       setwd(FolderGroup)
       write.csv(thisGroupTr, nomeCsTr, row.names = FALSE)
       
       ####################################################################################
-      cat("\nTRAIN: Start End Targets\n")
+      #cat("\nTRAIN: Start End Targets\n")
       inicio = ds$LabelStart
       fim = ncol(thisGroupTr)
       ifr = data.frame(inicio, fim)
@@ -289,7 +295,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       write.csv(ifr, "inicioFimRotulos.csv", row.names = FALSE)
       
       ####################################################################################
-      cat("\nTRAIN: Convert CSV to ARFF\n")
+      #cat("\nTRAIN: Convert CSV to ARFF\n")
       setwd(FolderGroup)
       arg1 = paste(FolderGroup, "/", nomeCsTr, sep="")
       arg2 = paste(FolderGroup, "/", nomeArTr, sep="")
@@ -297,19 +303,20 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       converteArff(arg1, arg2, arg3)
       
       ####################################################################################
-      cat("\nTRAIN: Verify and correct {0} and {1}\n")
+      #cat("\nTRAIN: Verify and correct {0} and {1}\n")
       arquivo = paste(FolderGroup, "/", nomeArTr, sep="")
       str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")        
       print(system(str0))
       cat("\n\n")		
       
+      cat("\nTest File")
       ####################################################################################
-      cat("\nTest: Get the file\n")
+      #cat("\nTest: Get the file\n")
       setwd(FolderTs)
       nomeTs2 = paste(FolderTs, "/", nomeTs, sep="")
       
       ####################################################################################
-      cat("\nTEST: MOUNT GROUP\n")
+      #cat("\nTEST: MOUNT GROUP\n")
       arquivoTs = data.frame(read.csv(nomeTs2), stringsAsFactors = F)
       atributosTs = arquivoTs[ds$AttStart:ds$AttEnd]
       rotulosTs = toString(grSpecThisPart$names.labels)
@@ -317,14 +324,14 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       thisGroupTs = cbind(atributosTs, classesTs)
       
       ####################################################################################
-      cat("\nTEST: Save CSV\n")
+      #cat("\nTEST: Save CSV\n")
       nomeCsTs = paste("grupo_Ts_", g, ".csv", sep="")
       nomeArTs = paste("grupo_Ts_", g, ".arff", sep="")
       setwd(FolderGroup)
       write.csv(thisGroupTs, nomeCsTs, row.names = FALSE)
       
       ####################################################################################
-      cat("\nTEST: Convert CSV to ARFF\n")
+      #cat("\nTEST: Convert CSV to ARFF\n")
       setwd(FolderGroup)
       arg1 = paste(FolderGroup, "/", nomeCsTs, sep="")
       arg2 = paste(FolderGroup, "/", nomeArTs, sep="")
@@ -332,7 +339,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       converteArff(arg1, arg2, arg3)
       
       ####################################################################################
-      cat("\nVALIDATION: Verify and correct {0} and {1}\n")
+      #cat("\nVALIDATION: Verify and correct {0} and {1}\n")
       arquivo = paste(FolderGroup, "/", nomeArTs, sep="")
       str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")        
       print(system(str0))
@@ -343,7 +350,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       setwd(FolderGroup)
       nome_config = paste("grupo_", g, ".s", sep="")
       sink(nome_config, type = "output")
-        
+      
       cat("[General]")
       cat("\nCompatibility = MLJ08")
       
@@ -365,6 +372,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       
       cat("\n")
       cat("\n[Tree]")
+      cat("\nHeuristic = VarianceReduction")
       cat("\nFTest = [0.001,0.005,0.01,0.05,0.1,0.125]")
       
       cat("\n")
@@ -385,20 +393,21 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       print(system(str))
       cat("\n\n")				
       
+      
       ####################################################################################
-      cat("\nOpen inicioFimRotulos.csv\n")
+      #cat("\nOpen inicioFimRotulos.csv\n")
       targets = data.frame(read.csv("inicioFimRotulos.csv"))
       
       ####################################################################################
-      cat("\nOpen predictions\n")
+      #cat("\nOpen predictions\n")
       setwd(FolderGroup)
       namae2 = paste(FolderGroup, "/", nome_grupo, ".test.pred.arff", sep="")
-      cat("\n\tNOME DO ARQUIVO:", namae2, "\n")
+      #cat("\n\tNOME DO ARQUIVO:", namae2, "\n")
       
       if(file.exists(namae2)==TRUE){
-        cat("\nO ARQUIVO EXISTE\n")
+        #cat("\nO ARQUIVO EXISTE\n")
       } else {
-        cat("\nO ARQUIVO NÃO EXISTE\n")
+        #cat("\nO ARQUIVO NÃO EXISTE\n")
       }
       
       predicoes = data.frame(read.arff(namae2), use_xml = FALSE)
@@ -408,19 +417,19 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       cat("\n\n")
       
       ####################################################################################
-      cat("\nSPLIT PREDICTIS\n")
+      #cat("\nSPLIT PREDICTIS\n")
       if(targets$inicio == targets$fim){
-        cat("\nOnly one label in this group\n")
+        #cat("\nOnly one label in this group\n")
         
         ####################################################################################
-        cat("\nSave Y_true\n")
+        #cat("\nSave Y_true\n")
         setwd(FolderGroup)
         classes = data.frame(predicoes[,1])
         names(classes) = colnames(predicoes)[1]
         write.csv(classes, "y_true.csv", row.names = FALSE)
         
         ####################################################################################
-        cat("\nSave Y_true\n")
+        #cat("\nSave Y_true\n")
         rot = paste("Pruned.p.", colnames(predicoes)[1], sep="")
         pred = data.frame(predicoes[,rot])
         names(pred) = colnames(predicoes)[1]
@@ -435,17 +444,17 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       } else {
         
         ####################################################################################
-        cat("\nMore than one label in this group\n")
+        #cat("\nMore than one label in this group\n")
         comeco = 1+(targets$fim - targets$inicio)
         
         ####################################################################################
-        cat("\nSave Y_true\n")
+        #cat("\nSave Y_true\n")
         classes = data.frame(predicoes[,1:comeco])
         setwd(FolderGroup)
         write.csv(classes, "y_true.csv", row.names = FALSE)
         
         ####################################################################################
-        cat("\nSave Y_true\n")
+        #cat("\nSave Y_true\n")
         rotulos = c(colnames(classes))
         n_r = length(rotulos)
         nomeColuna = c()
@@ -475,7 +484,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
       unlink(nome3, recursive = TRUE)
       unlink(nome4, recursive = TRUE)
       unlink(nome5, recursive = TRUE)
-      unlink(nome6, recursive = TRUE)
+      #unlink(nome6, recursive = TRUE)
       
       g = g + 1
       gc()
@@ -503,7 +512,7 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name,
 #   Return                                                                                       #
 #       true labels and predicts labels                                                          #
 ##################################################################################################
-gatherPredsRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
+gatherPredsRandom2 <- function(ds, dataset_name, number_folds, FolderRandom){
   
   setwd(FolderRandom)
   summaryPartitions = data.frame(read.csv("summary_partitions.csv"))
@@ -522,7 +531,7 @@ gatherPredsRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
     library("utiml")
     library("foreign")
     
-    cat("\n\nFold: ", f)
+    cat("\nFold: ", f)
     
     FolderSplit = paste(FolderRandom, "/Split-", f, sep="")
     setwd(FolderSplit)
@@ -533,7 +542,7 @@ gatherPredsRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
     
       
       ############################################################################################################
-      cat("\nLOAD LIBRARY \n")
+      #cat("\nLOAD LIBRARY \n")
       library("stringr")
       library("AggregateR")    
       library("plyr")
@@ -546,7 +555,7 @@ gatherPredsRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
       while(g<=ng){
         
         ############################################################################################################
-        cat("\nLOAD LIBRARY \n")
+        #cat("\nLOAD LIBRARY \n")
         library("stringr")
         library("AggregateR")    
         library("plyr")
@@ -555,16 +564,16 @@ gatherPredsRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
         library("utiml")
         library("foreign")
         
-        cat("\n\tGrupo: ", g, "\n")
+        cat("\n\tGrupo: ", g)
         
         FolderGroup = paste(FolderSplit, "/Group-", g, sep="")
         setwd(FolderGroup)
         
-        cat("\nGather y_true ", g, "\n")
+        #cat("\nGather y_true ", g, "\n")
         y_true_gr = data.frame(read.csv("y_true.csv"))
         y_true = cbind(y_true, y_true_gr)
         
-        cat("\nGather y_predict ", g, "\n")
+        #cat("\nGather y_predict ", g, "\n")
         y_pred_gr = data.frame(read.csv("y_predict.csv"))
         y_pred = cbind(y_pred, y_pred_gr)
         
@@ -576,7 +585,7 @@ gatherPredsRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
       gc()
     }
       
-      cat("\nSave files ", g, "\n")
+      #cat("\nSave files ", g, "\n")
       setwd(FolderSplit)
       y_pred = y_pred[,-1]
       y_true = y_true[,-1]
@@ -606,7 +615,7 @@ gatherPredsRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
 #   Return                                                                                       #
 #       Assessment measures for each random partition                                            #
 ##################################################################################################
-evalRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
+evalRandom2 <- function(ds, dataset_name, number_folds, FolderRandom){
   
   medidas = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
               "macro-F1","macro-precision","macro-recall","margin-loss","micro-AUC","micro-F1",
@@ -617,7 +626,7 @@ evalRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
   
   f = 1
   while(f<=number_folds){  
-    cat("\n\nFold: ", f, "\n")
+    cat("\nFold: ", f)
     
     FolderSplit = paste(FolderRandom, "/Split-", f, sep="")
     
@@ -629,7 +638,7 @@ evalRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
     y_true3 = mldr_from_dataframe(y_true2 , labelIndices = seq(1,ncol(y_true2 )), name = "y_true2")
     y_pred2 = sapply(y_pred, function(x) as.numeric(as.character(x)))
     
-    cat("\n\t\tSave Confusion Matrix")
+    #cat("\n\t\tSave Confusion Matrix")
     setwd(FolderSplit)
     salva3 = paste("Conf-Mat-Fold-", f, ".txt", sep="")
     sink(file=salva3, type="output")
@@ -642,7 +651,7 @@ evalRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
     names(confMatPart) = paste("Fold-", f, sep="")      
     namae = paste("EvaluatedPartition.csv", sep="")
     
-    cat("\n\t\tSave Measures this fold")
+    #cat("\n\t\tSave Measures this fold")
     setwd(FolderSplit)
     write.csv(confMatPart, namae)  
     
@@ -655,7 +664,7 @@ evalRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
     gc()
   }
   
-  cat("\n\t\tSave all measures")
+  #cat("\n\t\tSave all measures")
   setwd(FolderRandom)
   write.csv(confMatFinal, "FoldsEvaluated.csv", row.names = FALSE)
   
@@ -671,6 +680,9 @@ evalRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
   
   setwd(FolderRandom)
   write.csv(sumary3, "SummaryFoldsEvaluated.csv", row.names = FALSE)
+  
+  setwd(FolderReports)
+  write.csv(F1MacroSummary, paste(dataset_name, "-BestF1Macro-R2.csv", sep=""), row.names = FALSE)
   
   gc()
   cat("\n\n################################################################################################")
@@ -696,8 +708,7 @@ evalRandom2 <- function(ds, dataset_name, FolderRandom, number_folds){
 #  Return
 #       Predictions, assessment measures and execution time                                      #
 ##################################################################################################
-clusRandom_2 <- function(ds, namesLabels, dataset_name, number_folds, FolderDSF, FolderResDataset,
-                       FolderRandom, FolderReports){
+clusRandom_2 <- function(ds, namesLabels, dataset_name, number_folds, FolderDSF, FolderResDataset, FolderRandom, FolderReports){
   
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2                                                                                  #")
@@ -705,24 +716,22 @@ clusRandom_2 <- function(ds, namesLabels, dataset_name, number_folds, FolderDSF,
   
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2: generated random partitions                                                     #")  
-  timeSplit = system.time(generatedRandomPartitions2(ds, namesLabels, 
-                                              dataset_name, FolderRandom, number_folds))
+  timeSplit = system.time(generatedRandomPartitions2(ds, namesLabels, dataset_name, number_folds, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2: build and validate partitions                                                   #")  
-  timeBuild = system.time(RandomPartitions2(ds, namesLabels, dataset_name, 
-                                              FolderRandom, FolderDSF, number_folds))
+  timeBuild = system.time(RandomPartitions2(ds, namesLabels, dataset_name, number_folds, FolderRandom, FolderDSF))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2: gather predictions                                                              #")  
-  timePreds = system.time(gatherPredsRandom2(ds, dataset_name, FolderRandom, number_folds))
+  timePreds = system.time(gatherPredsRandom2(ds, dataset_name, number_folds, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 2: eval partitions                                                                 #")  
-  timeEval = system.time(evalRandom2(ds, dataset_name, FolderRandom, number_folds))
+  cat("\n# CLUS RANDOM 2: eval random partitions 2                                                        #")  
+  timeEval = system.time(evalRandom2(ds, dataset_name, number_folds, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
@@ -741,3 +750,7 @@ clusRandom_2 <- function(ds, namesLabels, dataset_name, number_folds, FolderDSF,
   
 }
 
+##################################################################################################
+# Please, any errors, contact us: elainececiliagatto@gmail.com                                   #
+# Thank you very much!                                                                           #
+##################################################################################################

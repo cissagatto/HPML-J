@@ -1,13 +1,21 @@
 ##################################################################################################
 # HPML-J                                                                                         #
-##################################################################################################
-
-##################################################################################################
+# Hybrid Partitions for Multi-label Classification version Jaccard                               #
+# Copyright (C) 2021                                                                             #
+#                                                                                                #
+# This program is free software: you can redistribute it and/or modify it under the terms of the #
+# GNU General Public License as published by the Free Software Foundation, either version 3 of   #  
+# the License, or (at your option) any later version. This program is distributed in the hope    #
+# that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    #
+# more details.                                                                                  #     
+#                                                                                                #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
 # Bioinformatics and Machine Learning Group (BIOMAL: http://www.biomal.ufscar.br/)               #
+#                                                                                                #
 ##################################################################################################
 
 ##################################################################################################
@@ -35,54 +43,32 @@ diretorios = directories()
 #   Return                                                                                       #
 #       configurations files                                                                     #
 ##################################################################################################
-configFilesClus <- function(ds, dataset_name, FolderConfigFiles, number_folds){
+configFilesClus <- function(ds, dataset_name, number_folds, FolderConfigFiles){
   
+  # set folder
   sf = setFolder()
   setwd(sf$Folder)
   FolderRoot = sf$Folder
   diretorios = directories()  
   
-  nome_config = c("")  
   setwd(FolderConfigFiles)
   
-    j = 1
-    filesParalel <- foreach (j = 1:number_folds) %dopar%{
+  # from fold = 1 to number_folds
+  j = 1
+  while(j<=number_folds){
       
       cat("\nFold: ", j)    
       setwd(FolderConfigFiles)
       
-      cat("\nCreate file config - ", j)
-      nome_config[j] = paste(dataset_name, "-Split-", j , ".s", sep="")
-      sink(nome_config[j], type = "output")
+      inicio = ds$LabelStart
+      fim = ds$LabelEnd
       
-      cat("[General]")
-      cat("\nCompatibility = MLJ08")
+      sFileName = paste(dataset_name, "-Split-", j , ".s", sep="")
+      trainFileName = paste(dataset_name, "-Split-Tr-", j , ".arff", sep="")
+      testFileName = paste(dataset_name, "-Split-Ts-", j , ".arff", sep="")
+      creatingSFile(ds, inicio, fim, sFileName, trainFileName, testFileName)
       
-      cat("\n\n[Data]")
-      nome_arquivo_2 = paste(dataset_name, "-Split-Tr-", j , ".arff", sep="")
-      cat(paste("\nFile = ", nome_arquivo_2, sep=""))
-      
-      nome_arquivo_3 = paste(dataset_name, "-Split-Ts-", j , ".arff", sep="")
-      cat(paste("\nTestSet = ", nome_arquivo_3, sep=""))
-      
-      cat("\n\n[Attributes]")
-      cat("\nReduceMemoryNominalAttrs = yes")
-      
-      cat("\n\n[Attributes]")
-      cat(paste("\nTarget = ", ds$LabelStart, "-", ds$LabelEnd, sep=""))
-      cat("\nWeights = 1")
-      
-      cat("\n\n[Tree]")
-      cat("\nFTest = [0.001,0.005,0.01,0.05,0.1,0.125]")
-      
-      cat("\n\n[Model]")
-      cat("\nMinimalWeight = 5.0")
-      
-      cat("\n\n[Output]")
-      cat("\nWritePredictions = {Test}")
-      cat("\n")
-      sink()
-      
+      j = j + 1
       gc()
     }
     
@@ -106,20 +92,25 @@ configFilesClus <- function(ds, dataset_name, FolderConfigFiles, number_folds){
 #   Return                                                                                       #
 #       configurations files                                                                     #
 ##################################################################################################
-gatherFilesFoldsGlobal <- function(ds, dataset_name, FolderConfigFiles, FolderGlobal, number_folds){
+gatherFilesFoldsGlobal <- function(ds, dataset_name, number_folds, FolderConfigFiles, FolderGlobal){
   
+  # set folder
   sf = setFolder()
   setwd(sf$Folder)
   FolderRoot = sf$Folder
   diretorios = directories()  
   
+  # specifying folders
   FolderTr = paste(diretorios$folderFolds, "/", dataset_name, "/Tr", sep="")
   FolderTs = paste(diretorios$folderFolds, "/", dataset_name, "/Ts", sep="")   
   
+  # from fold = 1 to number_folds
     s = 1
     foldsParalel <- foreach(s = 1:number_folds) %dopar% {
+      
       cat("\nFold: ", s)
       
+      # specifying folder
       FS = paste(FolderGlobal, "/Split-", s, sep="")
       if(dir.exists(FS)==TRUE){
         cat("\n\tFolderGlobal exists")
@@ -127,10 +118,12 @@ gatherFilesFoldsGlobal <- function(ds, dataset_name, FolderConfigFiles, FolderGl
         dir.create(FS)
       }
       
+      # names files
       nome_tr = paste(dataset_name, "-Split-Tr-", s, ".arff", sep="")
       nome_ts = paste(dataset_name, "-Split-Ts-", s, ".arff", sep="")
       nome_config = paste(dataset_name, "-Split-", s, ".s", sep="")
       
+      # train
       setwd(FolderTr)
       if(file.exists(nome_tr) == TRUE){
         setwd(FolderTr)
@@ -142,6 +135,7 @@ gatherFilesFoldsGlobal <- function(ds, dataset_name, FolderConfigFiles, FolderGl
         cat("\n")
       }
       
+      # test
       setwd(FolderTs)
       if(file.exists(nome_ts) == TRUE){
         setwd(FolderTs)
@@ -153,6 +147,7 @@ gatherFilesFoldsGlobal <- function(ds, dataset_name, FolderConfigFiles, FolderGl
         cat("\n")
       }
       
+      # config files
       setwd(FolderConfigFiles)
       if(file.exists(nome_config) == TRUE){
         setwd(FolderConfigFiles)
@@ -163,7 +158,6 @@ gatherFilesFoldsGlobal <- function(ds, dataset_name, FolderConfigFiles, FolderGl
       } else {
         cat("\n")
       }    
-      #s = s + 1
       gc()
     }
 
@@ -187,15 +181,18 @@ gatherFilesFoldsGlobal <- function(ds, dataset_name, FolderConfigFiles, FolderGl
 #   Return                                                                                       #
 #       configurations files                                                                     #
 ##################################################################################################
-executeClusGlobal <- function(ds, dataset_name, Folder, number_folds){
+executeClusGlobal <- function(ds, dataset_name, number_folds, Folder){
   
+  # set folder
   sf = setFolder()
   setwd(sf$Folder)
   FolderRoot = sf$Folder
   diretorios = directories()  
   
+  # specifying folder
   folderUtils = paste(FolderRoot, "/utils", sep="")
   
+  # from fold = 1 to number_folds
     i = 1
     clusGlobalParalel <- foreach(i = 1:number_folds) %dopar% {
       
@@ -203,17 +200,19 @@ executeClusGlobal <- function(ds, dataset_name, Folder, number_folds){
       library("rJava")
       
       cat("\nFold: ", i)
+      
+      # specifying folders
       FolderSplit = paste(Folder, "/Split-", i, sep="")
       nome_config = paste(FolderSplit, "/", dataset_name, "-Split-", i, ".s", sep="")
-      
+
       cat("\nExecute CLUS\n")
       setwd(FolderSplit)
       str = paste("java -jar ", folderUtils , "/Clus.jar ", nome_config, sep="")
-      
       cat("\n")
       print(system(str))
       cat("\n")
       
+      # delete files
       um = paste(dataset_name, "-Split-", i, ".model", sep="")
       dois = paste(dataset_name, "-Split-", i, ".s", sep="")
       tres = paste(dataset_name, "-Split-Tr-", i, ".arff", sep="")
@@ -221,7 +220,7 @@ executeClusGlobal <- function(ds, dataset_name, Folder, number_folds){
       
       setwd(FolderSplit)
       unlink(um, recursive = TRUE)
-      unlink(dois, recursive = TRUE)
+      #unlink(dois, recursive = TRUE)
       unlink(tres, recursive = TRUE)
       unlink(quatro, recursive = TRUE)
       
@@ -249,19 +248,26 @@ executeClusGlobal <- function(ds, dataset_name, Folder, number_folds){
 #   Return                                                                                       #
 #       true labels and predicts labels                                                          #
 ##################################################################################################
-gatherPredictsGlobal <- function(ds, dataset_name, Folder, number_folds){
+gatherPredictsGlobal <- function(ds, dataset_name, number_folds, Folder){
   
+  # set folder
   sf = setFolder()
   setwd(sf$Folder)
   FolderRoot = sf$Folder
   diretorios = directories()   
   
+  # from fold = 1 to number_folds
     f = 1
     predGlobalParalel <- foreach(f = 1:number_folds) %dopar% {    
+      
       library("foreign")    
+      
       cat("\nFold: ", f)    
+      
+      # specifying folder
       FolderSplit = paste(Folder, "/Split-", f, sep="")    
-      cat("\n\tOpen Test.Pred.Arff ", f)
+      
+      #cat("\n\tOpen Test.Pred.Arff ", f)
       setwd(FolderSplit)    
       nome = paste(FolderSplit, "/", dataset_name, "-Split-" , f, ".test.pred.arff", sep="")
       predicoes = data.frame(read.arff(nome))
@@ -270,7 +276,7 @@ gatherPredictsGlobal <- function(ds, dataset_name, Folder, number_folds){
       fim = ds$LabelEnd
       comeco = 1+(fim - inicio)
       
-      cat("\n\tSave Y_true")
+      # cat("\n\tSave Y_true")
       classes = data.frame(predicoes[,1:comeco])
       write.csv(classes, "y_true.csv", row.names = FALSE)    
       
@@ -284,7 +290,7 @@ gatherPredictsGlobal <- function(ds, dataset_name, Folder, number_folds){
         gc()
       }
       
-      cat("\n\tSave Y_pred")
+      # cat("\n\tSave Y_pred")
       setwd(FolderSplit)
       pred = data.frame(predicoes[nomeColuna])
       names(pred) = rotulos
@@ -314,22 +320,26 @@ gatherPredictsGlobal <- function(ds, dataset_name, Folder, number_folds){
 #   Return                                                                                       #
 #       Assessment measures for each global partition                                            #
 ##################################################################################################
-gatherEvalGlobal <- function(ds, dataset_name, Folder, number_folds){
+gatherEvalGlobal <- function(ds, dataset_name, number_folds, Folder, FolderReports){
   
+  # set folder
   sf = setFolder()
   setwd(sf$Folder)
   FolderRoot = sf$Folder
   diretorios = directories()
   retorno = list()
   
+  # vector with names measures
   medidas = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
               "macro-F1","macro-precision","macro-recall","margin-loss","micro-AUC","micro-F1",
               "micro-precision","micro-recall","mlp","one-error","precision","ranking-loss",
               "recall","subset-accuracy","wlp")
   
+  # dta frame
   confMatFinal = data.frame(medidas)
   folds = c("")
   
+  # from fold = 1 to number_labels
   f = 1
   while(f<= number_folds){
     cat("\nFold: ", f)
@@ -337,17 +347,18 @@ gatherEvalGlobal <- function(ds, dataset_name, Folder, number_folds){
     FolderSplit = paste(Folder, "/Split-", f, sep="")
     setwd(FolderSplit)
     
-    cat("\n\tOpen ResConfMat ", f)
+    #cat("\n\tOpen ResConfMat ", f)
     confMat = data.frame(read.csv(paste(FolderSplit, "/ResConfMat.csv", sep="")))
     names(confMat) = c("Measures", "Fold")
     confMatFinal = cbind(confMatFinal, confMat$Fold) 
     
-    cat("\n\tDelete unecessary files")
+    #cat("\n\tDelete unecessary files")
     setwd(FolderSplit)
     unlink("ResConfMat", recursive = TRUE)
     
     folds[f] = paste("Fold-", f, sep="")
     
+    # delete files
     setwd(FolderSplit)
     unlink("y_predict.csv", recursive = TRUE)
     unlink("y_true.csv", recursive = TRUE)
@@ -356,21 +367,29 @@ gatherEvalGlobal <- function(ds, dataset_name, Folder, number_folds){
     gc()
   } 
   
+  # save measures
   setwd(Folder)
   names(confMatFinal) = c("Measures", folds)
   write.csv(confMatFinal, "FoldsEvaluated.csv", row.names = FALSE)
   
+  # adjust
   confMatFinal2 = data.frame(t(confMatFinal))
   confMatFinal3 = confMatFinal2[-1,]
   colnames(confMatFinal3) = medidas
   teste = data.frame(sapply(confMatFinal3, function(x) as.numeric(as.character(x))))
   
+  # summary
   sumary = apply(teste,2,mean)
   sumary2 = data.frame(sumary)
   sumary3 = cbind(medidas, sumary2)
   names(sumary3) = c("Measures", "Summary")
   write.csv(sumary3, "SummaryFoldsEvaluated.csv", row.names = FALSE)
   
+  # save
+  setwd(FolderReports)
+  write.csv(sumary3, paste(dataset_name, "-SummaryFoldsEvaluated-G.csv", sep=""), row.names = FALSE)
+  
+  # return
   retorno$summaryEvaluation = sumary3
   retorno$foldsEvaluated = confMatFinal
   return(retorno)
@@ -394,13 +413,15 @@ gatherEvalGlobal <- function(ds, dataset_name, Folder, number_folds){
 #       FolderGlobal path of hybrid partition results                                            #
 #   Return                                                                                       #
 ##################################################################################################
-deleteGlobal <-function(ds, dataset_name, FolderGlobal, number_folds){
+deleteGlobal <-function(ds, dataset_name, number_folds, FolderGlobal){
   
+  # set folder
   sf = setFolder()
   setwd(sf$Folder)
   FolderRoot = sf$Folder
   diretorios = directories()
   
+  # from fold = 1 to number_labes
     f = 1
     apagaGlobal <- foreach (f = 1:number_folds) %dopar%{
       cat("\nFold  ", f)
@@ -431,8 +452,7 @@ deleteGlobal <-function(ds, dataset_name, FolderGlobal, number_folds){
 #   Return                                                                                       #
 #       Predictions, assessment measures and execution time                                      #
 ##################################################################################################
-clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFiles,
-                       FolderGlobal, FolderReports){
+clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFiles,FolderGlobal, FolderReports){
   
   sf = setFolder()
   setwd(sf$Folder)
@@ -445,33 +465,32 @@ clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFil
   
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Generating the CLUS configuration files for the splits of each dataset           #")
-  timeConfigFiles = system.time(configFilesClus(ds, dataset_name, FolderConfigFiles, number_folds))
+  timeConfigFiles = system.time(configFilesClus(ds, dataset_name, number_folds, FolderConfigFiles))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Joins the configuration, training and test files for running the clus             #")
-  timeGatherFiles = system.time(gatherFilesFoldsGlobal(ds, dataset_name, FolderConfigFiles, 
-                                                       FolderGlobal, number_folds))
+  timeGatherFiles = system.time(gatherFilesFoldsGlobal(ds, dataset_name, number_folds, FolderConfigFiles, FolderGlobal))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS GLOBAL: Execute CLUS                                                                     #")
-  timeClusGlobal = system.time(executeClusGlobal(ds, dataset_name, FolderGlobal, number_folds))
+  cat("\n# CLUS GLOBAL: Execute CLUS GLOBAL                                                                #")
+  timeClusGlobal = system.time(executeClusGlobal(ds, dataset_name, number_folds, FolderGlobal))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Splits the real outputs and the predicted outputs                                 #")
-  timeGatherPreds = system.time(gatherPredictsGlobal(ds, dataset_name, FolderGlobal, number_folds))
+  timeGatherPreds = system.time(gatherPredictsGlobal(ds, dataset_name, number_folds, FolderGlobal))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS GLOBAL: Evaluates the split classification                                                #")
-  timeEvalGlobal = system.time(evaluateGeneral(ds, dataset_name, FolderGlobal, number_folds))
+  cat("\n# CLUS GLOBAL: Evaluates Global Partitions                                                       #")
+  timeEvalGlobal = system.time(evaluateGlobal(ds, dataset_name, number_folds, FolderGlobal))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Gather Evaluated Measures                                                         #")
-  timeGE = system.time(gatherEvalGlobal(ds, dataset_name, FolderGlobal, number_folds))
+  timeGE = system.time(gatherEvalGlobal(ds, dataset_name, number_folds, Folder, FolderReports))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
@@ -481,8 +500,7 @@ clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFil
   
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Save Runtime                                                                      #")
-  RunTimeGlobal = rbind(timeConfigFiles, timeGatherFiles, timeClusGlobal, timeGatherPreds, 
-                        timeEvalGlobal, timeGE, timeDel)
+  RunTimeGlobal = rbind(timeConfigFiles, timeGatherFiles, timeClusGlobal, timeGatherPreds, timeEvalGlobal, timeGE)
   setwd(FolderReports)
   write.csv(RunTimeGlobal, "RunTimeGlobal.csv")
   cat("\n##################################################################################################")
@@ -496,6 +514,6 @@ clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFil
 
 
 ##################################################################################################
-# Please, any errors, contact us!                                                                #
+# Please, any errors, contact us: elainececiliagatto@gmail.com                                   #
 # Thank you very much!                                                                           #
 ##################################################################################################

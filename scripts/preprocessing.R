@@ -1,17 +1,25 @@
 ##################################################################################################
 # HPML-J                                                                                         #
-##################################################################################################
-
-##################################################################################################
+# Hybrid Partitions for Multi-label Classification version Jaccard                               #
+# Copyright (C) 2021                                                                             #
+#                                                                                                #
+# This code is free software: you can redistribute it and/or modify it under the terms of the    #
+# GNU General Public License as published by the Free Software Foundation, either version 3 of   #  
+# the License, or (at your option) any later version. This code is distributed in the hope       #
+# that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    #
+# more details.                                                                                  #     
+#                                                                                                #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
 # Bioinformatics and Machine Learning Group (BIOMAL: http://www.biomal.ufscar.br/)               #
+#                                                                                                #
 ##################################################################################################
 
 ##################################################################################################
-# Script 3 - Preprocessing                                                                      #
+# Script 3 - Preprocessing                                                                       #
 ##################################################################################################
 
 ##################################################################################################
@@ -71,6 +79,7 @@ informacoesDatasets = data.frame(nomeDataset, num.attributes, num.instances, num
 ##################################################################################################
 crossValidation <- function(ds, dataset_name, number_folds){ 
   
+  # set folder
   sf = setFolder()
   FolderRoot = sf$Folder
   
@@ -109,22 +118,22 @@ crossValidation <- function(ds, dataset_name, number_folds){
     dir.create(FolderVl)  
   }
   
-  cat("\nOpen dataset file with mldr\n")
+  #cat("\nOpen dataset file with mldr\n")
+  library(foreign)
   setwd(diretorios$folderDO)
   arquivo = mldr(dataset_name)
   
-  cat("\nGetting the names labels\n")
-  x = paste(dataset_name, ".arff", sep="")
-  arquivo2 = data.frame(read.arff(x))
-  colnames(arquivo2)
-  nomesRotulos = c(colnames(arquivo2[ds$LabelStart:ds$LabelEnd]))
+  nomesRotulos = c(colnames(arquivo$dataset[ds$LabelStart:ds$LabelEnd]))
   
-  cat("\nCreates folds for cross-validation\n")
+  setwd(diretorios$folderInfoFolds)
+  write.csv(arquivo$measures, paste(dataset_name, "-measures.csv", sep=""))
+  
+  #cat("\nCreates folds for cross-validation\n")
   set.seed(1234)
   cvdata <- create_kfold_partition(arquivo, number_folds, "iterative")
   cvDataFolds = cvdata$fold
   
-  cat("\nSaves cross validation in RDS format\n")
+  #cat("\nSaves cross validation in RDS format\n")
   setwd(FolderCV)
   write_rds(cvdata, "crossvalidation.rds")
   
@@ -138,107 +147,108 @@ crossValidation <- function(ds, dataset_name, number_folds){
     FoldSpecific = partition_fold(cvdata, i, has.validation = TRUE)
     
     #########################################################
-    cat("\n\tTRAIN ", i, "\n")
+    #cat("\n\tTRAIN ", i, "\n")
     setwd(FolderTr)
     
+    # get the start and end column labels
     inicio = ds$LabelStart
     fim = ds$LabelEnd
     
-    cat("\n\t\tTRAIN: separates the measurements and the testing FOLD\n")
+    #cat("\n\t\tTRAIN: separates the measurements and the testing FOLD\n")
     treino_rds = FoldSpecific$train
     treino_ds = FoldSpecific$train$dataset
     treino_ds$.labelcount = NULL
     treino_ds$.SCUMBLE = NULL
     treino_ds = data.frame(treino_ds)
     
-    cat("\n\t\tTRAIN: Save CSV")
+    #cat("\n\t\tTRAIN: Save CSV")
     str_csv_treino = paste(dataset_name, "-Split-Tr-", i, ".csv", sep="")
     write.csv(treino_ds, str_csv_treino, row.names = FALSE)
     
-    cat("\n\t\tTRAIN: Convert, and save, CSV to ARFF")
+    #cat("\n\t\tTRAIN: Convert, and save, CSV to ARFF")
     str_arff_treino = paste(dataset_name, "-Split-Tr-", i, ".arff", sep="")
     arg1Tr = str_csv_treino
     arg2Tr = str_arff_treino
     arg3Tr = paste(inicio, "-", fim, sep="")
     converteArff(arg1Tr, arg2Tr, arg3Tr)
     
-    cat("\n\t\tTRAIN: Verify and correct {0} and {1}\n")
+    #cat("\n\t\tTRAIN: Verify and correct {0} and {1}\n")
     arquivo = paste(FolderTr, "/", str_arff_treino, sep="")
     str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
     print(system(str0))
     
-    cat("\n\t\tTRAIN: saves measurement information from FOLD")
+    #cat("\n\t\tTRAIN: saves measurement information from FOLD")
     str_t3 = paste(dataset_name, "-Split-Tr-", i, sep="")
     nomeDataset = str_t3
     medidasTr = cbind(nomeDataset, data.frame(FoldSpecific$train$measures))
     
     
     #########################################################
-    cat("\n\tTEST ", i, "\n")
+    #cat("\n\tTEST ", i, "\n")
     setwd(FolderTs)
     
-    cat("\n\t\tTEST: separates the measurements and the testing FOLD\n")
+    #cat("\n\t\tTEST: separates the measurements and the testing FOLD\n")
     teste_rds = FoldSpecific$test
     teste_ds = FoldSpecific$test$dataset
     teste_ds$.labelcount = NULL
     teste_ds$.SCUMBLE = NULL
     teste_ds = data.frame(teste_ds)       
     
-    cat("\n\t\tTEST: Save CSV\n")
+    #cat("\n\t\tTEST: Save CSV\n")
     str_csv_teste = paste(dataset_name, "-Split-Ts-", i, ".csv", sep="")
     write.csv(teste_ds, str_csv_teste, row.names = FALSE)
     
-    cat("\n\t\tTEST: Convert, and save, CSV to ARFF\n")
+    #cat("\n\t\tTEST: Convert, and save, CSV to ARFF\n")
     str_arff_teste = paste(dataset_name, "-Split-Ts-", i, ".arff", sep="")
     arg1Tr = str_csv_teste
     arg2Tr = str_arff_teste
     arg3Tr = paste(inicio, "-", fim, sep="")
     converteArff(arg1Tr, arg2Tr, arg3Tr)
     
-    cat("\n\t\tTEST: Verify and correct {0} and {1}\n")
+    #cat("\n\t\tTEST: Verify and correct {0} and {1}\n")
     arquivo = paste(FolderTs, "/", str_arff_teste, sep="")
     str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
     print(system(str0))
     
-    cat("\n\t\tTEST: saves measurement information from FOLD\n")
+    #cat("\n\t\tTEST: saves measurement information from FOLD\n")
     str_t7 = paste(dataset_name, "-Split-Ts-", i, sep="")
     nomeDataset = str_t7
     medidasTs = cbind(nomeDataset, data.frame(FoldSpecific$test$measures))
     
     #########################################################
-    cat("\n\tVALIDATION ", i, "\n")
+    #cat("\n\tVALIDATION ", i, "\n")
     setwd(FolderVl)
     
-    cat("\n\t\tVALIDATION: separates the measurements and the testing FOLD\n")
+    #cat("\n\t\tVALIDATION: separates the measurements and the testing FOLD\n")
     val_rds = FoldSpecific$validation
     val_ds = FoldSpecific$validation$dataset
     val_ds$.labelcount = NULL
     val_ds$.SCUMBLE = NULL
     val_ds = data.frame(val_ds)
     
-    cat("\n\t\tVALIDATION: Save CSV\n")
+    #cat("\n\t\tVALIDATION: Save CSV\n")
     str_csv_val = paste(dataset_name, "-Split-Vl-", i, ".csv", sep="")
     write.csv(val_ds, str_csv_val, row.names = FALSE)
     
-    cat("\n\t\tVALIDATION: Convert, and save, CSV to ARFF\n")
+    #cat("\n\t\tVALIDATION: Convert, and save, CSV to ARFF\n")
     str_arff_val = paste(dataset_name, "-Split-Vl-", i, ".arff", sep="")
     arg1Tr = str_csv_val
     arg2Tr = str_arff_val
     arg3Tr = paste(inicio, "-", fim, sep="")
     converteArff(arg1Tr, arg2Tr, arg3Tr)
     
-    cat("\n\t\tVALIDATION: Verify and correct {0} and {1}\n")
+    #cat("\n\t\tVALIDATION: Verify and correct {0} and {1} in ARFF files\n")
     arquivo = paste(FolderVl, "/", str_arff_val, sep="")
     str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
     print(system(str0))
     
-    cat("\n\t\tVALIDATION: saves measurement information from FOLD\n")
+    #cat("\n\t\tVALIDATION: saves measurement information from FOLD\n")
     str_11 = paste(dataset_name, "-Split-Vl-", i, sep="")
     nomeDataset = str_11
     medidasVl = cbind(nomeDataset, data.frame(FoldSpecific$validation$measures))
     
     ###########################################################
-    cat("\n\t\tSaves measurement information from ALL FOLDS\n")
+    #cat("\n\t\tSaves measurement information from ALL FOLDS\n")
     informacoesDatasets = rbind(informacoesDatasets, medidasTr, medidasTs, medidasVl)
     setwd(diretorios$folderInfoFolds)
     ab = paste("Info-Fold-", dataset_name, ".csv", sep="")
@@ -269,7 +279,7 @@ crossValidation <- function(ds, dataset_name, number_folds){
 #       dataframes with the frequencies of each label for each of the training, test and         # 
 #       validation folds.                                                                        #
 ##################################################################################################
-verifyDataset <- function(Folder, ds, dataset_name, number_folds){
+verifyDataset <- function(ds, dataset_name, number_folds, Folder){
   
   retorno = list()
   
@@ -281,12 +291,12 @@ verifyDataset <- function(Folder, ds, dataset_name, number_folds){
   frequenciaTS = list()
   frequenciaVL = list()
   
-  cat("\nAnalyze train folds")
+  #cat("\nAnalyze train folds")
   frequencia = c(0)
   somaTR = data.frame(frequencia)
   f = 1
   while(f<=number_folds){
-    cat("\n\tFold: ", f)
+    #cat("\n\tFold: ", f)
     setwd(FolderTR)
     nome_arquivo = paste(dataset_name, "-Split-Tr-", f, ".csv", sep="")
     dataset = data.frame(read.csv(nome_arquivo))
@@ -300,12 +310,12 @@ verifyDataset <- function(Folder, ds, dataset_name, number_folds){
   somaTR2 = somaTR
   somaTR3 = somaTR2[,-1]
   
-  cat("\nAnalyze test folds")
+  #cat("\nAnalyze test folds")
   frequencia = c(0)
   somaTS = data.frame(frequencia)
   f = 1
   while(f<=number_folds){
-    cat("\n\tFold: ", f)
+    #cat("\n\tFold: ", f)
     setwd(FolderTS)
     nome_arquivo = paste(dataset_name, "-Split-Ts-", f, ".csv", sep="")
     dataset = data.frame(read.csv(nome_arquivo))
@@ -319,12 +329,12 @@ verifyDataset <- function(Folder, ds, dataset_name, number_folds){
   somaTS2 = somaTS
   somaTS3 = somaTS2[,-1]
   
-  cat("\nAnalyze validation folds")
+  #cat("\nAnalyze validation folds")
   frequencia = c(0)
   somaVL = data.frame(frequencia)
   f = 1
   while(f<=number_folds){
-      cat("\n\tFold: ", f)
+      #cat("\n\tFold: ", f)
       setwd(FolderVL)
       nome_arquivo = paste(dataset_name, "-Split-Vl-", f, ".csv", sep="")
       dataset = data.frame(read.csv(nome_arquivo))
@@ -338,6 +348,7 @@ verifyDataset <- function(Folder, ds, dataset_name, number_folds){
   somaVL2 = somaVL
   somaVL3 = somaVL2[,-1]
   
+  # return values
   retorno$FrequencyTR = somaTR3
   retorno$FrequencyTS = somaTS3
   retorno$FrequencyVL = somaVL3
@@ -365,7 +376,7 @@ verifyDataset <- function(Folder, ds, dataset_name, number_folds){
 #   Return:                                                                                      #
 #       Training set labels space                                                                #
 ##################################################################################################
-labelSpace <- function(ds, dataset_name, Folder, number_folds){
+labelSpace <- function(ds, dataset_name, number_folds, Folder){
   
   retorno = list()
   classes = list()
@@ -373,12 +384,15 @@ labelSpace <- function(ds, dataset_name, Folder, number_folds){
   # from the first FOLD to the last
   k = 1
   while(k<=number_folds){
-    cat("\n\tFold: ", k)
+    #cat("\n\tFold: ", k)
+    # enter folder train
     setwd(Folder)
     FolderTR = paste(Folder, "/Tr", sep="")
     setwd(FolderTR)
+    # get the correct split
     nome_arquivo = paste(dataset_name, "-Split-Tr-", k, ".csv", sep="")
     arquivo = data.frame(read.csv(nome_arquivo))
+    # split label space from input space
     classes[[k]] = arquivo[,ds$LabelStart:ds$LabelEnd]
     namesLabels = c(colnames(classes[[k]]))
     k = k + 1 # increment FOLD
@@ -398,6 +412,6 @@ labelSpace <- function(ds, dataset_name, Folder, number_folds){
 
 
 ##################################################################################################
-# Please, any errors, contact us!                                                                #
+# Please, any errors, contact us: elainececiliagatto@gmail.com                                   #
 # Thank you very much!                                                                           #
 ##################################################################################################

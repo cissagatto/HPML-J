@@ -1,13 +1,21 @@
 ##################################################################################################
 # HPML-J                                                                                         #
-##################################################################################################
-
-##################################################################################################
+# Hybrid Partitions for Multi-label Classification version Jaccard                               #
+# Copyright (C) 2021                                                                             #
+#                                                                                                #
+# This program is free software: you can redistribute it and/or modify it under the terms of the #
+# GNU General Public License as published by the Free Software Foundation, either version 3 of   #  
+# the License, or (at your option) any later version. This program is distributed in the hope    #
+# that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    #
+# more details.                                                                                  #     
+#                                                                                                #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
 # Bioinformatics and Machine Learning Group (BIOMAL: http://www.biomal.ufscar.br/)               #
+#                                                                                                #
 ##################################################################################################
 
 ##################################################################################################
@@ -38,19 +46,22 @@ diretorios = directories()
 #   Return                                                                                       #
 #       files .arff                                                                              #
 ##################################################################################################
-hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHybPart, number_folds){  
+hybridPartitions <- function(ds, dataset_name, number_folds, DsFolders, FolderHClust, FolderHybPart){  
   
   dataset_name = dataset_name
   
+  # set folder
   sf = setFolder()
   setwd(sf$Folder)
   FolderRoot = sf$Folder
   diretorios = directories()
   
+  # Train folder
   FolderTr = paste(DsFolders, "/Tr", sep="")
   dirFolderTr = c(dir(FolderTr))
   n_dirFolderTr = length(dirFolderTr)
   
+  # Validation Folder
   FolderVl = paste(DsFolders, "/Vl", sep="")
   dirFolderVl = c(dir(FolderVl))
   n_dirFolderVl = length(dirFolderVl)  
@@ -58,13 +69,14 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
   gr = c(0)
   TodasParticoes = data.frame(gr)
   
+  # fold 1 to number_folds
   f = 1  
   hybridParalel <- foreach(f = 1:number_folds) %dopar%{  
     
-    cat("\nFold: ", f)   
+    cat("\n\tFold: ", f)   
     
     ############################################################################################################
-    cat("\nLOAD LIBRARY \n")
+    # cat("\nLOAD LIBRARY \n")
     library("stringr")
     library("AggregateR")    
     library("plyr")
@@ -74,7 +86,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
     library("foreign")
     
     ############################################################################################################
-    cat("\nSET WORKSPACE \n")
+    # cat("\nSET WORKSPACE \n")
     sistema = c(Sys.info())
     FolderRoot = ""
     if (sistema[1] == "Linux"){
@@ -95,7 +107,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
     setwd(FolderScripts)
     
     ############################################################################################################
-    cat("\nLOAD FUNCTION REMOVE CSV \n")
+    #cat("\nLOAD FUNCTION REMOVE CSV \n")
     RemoveCSV <- function(filenames){
       folderNames = filenames
       j = 0
@@ -110,7 +122,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
     }
     
     ############################################################################################################
-    cat("\nLOAD FUNCTION CONVERT ARFF \n")
+    #cat("\nLOAD FUNCTION CONVERT ARFF \n")
     converteArff <- function(arg1, arg2, arg3){
       str = paste("java -jar ", folderUtils, "/R_csv_2_arff.jar ", arg1, " ", arg2, " ", arg3, sep="")
       system(str)
@@ -118,27 +130,28 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
     }
     
     ############################################################################################################
-    cat("\nSELECT THE HIGHIEST COEFFICIENT \n")
+    #cat("\nSELECT THE HIGHIEST COEFFICIENT \n")
     setwd(FolderHClust)
     coeficiente = data.frame(read.csv("BestFoldsCoef.csv"))
     coeficiente_fold = coeficiente[f,]
     metodo_fold = toString(coeficiente_fold$metodo)
     
     ############################################################################################################
+    # creating folders
     FolderClusterSplit = paste(FolderHClust, "/Split-", f, sep="")
     FolderClusterSplitMethod = paste(FolderClusterSplit, "/", metodo_fold, "/Clusters", sep="")
-    
-    ############################################################################################################
     FolderHybPartSplit = paste(FolderHybPart, "/Split-", f, sep="")
     if(dir.exists(FolderHybPartSplit)==TRUE){
-      cat("\nFolder existe")
+      #cat("\nFolder existe")
     } else {
       dir.create(FolderHybPartSplit)
     }
     
     ############################################################################################################
-    cat("\nSTART MOUNT PARTITIONS\n")
+    #cat("\nSTART MOUNT PARTITIONS\n")
     num.part = ds$Labels-1
+    
+    # from the partition = 2 to partition = l-2
     p = 2
     while(p<=num.part){
       
@@ -152,14 +165,14 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
       ####################################################################################
       nome_particao = paste("particao_", p, sep="")
       nome_particao_2 = paste("Partition-", p, sep="")
-      cat("\nPartition: ", nome_particao, "\n")
+      cat("\n\t\tPartition: ", nome_particao)
       
       ####################################################################################
       nomeTr = paste(dataset_name, "-Split-Tr-", f, ".csv", sep="")
       nomeVl = paste(dataset_name, "-Split-Vl-", f, ".csv", sep="")   
       
       ####################################################################################
-      cat("\nSELECT THE CUTREE\n")
+      #cat("\nSELECT THE CUTREE\n")
       setwd(FolderClusterSplitMethod)
       cluster = paste("cluster_", p, ".csv", sep="")
       particao2 = data.frame(read.csv(cluster, stringsAsFactors = F))
@@ -172,7 +185,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
       ####################################################################################
       FolderSplitPart = paste(FolderHybPartSplit, "/", nome_particao_2, sep="")
       if(dir.exists(FolderSplitPart)==TRUE){
-        cat("\nFolder Existe\n")
+        #cat("\nFolder Existe\n")
       } else {
         dir.create(FolderSplitPart)
       }
@@ -181,14 +194,14 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
       # if the group is equal to 1, do nothing
       # but if not, do:
       if(totalGroupsPart == 1){
-        cat("\nTOTAL GROUPS == 1\n")
+        #cat("\nTOTAL GROUPS == 1\n")
       } else { 
         
         library("foreign")
         
         ####################################################################################
-        cat("\nTOTAL GROUPS < > 1\n")
-        cat("\nSTART MOUNT GROUPS OF LABELS FOR EACH PARTITION\n")
+        #cat("\nTOTAL GROUPS < > 1\n")
+        #cat("\nSTART MOUNT GROUPS OF LABELS FOR EACH PARTITION\n")
         # starts in the first cluster and goes to the last
         g = 1
         while(g<=totalGroupsPart){
@@ -203,7 +216,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           ####################################################################################
           nome_grupo = paste("grupo_", g, sep="")           
           nome_grupo_2 = paste("Group-", g, sep="")
-          cat("\nGroup: ", nome_grupo)
+          cat("\n\t\tGroup: ", nome_grupo)
           
           ####################################################################################
           nomeTr = paste(dataset_name, "-Split-Tr-", f, ".csv", sep="")
@@ -212,29 +225,32 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           ####################################################################################
           FolderSplitPartGroup = paste(FolderSplitPart , "/", nome_grupo_2, sep="")
           if(dir.exists(FolderSplitPartGroup)==TRUE){
-            cat("\nFolder Existe")
+            #cat("\nFolder Existe")
           } else {
             dir.create(FolderSplitPartGroup)  
           }
           
           ####################################################################################
+          # get the labels of this group
           setwd(FolderSplitPartGroup)
           a = particao %>% filter(., particao$grupo == g)
-          cat("\nTotal of labels for this group: ", nrow(a), "\n")
+          #cat("\nTotal of labels for this group: ", nrow(a), "\n")
           
           ####################################################################################
+          # mount group
           nome_grupo = paste("grupo_", g, sep="")           
           grSpecThisPart = a
           totalLabelsThisGr = nrow(a)
           print(grSpecThisPart)
           
           ####################################################################################
-          cat("\nTRAIN: Get the original file\n")
+          #cat("\nTRAIN: Get the original file\n")
+          cat("\n\t\t\tCreating Train File")
           setwd(FolderTr)
           nomeTr2 = paste(FolderTr, "/", nomeTr, sep="")
           
           ####################################################################################
-          cat("\nTRAIN: MOUNT GROUP\n")
+          #cat("\nTRAIN: MOUNT GROUP\n")
           arquivoTr = data.frame(read.csv(nomeTr2), stringsAsFactors = F)
           atributosTr = arquivoTr[ds$AttStart:ds$AttEnd]
           rotulosTr = toString(grSpecThisPart$labels)
@@ -242,14 +258,14 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           thisGroupTr = cbind(atributosTr, classesTr)
           
           ####################################################################################
-          cat("\nTRAIN: Save CSV\n")
+          #cat("\nTRAIN: Save CSV\n")
           nomeCsTr = paste("grupo_Tr_", g, ".csv", sep="")
           nomeArTr = paste("grupo_Tr_", g, ".arff", sep="")
           setwd(FolderSplitPartGroup)
           write.csv(thisGroupTr, nomeCsTr, row.names = FALSE)
           
           ####################################################################################
-          cat("\nTRAIN: Start End Targets\n")
+          #cat("\nTRAIN: Start End Targets\n")
           inicio = ds$LabelStart
           fim = ncol(thisGroupTr)
           ifr = data.frame(inicio, fim)
@@ -257,7 +273,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           write.csv(ifr, "inicioFimRotulos.csv", row.names = FALSE)
           
           ####################################################################################
-          cat("\nTRAIN: Convert CSV to ARFF\n")
+          #cat("\nTRAIN: Convert CSV to ARFF\n")
           setwd(FolderSplitPartGroup)
           arg1 = nomeCsTr
           arg2 = nomeArTr
@@ -265,18 +281,19 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           converteArff(arg1, arg2, arg3)
           
           ####################################################################################
-          cat("\nTRAIN: Verify and correct {0} and {1}\n")
+          #cat("\nTRAIN: Verify and correct {0} and {1}\n")
           arquivo = paste(FolderSplitPartGroup, "/", nomeArTr, sep="")
           str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
           system(str0)
           
           ####################################################################################
-          cat("\nVALIDATION: Get the file\n")
+          #cat("\nVALIDATION: Get the file\n")
+          cat("\n\t\t\tCreating Validation File")
           setwd(FolderVl)
           nomeVl2 = paste(FolderVl, "/", nomeVl, sep="")
           
           ####################################################################################
-          cat("\nVALIDATION: MOUNT GROUP\n")
+          #cat("\nVALIDATION: MOUNT GROUP\n")
           arquivoVl = data.frame(read.csv(nomeVl2), stringsAsFactors = F)
           atributosVl = arquivoVl[ds$AttStart:ds$AttEnd]
           rotulosVl = toString(grSpecThisPart$labels)
@@ -284,14 +301,14 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           thisGroupVl = cbind(atributosVl, classesVl)
           
           ####################################################################################
-          cat("\nVALIDATION: Save CSV\n")
+          #cat("\nVALIDATION: Save CSV\n")
           nomeCsVl = paste("grupo_Vl_", g, ".csv", sep="")
           nomeArVl = paste("grupo_Vl_", g, ".arff", sep="")
           setwd(FolderSplitPartGroup)
           write.csv(thisGroupVl, nomeCsVl, row.names = FALSE)
           
           ####################################################################################
-          cat("\nVALIDATION: Convert CSV to ARFF\n")
+          #cat("\nVALIDATION: Convert CSV to ARFF\n")
           setwd(FolderSplitPartGroup)
           arg1 = nomeCsVl
           arg2 = nomeArVl
@@ -299,18 +316,18 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           converteArff(arg1, arg2, arg3)
           
           ####################################################################################
-          cat("\nVALIDATION: Verify and correct {0} and {1}\n")
+          #cat("\nVALIDATION: Verify and correct {0} and {1}\n")
           arquivo = paste(FolderSplitPartGroup, "/", nomeArVl, sep="")
           str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arquivo, sep="")
           system(str0)
           
           ####################################################################################
-          cat("\nCreate config file clus\n")
+          cat("\n\t\t\tCreating .s file for Clus")
           setwd(FolderSplitPartGroup)
           nome_config = paste("grupo_", g, ".s", sep="")
           sink(nome_config, type = "output")
           
-          cat("[General]")
+          cat("[General]")          
           cat("\nCompatibility = MLJ08")
           
           cat("\n")
@@ -331,6 +348,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           
           cat("\n")
           cat("\n[Tree]")
+          cat("\nHeuristic = VarianceReduction")
           cat("\nFTest = [0.001,0.005,0.01,0.05,0.1,0.125]")
           
           cat("\n")
@@ -344,36 +362,36 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           sink()
           
           ####################################################################################
-          cat("\nExecute CLUS\n")
+          cat("\n\t\t\tExecute CLUS")
           nome_config2 = paste(FolderSplitPartGroup, "/", nome_config, sep="")
           setwd(FolderSplitPartGroup)      
           str = paste("java -jar ", folderUtils, "/Clus.jar ", nome_config2, sep="")
           system(str)
           
           ####################################################################################
-          cat("\nOpen inicioFimRotulos.csv\n")
+          #cat("\nOpen inicioFimRotulos.csv\n")
           targets = data.frame(read.csv("inicioFimRotulos.csv"))
           
           ####################################################################################
-          cat("\nOpen predictions\n")
+          #cat("\nOpen predictions\n")
           namae2 = paste(nome_grupo, ".test.pred.arff", sep="")
           predicoes = data.frame(read.arff(namae2), use_xml = FALSE)
           
           ####################################################################################
-          cat("\nSPLIT PREDICTIS\n")
+          #cat("\nSPLIT PREDICTIS\n")
           if(targets$inicio == targets$fim){
             library("foreign")
-            cat("\nOnly one label in this group\n")
+            cat("\n\t\t\tOnly one label in this group")
             
             ####################################################################################
-            cat("\nSave Y_true\n")
+            #cat("\nSave Y_true\n")
             setwd(FolderSplitPartGroup)
             classes = data.frame(predicoes[,1])
             names(classes) = colnames(predicoes)[1]
             write.csv(classes, "y_true.csv", row.names = FALSE)
             
             ####################################################################################
-            cat("\nSave Y_true\n")
+            #cat("\nSave Y_true\n")
             rot = paste("Pruned.p.", colnames(predicoes)[1], sep="")
             pred = data.frame(predicoes[,rot])
             names(pred) = colnames(predicoes)[1]
@@ -388,17 +406,17 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           } else {
             library("foreign")
             ####################################################################################
-            cat("\nMore than one label in this group\n")
+            cat("\n\t\t\tMore than one label in this group")
             comeco = 1+(targets$fim - targets$inicio)
             
             ####################################################################################
-            cat("\nSave Y_true\n")
+            #cat("\nSave Y_true\n")
             classes = data.frame(predicoes[,1:comeco])
             setwd(FolderSplitPartGroup)
             write.csv(classes, "y_true.csv", row.names = FALSE)
             
             ####################################################################################
-            cat("\nSave Y_true\n")
+            #cat("\nSave Y_true\n")
             rotulos = c(colnames(classes))
             n_r = length(rotulos)
             nomeColuna = c()
@@ -429,7 +447,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
           unlink(nome3, recursive = TRUE)
           unlink(nome4, recursive = TRUE)
           unlink(nome5, recursive = TRUE)
-          unlink(nome6, recursive = TRUE)
+          #unlink(nome6, recursive = TRUE)
           
           g = g + 1
           gc()
@@ -450,8 +468,7 @@ hybridPartitions <- function(ds, dataset_name, DsFolders, FolderHClust, FolderHy
   cat("\n\n\n\n")
 }
 
-
 ##################################################################################################
-# Please, any errors, contact us!                                                                #
+# Please, any errors, contact us: elainececiliagatto@gmail.com                                   #
 # Thank you very much!                                                                           #
 ##################################################################################################

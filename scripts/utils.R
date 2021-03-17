@@ -1,17 +1,25 @@
 ##################################################################################################
 # HPML-J                                                                                         #
-##################################################################################################
-
-##################################################################################################
-# Script 2 - Utilities                                                                           #
-##################################################################################################
-
-##################################################################################################
+# Hybrid Partitions for Multi-label Classification version Jaccard                               #
+# Copyright (C) 2021                                                                             #
+#                                                                                                #
+# This program is free software: you can redistribute it and/or modify it under the terms of the #
+# GNU General Public License as published by the Free Software Foundation, either version 3 of   #  
+# the License, or (at your option) any later version. This program is distributed in the hope    #
+# that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    #
+# more details.                                                                                  #     
+#                                                                                                #
 # Elaine Cecilia Gatto | Prof. Dr. Ricardo Cerri | Prof. Dr. Mauri Ferrandin                     #
 # Federal University of Sao Carlos (UFSCar: https://www2.ufscar.br/) Campus Sao Carlos           #
 # Computer Department (DC: https://site.dc.ufscar.br/)                                           #
 # Program of Post Graduation in Computer Science (PPG-CC: http://ppgcc.dc.ufscar.br/)            #
 # Bioinformatics and Machine Learning Group (BIOMAL: http://www.biomal.ufscar.br/)               #
+#                                                                                                #
+##################################################################################################
+
+##################################################################################################
+# Script 2 - UTILS                                                                               #
 ##################################################################################################
 
 ##################################################################################################
@@ -73,18 +81,6 @@ setFolder <- function(){
 directories <- function(){
   
   retorno = list()
-  
-  #folderReports = paste(FolderRoot, "/reports", sep="")
-  #if(dir.exists(folderReports) == TRUE){
-    #setwd(folderReports)
-    #dirReports = dir(folderReports)
-    #n_Reports = length(folderReports)
-  #} else {
-    #dir.create(folderReports)
-    #setwd(folderReports)
-    #dirReports = dir(folderReports)
-    #n_Reports = length(folderReports)
-  #}
   
   folderResults = paste(FolderRoot, "/results", sep="")
   if(dir.exists(folderResults) == TRUE){
@@ -202,6 +198,7 @@ creatingFoldersPrincipals<- function(dataset_name){
   
   retorno = list()
   
+  # folder to specific dataset
   folderDSFolds = paste(diretorios$folderFolds, "/", dataset_name, sep="")
   if(dir.exists(folderDSFolds) == TRUE){
     setwd(folderDSFolds)
@@ -214,6 +211,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_DSFolds = length(dir_DSFolds)
   }
   
+  # folder to store the results for the specific dataset
   folderResDataset = paste(diretorios$folderResults, "/", dataset_name, sep="")
   if(dir.exists(folderResDataset) == TRUE){
     setwd(folderResDataset)
@@ -226,6 +224,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_ResDataset = length(dir_ResDataset)
   }
   
+  # folder to store the reportos for the specific dataset
   folderResReports = paste(folderResDataset, "/Reports", sep="")
   if(dir.exists(folderResReports) == TRUE){
     setwd(folderResReports)
@@ -238,6 +237,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_ResReports = length(dir_ResReports)
   }
   
+  # folder to store the hclust results for the specific dataset
   folderHClust = paste(folderResDataset, "/HClust", sep="")
   if(dir.exists(folderHClust) == TRUE){
     setwd(folderHClust)
@@ -250,7 +250,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_HClust = length(dir_HClust)
   }
   
-  
+  # folder to store the ".s" clus files for the specific dataset
   folderConfigFiles = paste(folderResDataset, "/ConfigFiles", sep="")
   if(dir.exists(folderConfigFiles) == TRUE){
     setwd(folderConfigFiles)
@@ -263,6 +263,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_ConfigFiles = length(dir_ConfigFiles)
   }
   
+  # folder to store the hybrid partitions validation results for the specific dataset
   folderHybPart = paste(folderResDataset, "/HybridPartition", sep="")
   if(dir.exists(folderHybPart) == TRUE){
     setwd(folderHybPart)
@@ -275,6 +276,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_HybPart = length(dir_HybPart)
   }  
   
+  # folder to store the hybrid partitions test for the specific dataset
   folderHybrid = paste(folderResDataset, "/ClusHybrid", sep="")
   if(dir.exists(folderHybrid) == TRUE){
     setwd(folderHybrid)
@@ -287,6 +289,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Hybrid = length(dir_Hybrid)
   }
   
+  # folder to store the clus global results for the specific dataset
   folderGlobal = paste(folderResDataset, "/ClusGlobal", sep="")
   if(dir.exists(folderGlobal) == TRUE){
     setwd(folderGlobal)
@@ -299,6 +302,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Global = length(dir_Global)
   }
   
+  # folder to store the clus local results for the specific dataset
   folderLocal = paste(folderResDataset, "/ClusLocal", sep="")
   if(dir.exists(folderLocal) == TRUE){
     setwd(folderLocal)
@@ -311,6 +315,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Local = length(dir_Local)
   }
   
+  # folder to store the clus random version 1 results for the specific dataset
   folderRandom1 = paste(folderResDataset, "/ClusRandom_1", sep="")
   if(dir.exists(folderRandom1) == TRUE){
     setwd(folderRandom1)
@@ -323,6 +328,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Random1 = length(dir_Random1)
   }
   
+  # folder to store the clus random version 2 results for the specific dataset
   folderRandom2 = paste(folderResDataset, "/ClusRandom_2", sep="")
   if(dir.exists(folderRandom2) == TRUE){
     setwd(folderRandom2)
@@ -335,6 +341,7 @@ creatingFoldersPrincipals<- function(dataset_name){
     n_Random2 = length(dir_Random2)
   }
   
+  # folder to store the clus random version 3 results for the specific dataset
   folderRandom3 = paste(folderResDataset, "/ClusRandom_3", sep="")
   if(dir.exists(folderRandom3) == TRUE){
     setwd(folderRandom3)
@@ -395,10 +402,10 @@ creatingFoldersPrincipals<- function(dataset_name){
 
 ##################################################################################################
 # FUNCTION CONVERT TO ARFF                                                                       #
-#     Objective                                                                                  #
+#     Objective:                                                                                 #
 #        Convert csv file correctly to arff file                                                 #
 #     Parameters                                                                                 #
-#        arg1: existing csv file name                                                            #
+#        arg 1: existing csv file name                                                           #
 #        arg 2: name of the arff file to be created                                              #
 #        arg 3: specific number of labels that are part of the file. Example: starts at label    # 
 #        30 and ends at label 50.                                                                #
@@ -432,7 +439,7 @@ criaPastasCSC <- function(dataset_name){
   
   j = 1
   while(j<=10){
-    cat("\n\tFOLD: ", j)
+    #cat("\n\tFOLD: ", j)
     setwd(Pasta1)
     Pasta2 = paste(Pasta1, "/Split-", j, sep="")
     dir.create(Pasta2)
@@ -450,7 +457,7 @@ criaPastasCSC <- function(dataset_name){
 ##################################################################################################
 # FUNCTION INFO DATA SET                                                                         #
 #  Objective                                                                                     #
-#     Gets the information that is in the "datsets.csv" file.                                    #  
+#     Gets the information that is in the "datasets.csv" file.                                    #  
 #  Parameters                                                                                    #
 #     dataset: the specific dataset                                                              #
 #  Return                                                                                        #
@@ -549,6 +556,6 @@ RemoveARFF <- function(filenames){
 
 
 ##################################################################################################
-# Please, any errors, contact us!                                                                #
+# Please, any errors, contact us: elainececiliagatto@gmail.com                                   #
 # Thank you very much!                                                                           #
 ##################################################################################################

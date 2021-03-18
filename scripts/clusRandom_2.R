@@ -682,7 +682,7 @@ evalRandom2 <- function(ds, dataset_name, number_folds, FolderRandom){
   write.csv(sumary3, "SummaryFoldsEvaluated.csv", row.names = FALSE)
   
   setwd(FolderReports)
-  write.csv(F1MacroSummary, paste(dataset_name, "-BestF1Macro-R2.csv", sep=""), row.names = FALSE)
+  write.csv(sumary3, paste(dataset_name, "-BestF1Macro-R2.csv", sep=""), row.names = FALSE)
   
   gc()
   cat("\n\n################################################################################################")
@@ -691,6 +691,51 @@ evalRandom2 <- function(ds, dataset_name, number_folds, FolderRandom){
   cat("\n\n\n\n")
 }
 
+
+deleteAllR2 <- function(number_folds, FolderRandom2){
+  
+  setwd(FolderRandom2)
+  sumario = data.frame(read.csv("summary_partitions.csv"))
+  
+  f = 1
+  apagaRandom2 <- foreach (f = 1:number_folds) %dopar%{
+    
+    cat("Fold: ", f)
+    
+    FolderSplit = paste(FolderRandom2, "/Split-", f, sep="")
+    setwd(FolderSplit)
+    unlink("EvaluatedPartition.csv")
+    
+    sumario2 = sumario[f,]
+    num.group = sumario2$number_groups
+    
+    g = 1
+    while(g<=num.group){
+      
+      cat("Group: ", g)
+      
+      FolderG = paste(FolderSplit, "/Group-", g, sep="")
+      setwd(FolderG)
+      
+      nome1 = paste("grupo_", g, ".test.pred.arff", sep="")
+      unlink(nome1)
+      
+      nome2 = paste("grupo_", g, ".s", sep="")
+      unlink(nome2)
+      
+      g = g + 1
+      gc()
+    }
+    
+    gc()
+  }
+  
+  gc()
+  cat("\n\n################################################################################################")
+  cat("\n# CLUS RANDOM 2: END OF DELETE                                                                   #") 
+  cat("\n##################################################################################################")
+  cat("\n\n\n\n")
+}
 
 
 ##################################################################################################
@@ -716,7 +761,7 @@ clusRandom_2 <- function(ds, namesLabels, dataset_name, number_folds, FolderDSF,
   
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2: generated random partitions                                                     #")  
-  timeSplit = system.time(generatedRandomPartitions2(ds, namesLabels, dataset_name, number_folds, FolderRandom))
+  timeSplit = system.time(generatedRandomPartitions2(ds, dataset_name, number_folds, namesLabels, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
@@ -735,8 +780,13 @@ clusRandom_2 <- function(ds, namesLabels, dataset_name, number_folds, FolderDSF,
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
+  cat("\n# CLUS RANDOM 2: delete                                                                          #")
+  timeDel = system.time(deleteAllR2(number_folds, FolderRandom2))
+  cat("\n##################################################################################################")
+  
+  cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2: Save Runtime                                                                    #")
-  RunTimeRandom = rbind(timeSplit, timeBuild, timePreds, timeEval)
+  RunTimeRandom = rbind(timeSplit, timeBuild, timePreds, timeEval, timeDel)
   
   setwd(FolderReports)
   write.csv(RunTimeRandom, "RunTimeRandom2.csv")

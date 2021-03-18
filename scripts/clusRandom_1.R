@@ -1232,11 +1232,11 @@ mountRandomParTEST <- function(ds, dataset_name, number_folds, FolderDSF, Folder
 	      cat("\n")
 	    }
 	    
-	    cat("\n\tExecute CLUS: ", k , "\n")
-	    nome_config2 = paste(FolderGT, "/", nome_config, sep="")
-	    str = paste("java -jar ", FolderUtils, "/Clus.jar ", nome_config2, sep="")
-	    print(system(str))		
-	    cat("\n\n")		
+	    #cat("\n\tExecute CLUS: ", k , "\n")
+	    #nome_config2 = paste(FolderGT, "/", nome_config, sep="")
+	    #str = paste("java -jar ", FolderUtils, "/Clus.jar ", nome_config2, sep="")
+	    #print(system(str))		
+	    #cat("\n\n")		
 	    
       um = paste(dataset_name, "-split-", f, "-group-", k, ".model", sep="")
       dois = paste(dataset_name, "-split-", f, "-group-", k, ".s", sep="")

@@ -331,7 +331,7 @@ mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClu
   
   gc()
   cat("\n##################################################################################################")
-  cat("\n# CLUS HYBRID: END OF MOUNT HYBRID PARTITION FOR TEST ON CLUS                                    #") 
+  cat("\n# CLUS HYBRID: END OF MOUNT HYBRID PARTITION FOR TEST ON CLUS                                     #") 
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }
@@ -763,17 +763,17 @@ clusHybrid <- function(ds, dataset_name, number_folds, DsFolds, FolderHClust,
   cat("\n################################################################################################")
   
   cat("\n################################################################################################")
-  cat("\n# CLUS HYBRID: Evaluation Choosen Hybrid Partition                                             #")
+  cat("\n# CLUS HYBRID: Evaluation Choosen Hybrid Partition                                                                     #")
   tempoEval = system.time(evalHybTEST(ds, dataset_name, number_folds, FolderHybrid, FolderReports))
   cat("\n################################################################################################")
   
   cat("\n################################################################################################")
-  cat("\n# CLUS HYBRID: Delete files                                                                    #")
+  cat("\n# CLUS HYBRID: Delete files                                                                        #")
   tempoD = system.time(delHybTEST(ds, dataset_name,  number_folds, FolderHybrid, FolderHybPart))
   cat("\n################################################################################################")
   
   cat("\n################################################################################################")
-  cat("\n# CLUS HYBRID: Save Runtime                                                                    #")
+  cat("\n# CLUS HYBRID: Save Runtime                                                                   #")
   RuntimeTest = rbind(tempoMonta, tempoSplitPred, tempoJuntaPred, tempoEval)
   
   setwd(FolderReports)

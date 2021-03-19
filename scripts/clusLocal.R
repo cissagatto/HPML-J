@@ -608,7 +608,7 @@ clusLocal <- function(ds, dataset_name, number_folds, namesLabels, FolderCV, Fol
   
   cat("\n##################################################################################################")
   cat("\n# CLUS LOCAL: Gather Evaluated Measures\n")
-  timeGE = system.time(gatherEvalLocal(ds, dataset_name, number_folds, Folder, FolderReports))
+  timeGE = system.time(gatherEvalLocal(ds, dataset_name, number_folds, FolderLocal, FolderReports))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")

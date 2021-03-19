@@ -372,6 +372,9 @@ gatherLocalPredicts <- function(ds, dataset_name, number_folds, namesLabels, Fol
         y_true = cbind(y_true, classes)
         y_pred = cbind(y_pred, pred)      
         
+        nome2 = paste(namesLabels[j], "-", j, ".test.pred.arff", sep="")
+        unlink(nome2)
+        
         j = j + 1
         gc()
       } # end labels

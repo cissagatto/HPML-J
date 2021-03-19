@@ -30,11 +30,11 @@ setwd(sf$Folder)
 FolderRoot = sf$Folder
 diretorios = directories()
 
-###############################################################################################
-#                                                                                             #
-#                            VALIDATING RANDOM PARTITIONS                                     #
-#                                                                                             #
-###############################################################################################
+##################################################################################################
+#                                                                                                #
+#                            VALIDATING RANDOM PARTITIONS                                        #
+#                                                                                                #
+##################################################################################################
 
 ##################################################################################################
 # FUNCTION GENERATED RANDOM PARTITIONS                                                           #
@@ -65,7 +65,8 @@ generatedRandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_f
 
   # from fold = 1 to number_folds
   f = 1
-  randomPart <- foreach(f = 1:number_folds) %dopar%{  
+  #randomPart <- foreach(f = 1:number_folds) %dopar%{  
+  while(f<=number_folds){
     
     cat("\nFold = ", f)
     
@@ -150,7 +151,7 @@ generatedRandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_f
       g = 1
       while(g<=k){
       
-        cat("\n\tGroup = ", g)
+        cat("\n\t\tGroup = ", g)
         
         FolderGroup = paste(FolderPartition, "/Group-", g, sep="")
         if(dir.exists(FolderGroup)==TRUE){
@@ -163,14 +164,15 @@ generatedRandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_f
         
         g = g + 1
         gc()
-      }
+      } # fim do grupo
       
       k = k + 1
       gc()
-    }
+    } # fim da partição
     
+    f = f + 1
     gc()
-  }
+  } # fim do fold
   
   cat("\n\n################################################################################################")
   cat("\n# CLUS RANDOM 1: END FUNCTION generated Random Partitions                                        #")
@@ -178,7 +180,6 @@ generatedRandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_f
   cat("\n\n\n\n")
   gc()
 }
-
 
 
 ##################################################################################################
@@ -1663,94 +1664,44 @@ gatherPartitionsTEST <- function(ds, namesLabels, number_folds, FolderRandom){
 ##################################################################################################
 deleteRandomFiles <- function(ds, dataset_name, namesLabels, number_folds, FolderRandom){
 
-  num.particoes = ds$Labels - 1  
-
   f = 1
   apagaRandom <- foreach (f = 1:number_folds) %dopar%{
   
     cat("\nFold: ", f)
+    
+    num.particoes = ds$Labels - 1 
+    
     FolderVal = paste(FolderRandom, "/Validation", sep="" )
     FolderTest = paste(FolderRandom, "/Test", sep="" )
     FolderSplitV = paste(FolderVal, "/Split-", f, sep="")
     FolderSplitT = paste(FolderTest, "/Split-", f, sep="" )
     
+    cat("\nApagando SPLIT TESTE")
     setwd(FolderSplitT)
     unlink("y_predict.csv")
     unlink("y_true.csv")
     
+    cat("\nApagando PARTIÇÕES VALIDAÇÃO")
     p = 2
     while(p<=num.particoes){
-      cat("\n\tPartition: ", p)
-  
-      FolderPartV = paste(FolderSplitV, "/Partition-", p, sep="")
-      if(dir.exists(FolderPartV)==TRUE){
-        setwd(FolderPartV)
-        unlink("particao.csv")
-        unlink(paste("particao-", p,".csv", sep=""))
-        unlink("y_predict.csv")
-        unlink("y_true.csv")
-        unlink("EvaluatedPartition.csv")
-        unlink("particaoFinal.csv")
-        naoexisteV = 0
-      } else {
-        naoexisteV = 1
-      }
       
-      FolderPartT = paste(FolderSplitT, "/Partition-", p, sep="" )
-      if(dir.exists(FolderPartT)==TRUE){
-        setwd(FolderPartT)
-        unlink("EvaluatedPartition.csv")
-        unlink("particaoFinal.csv")
-        unlink("particao.csv")
-        unlink("y_predict.csv")
-        unlink("y_true.csv")
-        naoexisteT = 0
-      } else {
-        naoexisteT = 1
-      }
+      FolderP = paste(FolderSplitV, "/Partition-", p, sep="")
+      setwd(FolderP)
+      unlink("EvaluatedPartition.csv")
+      unlink(paste("particao-", p, ".csv", sep=""))
+      unlink("particaoFinal.csv")
+      unlink("y_predict.csv")
+      unlink("y_true.csv")
       
       g = 1
       while(g<=p){
-
-        cat("\n\tGroup: ", g)
-        
-        if(naoexisteT==1){
-          
-        } else {
-          FolderGroupT = paste(FolderPartT, "/Group-", g, sep="" )
-          setwd(FolderGroupT)
-          
-          nome3 = paste(dataset_name, "-split-", f, "-group-", g, ".s", sep="")
-          unlink(nome3)
-          
-          nome4 = paste(dataset_name, "-split-", f, "-group-", g, ".test.pred.arff", sep="")
-          unlink(nome4)
-          
-          unlink("inicioFimRotulos.csv")
-          unlink("y_predict.csv")
-          unlink("y_true.csv")
-          
-        }
-        
-        if(naoexisteV==1){
-          
-        } else {
-          FolderGroupV = paste(FolderPartV, "/Group-", g, sep="")
-          setwd(FolderGroupV)
-          
-          nome1 = paste("grupo_", g, ".csv", sep="")
-          unlink(nome1)
-          
-          nome2 = paste("grupo_" , g, ".test.pred.arff", sep="")
-          unlink(nome2)
-          
-          unlink("EvaluatedPartition.csv")
-          unlink("particaoFinal.csv")
-          unlink("inicioFimRotulos.csv")
-          unlink("y_predict.csv")
-          unlink("y_true.csv")
-        }
-        
+        FolderG = paste(FolderP, "/Group-", g, sep="")
+        setwd(FolderG)
+        unlink("y_true.csv")
+        unlink("y_predict.csv")
+        unlink("inicioFimRotulos.csv")
+        unlink(paste("grupo_", g, ".test.pred.arff", sep=""))
+        unlink(paste("grupo_", g, ".csv", sep=""))
         g = g + 1
         gc()
       }
@@ -1759,6 +1710,28 @@ deleteRandomFiles <- function(ds, dataset_name, namesLabels, number_folds, Folde
       gc()
     }
     
+    cat("Apagando TEST")
+    setwd(FolderRandom)
+    bestf1 = data.frame(read.csv("BestF1Macro.csv"))
+    bestf1 = bestf1[f,]
+    bestpart = bestf1$num.part
+    
+    setwd(FolderSplitT)
+    FolderPartT = paste(FolderSplitT, "/Partition-", bestpart, sep="")
+    
+    r = 1
+    while(r<=bestpart){
+      setwd(FolderPartT)
+      FolderGroupT = paste(FolderPartT, "/Group-", r, sep="")
+      setwd(FolderGroupT)
+      unlink(paste(dataset_name,"-split-", f, "-group-", r, ".s", sep=""))
+      unlink(paste(dataset_name, "-split-", f, "-group-", r, ".test.pred.arff", sep=""))
+      unlink("inicioFimRotulos.csv")
+      unlink("y_predict.csv")
+      unlink("y_true.csv")
+      r = r + 1
+      gc()
+    }
     
     gc()
   }
@@ -1794,65 +1767,57 @@ clusRandom_1 <- function(ds, namesLabels, number_folds, dataset_name, FolderDSF,
   #FolderReports = folders$folderReports
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: VALIDATING RANDOM PARTITIONS                                                    #")
-  cat("\n##################################################################################################")
-  
-  cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: generated random partitions                                                     #")  
+  cat("\n# CLUS RANDOM 1 VALIDATION: GENERATE RANDOM PARTITIONS FORMAT 1                                  #")  
   timeSplitVal = system.time(generatedRandomPartitionsVAL(ds, namesLabels, dataset_name, number_folds, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: build and validate random partitions                                            #")  
+  cat("\n# CLUS RANDOM 1 VALIDATION: BUILD AND VALIDATE PARTITIONS                                        #")  
   timeBuildVal = system.time(RandomPartitionsVAL(ds, namesLabels, dataset_name, number_folds, FolderRandom, FolderDSF))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: gather predictions random partitions                                            #")  
+  cat("\n# CLUS RANDOM 1 VALIDATION: GATHER PREDICTIONS                                                   #")  
   timePredsVal = system.time(gatherPredsRandomVAL(ds, dataset_name, number_folds, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1 : eval random partitions                                                         #")  
+  cat("\n# CLUS RANDOM 1 VALIDATION: EVALUATION                                                           #")  
   timeEvalVal = system.time(evalRandomVAL(ds, dataset_name, number_folds, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: gather eval random partitions                                                   #")  
+  cat("\n# CLUS RANDOM 1 VALIDATION: GATHER EVALUATIONS                                                   #")  
   timeGatherVal = system.time(gatherEvaluationsVAL(ds, dataset_name, number_folds, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: gather f1 random partitions                                                     #")  
+  cat("\n# CLUS RANDOM 1 VALIDATION: GATHER MACRO-F1 RANDOM PARTITIONS                                    #")  
   timeF1Val = system.time(gatherF1macroVAL(ds, dataset_name, number_folds, FolderRandom, FolderReports))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: TEST RANDOM PARTITIONS                                                          #")
-  cat("\n##################################################################################################")
-  
-  cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: test clus random partitions                                                     #")  
+  cat("\n# CLUS RANDOM 1 TEST: BUILD AND TEST RANDOM PARTITIONS 1                                         #")  
   timeMountTest = system.time(mountRandomParTEST(ds, dataset_name, number_folds, FolderDSF, FolderRandom))
   cat("\n##################################################################################################")
 
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: predictions                                                                     #")  
+  cat("\n# CLUS RANDOM 1 TEST: FORMAT PREDICTIONS CLUS                                                    #")  
   timePredsTest = system.time(splitsPR1TEST(ds, dataset_name, number_folds, FolderDSF, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: gather predictions                                                              #")  
+  cat("\n# CLUS RANDOM 1 TEST: GATHER PREDICTIONS                                                         #")  
   timeGatherTest = system.time(gatherPredsRandomTEST(ds, dataset_name, number_folds, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: evaluation                                                                      #")  
+  cat("\n# CLUS RANDOM 1 TEST: EVALUATION                                                                 #")  
   timeEvalTest = system.time(evalRandomTEST(ds, dataset_name, number_folds, FolderRandom, FolderReports))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 1: delete                                                                          #")  
+  cat("\n# CLUS RANDOM 1 TEST: DELETE UNECESSARY FILES                                                    #")  
   timeDel = system.time(deleteRandomFiles(ds, dataset_name, namesLabels, number_folds, FolderRandom))
   cat("\n##################################################################################################")
   

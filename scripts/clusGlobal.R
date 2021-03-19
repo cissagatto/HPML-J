@@ -32,55 +32,6 @@ diretorios = directories()
 
 
 ##################################################################################################
-# FUNCTION CONFIG FILES CLUS                                                                     #
-#   Objective                                                                                    #
-#      Generating the CLUS configuration files for the splits of each dataset                    #
-#   Parameters                                                                                   #
-#       ds: specific dataset information                                                         #
-#       dataset_name: dataset name. It is used to save files.                                    #
-#       number_folds: number of folds created                                                    #
-#       FolderConfifFiles: folder path                                                           #
-#   Return                                                                                       #
-#       configurations files                                                                     #
-##################################################################################################
-configFilesClus <- function(ds, dataset_name, number_folds, FolderConfigFiles){
-  
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()  
-  
-  setwd(FolderConfigFiles)
-  
-  # from fold = 1 to number_folds
-  j = 1
-  while(j<=number_folds){
-      
-      cat("\nFold: ", j)    
-      setwd(FolderConfigFiles)
-      
-      inicio = ds$LabelStart
-      fim = ds$LabelEnd
-      
-      sFileName = paste(dataset_name, "-Split-", j , ".s", sep="")
-      trainFileName = paste(dataset_name, "-Split-Tr-", j , ".arff", sep="")
-      testFileName = paste(dataset_name, "-Split-Ts-", j , ".arff", sep="")
-      creatingSFile(ds, inicio, fim, sFileName, trainFileName, testFileName)
-      
-      j = j + 1
-      gc()
-    }
-    
-  gc()
-  cat("\n##################################################################################################")
-  cat("\n# GLOBAL CLUS: END OF THE CONFIG FILES CLUS FUNCTION                                             #") 
-  cat("\n##################################################################################################")
-  cat("\n\n\n\n")
-}
-
-
-##################################################################################################
 # FUNCTION GATHER FILES FOLDS GLOBAL                                                             #
 #   Objective                                                                                    #
 #       Joins the configuration, training and test files in a single folder for running the clus #
@@ -146,18 +97,7 @@ gatherFilesFoldsGlobal <- function(ds, dataset_name, number_folds, FolderConfigF
       } else {
         cat("\n")
       }
-      
-      # config files
-      setwd(FolderConfigFiles)
-      if(file.exists(nome_config) == TRUE){
-        setwd(FolderConfigFiles)
-        copia = paste(FolderConfigFiles, "/", nome_config, sep="")
-        cola = paste(FS, "/", nome_config, sep="")
-        file.copy(copia, cola, overwrite = TRUE)
-        cat("\n\tTransfer config", s)
-      } else {
-        cat("\n")
-      }    
+    
       gc()
     }
 
@@ -204,6 +144,43 @@ executeClusGlobal <- function(ds, dataset_name, number_folds, Folder){
       # specifying folders
       FolderSplit = paste(Folder, "/Split-", i, sep="")
       nome_config = paste(FolderSplit, "/", dataset_name, "-Split-", i, ".s", sep="")
+      
+      inicio = ds$LabelStart
+      fim = ds$LabelEnd
+      
+      # emotions-Split-Tr-1.arff
+      trainFileName = paste(FolderSplit, "/", dataset_name, "-Split-Tr-", i , ".arff", sep="")
+      # emotions-Split-Ts-1.arff
+      testFileName = paste(FolderSplit, "/", dataset_name, "-Split-Ts-", i, ".arff", sep="")
+      
+      sink(nome_config, type = "output")
+      
+      cat("[General]")        
+      cat("\nCompatibility = MLJ08")
+      
+      cat("\n\n[Data]")
+      cat(paste("\nFile = ", trainFileName, sep=""))
+      cat(paste("\nTestSet = ", testFileName, sep=""))
+      
+      cat("\n\n[Attributes]")
+      cat("\nReduceMemoryNominalAttrs = yes")
+      
+      cat("\n\n[Attributes]")
+      cat(paste("\nTarget = ", inicio, "-", fim, sep=""))
+      cat("\nWeights = 1")
+      
+      cat("\n")
+      cat("\n[Tree]")
+      cat("\nHeuristic = VarianceReduction")
+      cat("\nFTest = [0.001,0.005,0.01,0.05,0.1,0.125]")
+      
+      cat("\n\n[Model]")
+      cat("\nMinimalWeight = 5.0")
+      
+      cat("\n\n[Output]")
+      cat("\nWritePredictions = {Test}")
+      cat("\n")
+      sink()
 
       cat("\nExecute CLUS\n")
       setwd(FolderSplit)
@@ -464,17 +441,12 @@ clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFil
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS GLOBAL: Generating the CLUS configuration files for the splits of each dataset           #")
-  timeConfigFiles = system.time(configFilesClus(ds, dataset_name, number_folds, FolderConfigFiles))
-  cat("\n##################################################################################################")
-  
-  cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Joins the configuration, training and test files for running the clus             #")
   timeGatherFiles = system.time(gatherFilesFoldsGlobal(ds, dataset_name, number_folds, FolderConfigFiles, FolderGlobal))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
-  cat("\n# CLUS GLOBAL: Execute CLUS GLOBAL                                                                #")
+  cat("\n# CLUS GLOBAL: Execute CLUS GLOBAL                                                               #")
   timeClusGlobal = system.time(executeClusGlobal(ds, dataset_name, number_folds, FolderGlobal))
   cat("\n##################################################################################################")
   
@@ -490,17 +462,17 @@ clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFil
   
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Gather Evaluated Measures                                                         #")
-  timeGE = system.time(gatherEvalGlobal(ds, dataset_name, number_folds, Folder, FolderReports))
+  timeGE = system.time(gatherEvalGlobal(ds, dataset_name, number_folds, FolderGlobal, FolderReports))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Delete files                                                                      #")
-  timeDel = system.time(deleteGlobal(ds, dataset_name, FolderGlobal, number_folds))
+  timeDel = system.time(deleteGlobal(ds, dataset_name, number_folds, FolderGlobal))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Save Runtime                                                                      #")
-  RunTimeGlobal = rbind(timeConfigFiles, timeGatherFiles, timeClusGlobal, timeGatherPreds, timeEvalGlobal, timeGE)
+  RunTimeGlobal = rbind(timeGatherFiles, timeClusGlobal, timeGatherPreds, timeEvalGlobal, timeGE)
   setwd(FolderReports)
   write.csv(RunTimeGlobal, "RunTimeGlobal.csv")
   cat("\n##################################################################################################")

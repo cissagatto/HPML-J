@@ -195,6 +195,29 @@ executeHPMLJ <- function(n_dataset, number_cores, number_folds){
 # ******************************************************************************************************************** #
   
   cat("\n\n################################################################################################")
+  cat("\n# Run: RANDOM PARTITIONS VERSION 1                                                               #")
+  timeRandom1 = system.time(clusRandom_1(ds, namesLabels, number_folds, dataset_name, 
+                                         folders$folderDSFolds, folders$folderResDataset, 
+                                         folders$folderRandom1, folders$folderReports))
+  cat("\n##################################################################################################\n\n") 
+  
+  cat("\n\n################################################################################################")
+  cat("\n# Run: RANDOM PARTITIONS VERSION 2                                                               #")
+  timeRandom2 = system.time(clusRandom_2(ds, namesLabels, dataset_name, number_folds,
+                                         folders$folderDSFolds, folders$folderResDataset, 
+                                         folders$folderRandom2, folders$folderReports))
+  cat("\n##################################################################################################\n\n") 
+  
+  cat("\n\n################################################################################################")
+  cat("\n# Run: RANDOM PARTITIONS VERSION 3                                                               #")
+  timeRandom3 = system.time(clusRandom_3(ds, dataset_name, number_folds, namesLabels, 
+                                         folders$folderDSFolds, folders$folderResDataset, 
+                                         folders$folderRandom3, folders$folderReports))
+  cat("\n##################################################################################################\n\n") 
+  
+  # ******************************************************************************************************************** #
+  
+  cat("\n\n################################################################################################")
   cat("\n# Run: VALIDATION AND TEST HYBRID PARTITIONS                                                     #")
   cat("\n# Run: Calculate correlations using jaccard                                                      #")
   timeJaccard = system.time(computeJaccard(ds, dataset_name, number_folds, namesLabels, resLS, folders$folderHClust))
@@ -218,29 +241,6 @@ executeHPMLJ <- function(n_dataset, number_cores, number_folds){
 
 # ******************************************************************************************************************** #
 
-  cat("\n\n################################################################################################")
-  cat("\n# Run: RANDOM PARTITIONS VERSION 1                                                               #")
-  timeRandom1 = system.time(clusRandom_1(ds, namesLabels, number_folds, dataset_name,  
-                                         folders$folderDSFolds, folders$folderResDataset, 
-                                         folders$folderRandom1, folders$folderReports))
-  cat("\n##################################################################################################\n\n") 
-
-  cat("\n\n################################################################################################")
-  cat("\n# Run: RANDOM PARTITIONS VERSION 2                                                               #")
-  timeRandom2 = system.time(clusRandom_2(ds, namesLabels, dataset_name, number_folds, 
-                                         folders$folderDSFolds, folders$folderResDataset, 
-                                         folders$folderRandom2, folders$folderReports))
-  cat("\n##################################################################################################\n\n") 
-  
-  cat("\n\n################################################################################################")
-  cat("\n# Run: RANDOM PARTITIONS VERSION 3                                                               #")
-  timeRandom3 = system.time(clusRandom_3(ds, namesLabels, dataset_name, number_folds, 
-                                         folders$folderDSFolds, folders$folderResDataset, 
-                                         folders$folderRandom3, folders$folderReports))
-  cat("\n##################################################################################################\n\n") 
-
-# ******************************************************************************************************************** #
-  
   cat("\n\n################################################################################################")
   cat("\n# RUN: Clus Local                                                                               #")
   timeLocal = system.time(clusLocal(ds, dataset_name, number_folds, namesLabels,
@@ -285,16 +285,10 @@ executeHPMLJ <- function(n_dataset, number_cores, number_folds){
   setwd(FolderCF)
   unlink("ConfigFiles", recursive = TRUE)
   
-  if(delete == 1){
-    cat("\n deleting all folders and files generated")    
-    timeDelAll = system.time(deleteAll(number_folds, folders$folderHybrid, folders$folderHClust, 
-                                       folders$folderRandom,folders$folderLocal, folders$folderGlobal, 
-                                       folders$folderRandom))
-  } else {
-    cat("\n keep all folders and files generated")   
-    timeDelAll = 0
-  }
-  
+  #cat("\n deleting all folders and files generated")    
+  #timeDelAll = system.time(deleteAll(number_folds, folders$folderHybrid, folders$folderHClust, 
+  #                                       folders$folderRandom,folders$folderLocal, folders$folderGlobal, 
+  #                                      folders$folderRandom))
   
   cat("\n##################################################################################################\n\n") 
   
@@ -302,7 +296,7 @@ executeHPMLJ <- function(n_dataset, number_cores, number_folds){
   cat("\n# Run: Save Runtime                                                                                   #")
   timesExecute = rbind(timeFolders, timeCV, timeVerify, timeLabelSpace, timeLocal, timeGlobal, timeRandom1,
                        timeRandom2, timeRandom3, timeJaccard, timeHClust, timeBestCoef, timeHybPart, timeHybVal,
-                       timeHybTest, timeCompara, timeResume1, timeResPart, timeDelAll)
+                       timeHybTest, timeCompara, timeResume1, timeResPart)
   setwd(folders$folderReports)
   write.csv(timesExecute, "AllRunTime.csv")
   cat("\n##################################################################################################\n\n") 

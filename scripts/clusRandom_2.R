@@ -615,7 +615,7 @@ gatherPredsRandom2 <- function(ds, dataset_name, number_folds, FolderRandom){
 #   Return                                                                                       #
 #       Assessment measures for each random partition                                            #
 ##################################################################################################
-evalRandom2 <- function(ds, dataset_name, number_folds, FolderRandom){
+evalRandom2 <- function(ds, dataset_name, number_folds, FolderRandom, FolderReports){
   
   medidas = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
               "macro-F1","macro-precision","macro-recall","margin-loss","micro-AUC","micro-F1",
@@ -776,12 +776,12 @@ clusRandom_2 <- function(ds, namesLabels, dataset_name, number_folds, FolderDSF,
   
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2: eval random partitions 2                                                        #")  
-  timeEval = system.time(evalRandom2(ds, dataset_name, number_folds, FolderRandom))
+  timeEval = system.time(evalRandom2(ds, dataset_name, number_folds, FolderRandom, FolderReports))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 2: delete                                                                          #")
-  timeDel = system.time(deleteAllR2(number_folds, FolderRandom2))
+  timeDel = system.time(deleteAllR2(number_folds, FolderRandom))
   cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")

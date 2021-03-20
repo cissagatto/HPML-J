@@ -54,6 +54,13 @@ generatedRandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_fo
   groups = c(0)
   ng = data.frame(fold, part, groups)
   
+  num.fold = c(0)
+  num.part = c(0)
+  num.group = c(0)
+  names.labels = c(0)
+  num.index = c(0)
+  AllPartitions = data.frame(num.fold, num.part, num.group, names.labels, num.index)
+  
   f = 1
   #randomPart <- foreach(f = 1:number_folds) %dopar%{  
   while(f<=number_folds){  
@@ -130,6 +137,19 @@ generatedRandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_fo
       setwd(FolderPartition)
       write.csv(final2, "partition.csv")
       
+      # update data frame
+      num.fold = f
+      num.part = p
+      num.group = pFinal$num.grupo
+      names.labels = pFinal$names.labels
+      num.index = pFinal$index
+      AllPartitions = rbind(AllPartitions, 
+                            data.frame(num.fold, num.part, num.group, names.labels, num.index))
+      
+      # save
+      setwd(FolderRandom3)
+      write.csv(AllPartitions[-1,], "all-partitions.csv")
+      
       grupos.labels = vector("list", p)
       for(i in 1:p){
         grupos.labels[[i]] = pFinal$rotulos[pFinal$grupo == i]
@@ -138,7 +158,7 @@ generatedRandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_fo
       g = 1
       while(g<=num.grupos){
         
-        cat("\n\tGroup = ", g)
+        cat("\n\t\tGroup = ", g)
         
         FolderGroup = paste(FolderPartition, "/Group-", g, sep="")
         if(dir.exists(FolderGroup)==TRUE){
@@ -1754,11 +1774,10 @@ gatherPartitionsT3 <- function(ds, namesLabels, number_folds, FolderRandom3){
 #   Return                                                                                       #
 #
 ##################################################################################################
-deleteRandomFiles3 <- function(ds, namesLabels, number_folds, FolderRandom3){
-  
-  num.particoes = ds$Labels - 1  
+deleteRandomFiles3 <- function(ds, dataset_name, namesLabels, number_folds, FolderRandom3){
   
   setwd(FolderRandom3)
+  print(FolderRandom3)
   grupos = data.frame(read.csv("numero-grupos.csv"))
   grupos2 = grupos[,-1]
   
@@ -1766,88 +1785,69 @@ deleteRandomFiles3 <- function(ds, namesLabels, number_folds, FolderRandom3){
   apagaRandom <- foreach (f = 1:number_folds) %dopar%{
     
     cat("\nFold: ", f)
+    
+    num.particoes = ds$Labels - 1 
+    
     FolderVal = paste(FolderRandom3, "/Validation", sep="" )
     FolderTest = paste(FolderRandom3, "/Test", sep="" )
     FolderSplitV = paste(FolderVal, "/Split-", f, sep="")
     FolderSplitT = paste(FolderTest, "/Split-", f, sep="" )
     
-    setwd(FolderSplitT)
-    unlink("y_predict.csv")
-    unlink("y_true.csv")
-    unlink("EvaluatedPartition.csv")
+    cat("\nApagando SPLIT VALIDAÇÃO")
+    setwd(FolderSplitV)
+    unlink("partitions.csv")
     
+    cat("\nApagando PARTIÇÕES VALIDAÇÃO")
     p = 2
     while(p<=num.particoes){
-      cat("\n\tPartition: ", p)
       
-      FolderPartV = paste(FolderSplitV, "/Partition-", p, sep="")
-      if(dir.exists(FolderPartV)==TRUE){
-        setwd(FolderPartV)
-        unlink("partition.csv")
-        unlink(paste("partition-", p,".csv", sep=""))
-        unlink("y_predict.csv")
-        unlink("y_true.csv")
-        naoexisteV = 0
-      } else {
-        naoexisteV = 1
-      }
-      
-      FolderPartT = paste(FolderSplitT, "/Partition-", p, sep="" )
-      if(dir.exists(FolderPartT)==TRUE){
-        setwd(FolderPartT)
-        unlink("particao.csv")
-        unlink("y_predict.csv")
-        unlink("y_true.csv")
-        naoexisteT = 0
-      } else {
-        naoexisteT = 1
-      }
-      
-      ############################################################################################################
-      #cat("\nGET THE GROUPS NUMBER OF PARTITION\n")
-      res_grupos2 = data.frame(grupos2 %>% filter(grupos2$fold == f, grupos2$part == p))
-      num.grupo = res_grupos2$groups
-      #cat("\n\tNumber of groups for this partition", num.grupo)
+      FolderP = paste(FolderSplitV, "/Partition-", p, sep="")
+      setwd(FolderP)
+      unlink(paste("partition-", p, ".csv", sep=""))
+      unlink("partition.csv")
+      unlink("EvaluatedPartition.csv")
+      unlink("y_true.csv")
+      unlink("y_predict.csv")
       
       g = 1
-      while(g<=num.grupo){
-        
-        cat("\n\tGROUP: ", g)
-        
-        if(naoexisteT==1){
-          
-        } else {
-          FolderGroupT = paste(FolderPartT, "/Group-", g, sep="" )
-          setwd(FolderGroupT)
-          unlink("inicioFimRotulos.csv")
-          unlink("y_predict.csv")
-          unlink("y_true.csv")
-          
-        }
-        
-        if(naoexisteV==1){
-          
-        } else {
-          FolderGroupV = paste(FolderPartV, "/Group-", g, sep="")
-          setwd(FolderGroupV)
-          
-          nome2 = paste(dataset_name, "-split-", f, "-group-", g, ".test.pred.arff", sep="")
-          unlink(nome2)
-          
-          nome1 = paste("grupo_", g, ".csv", sep="")
-          unlink(nome1)
-          unlink("EvaluatedPartition.csv")
-          unlink("particaoFinal.csv")
-          unlink("inicioFimRotulos.csv")
-          unlink("y_predict.csv")
-          unlink("y_true.csv")
-        }
-        
+      while(g<=p){
+        FolderG = paste(FolderP, "/Group-", g, sep="")
+        setwd(FolderG)
+        unlink("y_true.csv")
+        unlink("y_predict.csv")
+        unlink("inicioFimRotulos.csv")
+        unlink(paste("grupo_", g, ".test.pred.arff", sep=""))
+        unlink(paste("grupo_", g, ".s", sep=""))
         g = g + 1
         gc()
       }
       
       p = p + 1
+      gc()
+    }
+    
+    cat("Apagando TEST")
+    setwd(FolderRandom3)
+    bestf1 = data.frame(read.csv("BestF1Macro.csv"))
+    bestf1 = bestf1[f,]
+    bestpart = bestf1$num.part
+    
+    setwd(FolderSplitT)
+    FolderPartT = paste(FolderSplitT, "/Partition-", bestpart, sep="")
+    unlink("EvaluatedPartition.csv")
+    unlink("y_true.csv")
+    unlink("y_predict.csv")
+    
+    r = 1
+    while(r<=bestpart){
+      FolderGroupT = paste(FolderPartT, "/Group-", r, sep="")
+      setwd(FolderGroupT)
+      unlink(paste(dataset_name,"-split-", f, "-group-", r, ".s", sep=""))
+      unlink(paste(dataset_name, "-split-", f, "-group-", r, ".test.pred.arff", sep=""))
+      unlink("inicioFimRotulos.csv")
+      unlink("y_predict.csv")
+      unlink("y_true.csv")
+      r = r + 1
       gc()
     }
     
@@ -1939,10 +1939,10 @@ clusRandom_3 <- function(ds, dataset_name, number_folds, namesLabels, FolderDSF,
   timeGP = system.time(gatherPartitionsT3(ds, namesLabels, number_folds, FolderRandom3))
   cat("\n##################################################################################################")
   
-  cat("\n##################################################################################################")
-  cat("\n# CLUS RANDOM 3 TEST: delete unecessary files                                                    #")  
-  timeDel = system.time(deleteRandomFiles3(ds, namesLabels, number_folds, FolderRandom3))
-  cat("\n##################################################################################################")
+  #cat("\n##################################################################################################")
+  #cat("\n# CLUS RANDOM 3 TEST: delete unecessary files                                                    #")  
+  #timeDel = system.time(deleteRandomFiles3(ds, dataset_name, namesLabels, number_folds, FolderRandom3))
+  #cat("\n##################################################################################################")
   
   cat("\n##################################################################################################")
   cat("\n# CLUS RANDOM 3: Save Runtime                                                                    #")

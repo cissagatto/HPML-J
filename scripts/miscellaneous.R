@@ -237,7 +237,7 @@ deleteAll <- function(number_folds, FolderHybrid, FolderHybPart, FolderHClust, F
     
     # Tested Hybrid Partitions
     Folder1 = paste(FolderHybrid, "/Split-", f, sep="")
-    str1 = paste("rm -r ", Folder1, sep="")
+    #str1 = paste("rm -r ", Folder1, sep="")
     print(system(str1))
     
     # Validated Hybrid Partitions

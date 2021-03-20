@@ -102,22 +102,6 @@ dataset_name <- toString(ds$Name)
 Folder1 = paste(diretorios$folderResults, "/", dataset_name, sep="") 
 cat("\n", Folder1)
 
-#cat("\nCleaning the folder results\n")
-#if(dir.exists(Folder1)==TRUE){
-#  setwd(Folder1)
-#  str10 = paste("rm -r ", dataset_name, sep="")
-#  print(system(str10))
-#} else {
-#  cat("\nNao existe\n")
-#}
-
-##################################################################################################
-# save output                                                                                    #
-##################################################################################################
-#setwd(diretorios$folderResults)
-#namae1 = paste("output-", dataset_name, ".txt", sep="")
-#sink(namae1, type="output")
-
 
 ##################################################################################################
 # execute the code and get the total execution time                                              #
@@ -125,71 +109,60 @@ cat("\n", Folder1)
 ##################################################################################################
 cat("\nExecute HPMLJ\n")
 timeFinal <- system.time(results <- executeHPMLJ(args[1], number_cores, number_folds))
+print(timeFinal)
 
 #timeFinal <- system.time(results <- executeHPMLJ(17, number_cores, number_folds))
-
 
 ##################################################################################################
 # save the total time in rds format in the dataset folder                                        #
 ##################################################################################################
-cat("\nSave Runtime\n")
-str0 <- paste(Folder1, "/", dataset_name, "time-final.rds", sep="")
-str00 <- paste(dataset_name, "time-final.rds", sep="")
-str000 <- paste("HPML-J/Resultados",  str00, sep="")
-setwd(Folder1)
-save(timeFinal, file = str0)
-#drive_upload(str0, str000)
+cat("\nSave Rds\n")
+str0 <- paste(FolderRoot, "/", dataset_name, "-results.rds", sep="")
+setwd(FolderRoot)
+save(results, file = str0)
 
 
 ##################################################################################################
 # save results in RDATA form in the dataset folder                                               #
 ##################################################################################################
 cat("\nSave Rdata\n")
-str1 <- paste(Folder1, "/", dataset_name, "-results.RData", sep="")
-str11 <- paste(dataset_name, "-results.RData", sep="")
-str111 <- paste("HPML-J/Resultados",  str11, sep="")
-setwd(Folder1)
-save(results, file =str1)
-save(timeFinal, file = str0)
-#drive_upload(str1, str111)
+str1 <- paste(FolderRoot, "/", dataset_name, "-results.RData", sep="")
+setwd(FolderRoot)
+save(results, file = str1)
 
 
 ##################################################################################################
 # save results in RDS form in the dataset folder                                                 #
 ##################################################################################################
-cat("\nSave rds\n")
-str2 <- paste(Folder1, "/", dataset_name, "-results.rds", sep="")
-str22 <- paste(dataset_name, "-results.rds", sep="")
-str222 <- paste("HPML-J/Resultados",  str22, sep="")
-setwd(Folder1)
-write_rds(results, str2)
-#drive_upload(str2, str222)
+#cat("\nSave runtime\n")
+#setwd(FolderRoot)
+#write(timeFinal, paste(dataset_name, "final-runtime.csv", sep=""))
 
 
 ##################################################################################################
 # compress the results for later transfer to the dataset folder                                  #
 ##################################################################################################
 cat("\nCompress results\n")
-str3 <- paste(Folder1, "/", dataset_name, "-results.tar.gz" , sep="")
-str33 <- paste("tar -zcvf ", str3, " ", dataset_name, sep="")
-str333 <- paste("HPML-J/Resultados", dataset_name, "-results.tar.gz" , sep="")
-setwd(Folder1)
-system(str33)
-#drive_upload(str3, str333)
+Folder =  paste(diretorios$folderResults, "/", dataset_name, sep="")
+str3 = paste("tar -zcvf ", dataset_name, "-results.tar.gz ", Folder, sep="")
+print(system(str3))
+
 
 ##################################################################################################
-# compress 10-folds for later transfer                                                           #
+# copy file                                                                                      #
 ##################################################################################################
-cat("\nCompress datasets\n")
-Folder3 <- paste(diretorios$folderFolds, "/", dataset_name, sep="") 
-setwd(Folder3)
-str4 <- paste("tar -zcvf ", dataset_name, "-10-folds.tar.gz " , dataset_name, sep="")
-str44 = paste(Folder3, "/", dataset_name, "-10-folds.tar.gz", sep="")
-str444 <- paste("HPML-J/Resultados", dataset_name, "-results.tar.gz" , sep="")
-system(str4)
-#drive_upload(str4, str444)
+cat("\nCopy file tar \n")
+str4 = paste("cp ", Folder, "/", dataset_name, "-results.tar.gz ", FolderRoot, sep="")
+print(system(str4))
 
-#sink()
+
+##################################################################################################
+# del                                                                                      #
+##################################################################################################
+cat("\nDelete folder \n")
+str5 = paste("rm -r ", Folder, sep="")
+print(system(str5))
+
 
 ##################################################################################################
 # Please, any errors, contact us: elainececiliagatto@gmail.com                                   #

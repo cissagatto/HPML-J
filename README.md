@@ -44,7 +44,9 @@ A file called "datasets.csv" must be in the *datasets* folder. This file is used
 
 _Id, Name, Domain, Labels, Instances, Attributes, Inputs, Labelsets, Single, Max freq, Card, Dens, MeanIR, Scumble, TCS, AttStart, AttEnd, LabelStart, LabelEnd
 
-The _"Id"_ of the dataset is a mandatory parameter (_n_dataset_) in the command line to run all code. The "LabelStart" and "LabelEnd" are used in a lot of internal functions. Please, make sure that this information is available before running the code.
+The _"Id"_ of the dataset is a mandatory parameter (_n_dataset_) in the command line to run all code. The "LabelStart" and "LabelEnd" are used in a lot of internal functions. Please, make sure that this information is available before running the code. 
+
+NOTE: Please, pay attention to the file names and the names in the CSV file. They must be the same, on the contrary, an error may occur.
 
 ## Folder Strucutre
 <img src="https://github.com/cissagatto/HPML-J/blob/master/Images/estrutura_hpmj.PNG">

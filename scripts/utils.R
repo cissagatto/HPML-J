@@ -22,50 +22,28 @@
 # Script 2 - UTILS                                                                               #
 ##################################################################################################
 
-##################################################################################################
+#################################################################################################
 # Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
+shm = 0
 FolderRoot = ""
 if (sistema[1] == "Linux"){
   FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 1
 } else {
   FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 0
 }
+shm = shm
 setwd(FolderRoot)
+
+# folder SCRIPTS
 FolderScripts = paste(FolderRoot, "/scripts/", sep="")
-setwd(FolderScripts)
 
+# folder shm
+FolderSHM = "/dev/shm/"
 
-##################################################################################################
-# FUNCTION SET FOLDER                                                                            #
-#   Objective:                                                                                   #
-#       Set the folder path                                                                      #  
-#   Parameters:                                                                                  #
-#      None                                                                                      #
-#   Return:                                                                                      #
-#      The correct path of the root folder                                                       #
-##################################################################################################
-setwd(FolderRoot)
-setFolder <- function(){
-  retorno = list()
-  sistema = c(Sys.info())
-  
-  if (sistema[1] == "Linux"){
-    Folder = paste("/home/", sistema[7], "/HPML-J", sep="")
-    setwd(Folder)
-  } else {
-    Folder = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-    setwd(Folder)
-  }
-  
-  FolderRoot = Folder
-  retorno$sistema = sistema
-  retorno$Folder = Folder
-  return(retorno)
-}
 
 
 ##################################################################################################
@@ -78,11 +56,17 @@ setFolder <- function(){
 #   Return:                                                                                      #
 #      All path directories                                                                      #
 ##################################################################################################
-directories <- function(){
+directories <- function(shm){
   
   retorno = list()
   
-  folderResults = paste(FolderRoot, "/results", sep="")
+  
+  if(shm==1){
+    folderResults = "/dev/shm/results"
+  } else {
+    folderResults = paste(FolderRoot, "/results", sep="")
+  }
+  
   if(dir.exists(folderResults) == TRUE){
     setwd(folderResults)
     dirResults = dir(folderResults)
@@ -194,7 +178,7 @@ directories <- function(){
 ##################################################################################################
 creatingFoldersPrincipals<- function(dataset_name){
   
-  diretorios = directories()
+  diretorios <- directories(shm)
   
   retorno = list()
   
@@ -430,7 +414,8 @@ converteArff <- function(arg1, arg2, arg3){
 #       Created folders                                                                          #
 ##################################################################################################
 criaPastasCSC <- function(dataset_name){
-  diretorios = directories()
+  
+  diretorios <- directories(shm)
   
   Pasta1 = paste(diretorios$folderCSC, "/", dataset_name, sep="")
   dir.create(Pasta1)

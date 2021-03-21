@@ -22,13 +22,29 @@
 # Script 13 - Clus Random 3                                                                      #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# Workspace configuration                                                                        #
-##################################################################################################
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
-diretorios = directories()
+sistema = c(Sys.info())
+shm = 0
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  shm = 1
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  shm = 0
+}
+shm = shm
+setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
+
 
 ##################################################################################################
 # FUNCTION GENERATED RANDOM PARTITIONS                                                           #
@@ -210,10 +226,7 @@ RandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_folds, Fold
   num.particoes = ds$Labels - 1
   #cat("numero de partições: ", num.particoes)
   
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios <- directories(shm)
   
   FolderTr = paste(FolderDSF, "/Tr", sep="")
   dirFolderTr = c(dir(FolderTr))
@@ -232,6 +245,11 @@ RandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_folds, Fold
   #cat("\n", FolderVl)
   #cat("\n", FolderRoot)
   #print(grupos2)
+  
+  fold = c()
+  part = c() 
+  silho = c()
+  qualidadeSilho = data.frame(fold, part, silho)
   
   f = 1  
   randomP <- foreach(f = 1:number_folds) %dopar%{  
@@ -253,15 +271,16 @@ RandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_folds, Fold
     ############################################################################################################
     #cat("\nSET WORKSPACE \n")
     sistema = c(Sys.info())
+    shm = 0
     FolderRoot = ""
     if (sistema[1] == "Linux"){
       FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 1
     } else {
       FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 0
     }
-    setwd(FolderRoot)
+    shm = shm
     
     ############################################################################################################
     setwd(FolderRoot)
@@ -296,6 +315,7 @@ RandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_folds, Fold
     # DA PARTIÇÃO 2 ATÉ A ÚLTIMA PARTIÇÃO
     p = 2
     while(p<=num.particoes){
+
       setwd(FolderSplit)
       
       ############################################################################################################
@@ -345,6 +365,10 @@ RandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_folds, Fold
       
       res_grupos2 = data.frame(grupos2 %>% filter(grupos2$fold == f, grupos2$part == p))
       num.grupo = res_grupos2$groups
+      
+      ####################################################################################
+      grupoSilhuetaTR = data.frame()
+      grupoSilhuetaVL = data.frame()
       
       # DO GRUPO 1 ATÉ O ÚLTIMO GRUPO DA PARTIÇÃO
       g = 1
@@ -405,6 +429,11 @@ RandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_folds, Fold
         thisGroupTr = cbind(atributosTr, classesTr)
         
         ####################################################################################
+        # grupo silhueta
+        esteGrupoTR = cbind(clusters = g, data.frame(t(classesTr)))
+        grupoSilhuetaTR = rbind(grupoSilhuetaTR, esteGrupoTR)
+        
+        ####################################################################################
         #cat("\nTRAIN: Save CSV\n")
         nomeCsTr = paste("grupo_Tr_", g, ".csv", sep="")
         nomeArTr = paste("grupo_Tr_", g, ".arff", sep="")
@@ -447,6 +476,11 @@ RandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_folds, Fold
         rotulosVl = toString(grSpecThisPart$names.labels)
         classesVl = select(arquivoVl, grSpecThisPart$names.labels)
         thisGroupVl = cbind(atributosVl, classesVl)
+        
+        ####################################################################################
+        # grupo silhueta
+        esteGrupoVL = cbind(clusters = g, data.frame(t(classesVl)))
+        grupoSilhuetaVL = rbind(grupoSilhuetaVL, esteGrupoVL)
         
         ####################################################################################
         #cat("\nVALIDATION: Save CSV\n")
@@ -612,11 +646,51 @@ RandomPartitionsV3 <- function(ds, namesLabels, dataset_name, number_folds, Fold
         
         g = g + 1
         gc()
-      } 
+      } # fim do grupo
+      
+      #setwd(FolderPartition)
+      #library(cluster)
+      #a = dist(grupoSilhuetaTR)
+      #b = as.dist(a)
+      #sil = silhouette(grupoSilhuetaTR$clusters, dist(grupoSilhuetaTR))
+      #sil = sortSilhouette(sil)
+      #write.csv(sil, paste("silhueta-p", p, ".csv", sep=""))
+      
+      #pdf(paste("sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+      #plot(sil)
+      #dev.off()
+      #cat("\n")     
+      
+      # Summary of silhouette analysis
+      #si.sum = summary(sil)
+      #print(si.sum)
+      
+      # Average silhouette width of each cluster
+      #print(si.sum$clus.avg.widths)
+      
+      # The size of each clusters
+      #print(si.sum$clus.sizes)
+      
+      # The total average (mean of all individual silhouette widths)
+      #avgTotal = si.sum$avg.width
+      
+      #fold = f
+      #part = p 
+      #silho = avgTotal
+      #qualidadeSilho = rbind(qualidadeSilho, data.frame(fold, part, silho))
+      
+      #library("factoextra")
+      #pdf(paste("fviz-sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+      #print(fviz_silhouette(sil))
+      #dev.off()
+      #cat("\n")     
       
       p = p + 1
       gc()
-    } 
+    } # fim partição
+    
+    setwd(FolderSplit)
+    write.csv(qualidadeSilho, "qualidadeSilhouete.csv", append = TRUE)
     
     gc()
     
@@ -1028,14 +1102,14 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
   FolderTr = paste(FolderDSF, "/Tr", sep="")
   FolderTs = paste(FolderDSF, "/Ts", sep="")
   
-  #cat("\n", FolderTr)
-  #cat("\n", FolderTs)
+  cat("\n", FolderTr)
+  cat("\n", FolderTs)
   
   setwd(FolderRandom3)
   grupos = data.frame(read.csv("numero-grupos.csv"))
   grupos2 = grupos[,-1]
-  #print(grupos2)
-  #cat("\n")
+  print(grupos2)
+  cat("\n")
   
   f = 1
   mrParalel <- foreach(f = 1:number_folds) %dopar% {
@@ -1043,9 +1117,9 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
     cat("\nFold: ", f)
     
     ############################################################################################################
+    library("foreign")
     library("RWeka")
     library("rJava")
-    library("foreign")
     library("stringr")
     library("AggregateR")    
     library("plyr")
@@ -1056,29 +1130,30 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
     ############################################################################################################
     cat("\nSET WORKSPACE \n")
     sistema = c(Sys.info())
+    shm = 0
     FolderRoot = ""
     if (sistema[1] == "Linux"){
       FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 1
     } else {
       FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 0
     }
-    #print(FolderRoot)
+    shm = shm
     
     ############################################################################################################
     setwd(FolderRoot)
     FolderUtils = paste(FolderRoot, "/utils", sep="")
     dataset_name = dataset_name    
-    #print(FolderUtils)
+    print(FolderUtils)
     
     ############################################################################################################
     FolderScripts = paste(FolderRoot, "/scripts/", sep="")
     setwd(FolderScripts)
-    #print(FolderScripts)
+    print(FolderScripts)
     
     ############################################################################################################
-    #cat("\nLOAD FUNCTION CONVERT ARFF \n")
+    cat("\nLOAD FUNCTION CONVERT ARFF \n")
     converteArff <- function(arg1, arg2, arg3){
       str = paste("java -jar ", FolderUtils, "/R_csv_2_arff.jar ", arg1, " ", arg2, " ", arg3, sep="")
       print(system(str))
@@ -1087,13 +1162,13 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
     
     ############################################################################################################
     FolderVal = paste(FolderRandom3, "/Validation", sep="")
-    #print(FolderVal)
+    print(FolderVal)
     
     FolderTest = paste(FolderRandom3, "/Test", sep="")
-    #print(FolderTest)
+    print(FolderTest)
     
     FolderSplit = paste(FolderTest, "/Split-", f, sep="")
-    #print(FolderSplit)
+    print(FolderSplit)
     
     if(dir.exists(FolderTest)==TRUE){
     } else {
@@ -1106,17 +1181,17 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
     }
     
     ############################################################################################################
-    #cat("\n\tSelect Best Partition for: ", f, "\n")
+    cat("\n\tSelect Best Partition for: ", f, "\n")
     setwd(FolderRandom3)
     bestPartition = data.frame(read.csv("BestF1Macro.csv"))
-    #print(bestPartition)
+    print(bestPartition)
     bestPartition2 = bestPartition[f,]
     particaoEscolhida = bestPartition2$num.part
-    #cat("\n\t\tChoose Partition:", particaoEscolhida, "\n")
+    cat("\n\t\tChoose Partition:", particaoEscolhida, "\n")
     
     ############################################################################################################
     FolderPV = paste(FolderVal, "/Split-", f, "/Partition-", particaoEscolhida, sep="")
-    #print(FolderPV)
+    print(FolderPV)
     
     if(dir.exists(FolderPV)==TRUE){
     } else {
@@ -1124,7 +1199,7 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
     }
     
     FolderPT = paste(FolderSplit, "/Partition-", particaoEscolhida, sep="")
-    #print(FolderPT)
+    print(FolderPT)
     
     if(dir.exists(FolderPT)==TRUE){
     } else {
@@ -1132,30 +1207,33 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
     }
     
     ############################################################################################################
-    #cat("\n\t Partition Configuration \n")
-    setwd(FolderPV)
-    configParticao = data.frame(read.csv("partition.csv"), stringsAsFactors = F)
+    cat("\n\t Partition Configuration \n")
+    setwd(FolderRandom3)
+    configParticao = data.frame(read.csv("all-partitions.csv"), stringsAsFactors = F)
     configParticao2 = configParticao[,-1]
-    configParticao3 = configParticao2[order(configParticao2$num.grupo, decreasing = FALSE),]
+    configParticao3 = data.frame(configParticao2 %>% filter(configParticao2$num.fold == f, configParticao2$num.part == particaoEscolhida))
     cat("\n ")
     print(configParticao3)
     cat("\n ")
     
-    ############################################################################################################
-    #cat("\nGET THE GROUPS NUMBER OF PARTITION\n")
-    res_grupos2 = data.frame(grupos2 %>% filter(grupos2$fold == f, grupos2$part == particaoEscolhida))
-    print(res_grupos2)
-    num.grupo = res_grupos2$groups
-    #cat("\n\tNumber of groups for this partition", num.grupo)
     
     ############################################################################################################
-    #cat("\n\t\tOpen Train file ", f, "\n")
+    cat("\nGET THE GROUPS NUMBER OF PARTITION\n")
+    setwd(FolderRandom3)
+    numGroup = data.frame(read.csv("numero-grupos.csv"))
+    res_grupos = data.frame(numGroup %>% filter(numGroup$fold == f, numGroup$part == particaoEscolhida))
+    print(res_grupos)
+    num.grupo = res_grupos$groups
+    cat("\n\tNumber of groups for this partition", num.grupo)
+    
+    ############################################################################################################
+    cat("\n\t\tOpen Train file ", f, "\n")
     setwd(FolderTr)
     nome_arq_tr = paste(dataset_name, "-Split-Tr-", f, ".csv", sep="")
     arquivo_tr = data.frame(read.csv(nome_arq_tr))
     
     ############################################################################################################
-    #cat("\n\t\tOpen Test file ", f, "\n")
+    cat("\n\t\tOpen Test file ", f, "\n")
     setwd(FolderTs)
     nome_arq_ts = paste(dataset_name, "-Split-Ts-", f, ".csv", sep="")
     arquivo_ts = data.frame(read.csv(nome_arq_ts))
@@ -1178,12 +1256,14 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
       
       ############################################################################################################
       cat("\n\tSpecific Group Contents: ", g, "\n")
-      grupoEspecifico = data.frame(configParticao2 %>% filter(., configParticao2$num.grupo == g))  
-      #print(grupoEspecifico)
+      grupoEspecifico = data.frame(configParticao3 %>% filter(., configParticao3$num.group == g))  
+      grupoEspecifico2 = c(grupoEspecifico$names.labels)
+      print(grupoEspecifico)
+      print(grupoEspecifico2)
       
       ############################################################################################################      
       FolderGT = paste(FolderPT, "/Group-", g, sep="")
-      #print(FolderGT)
+      print(FolderGT)
       
       if(dir.exists(FolderGT)==TRUE){
       } else {
@@ -1191,7 +1271,7 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
       }
       
       ############################################################################################################      
-      #cat("\n\tTRAIN: Mount Group ", g, "\n")
+      cat("\n\tTRAIN: Mount Group ", g, "\n")
       atributos_tr = arquivo_tr[ds$AttStart:ds$AttEnd]
       n_a = ncol(atributos_tr)
       #rotulos_tr = toString(grupoEspecifico$names.labels)
@@ -1201,20 +1281,20 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
       fim_tr = ncol(grupo_tr)
       
       ############################################################################################################      
-      #cat("\n\tTRAIN: Save Group", g, "\n")
+      cat("\n\tTRAIN: Save Group", g, "\n")
       setwd(FolderGT)
       nome_tr = paste(dataset_name, "-split-tr-", f, "-group-", g, ".csv", sep="")
       write.csv(grupo_tr, nome_tr, row.names = FALSE)
       
       ############################################################################################################      
-      #cat("\n\tINICIO FIM TARGETS: ", g, "\n")
+      cat("\n\tINICIO FIM TARGETS: ", g, "\n")
       inicio = ds$LabelStart
       fim = fim_tr
       ifr = data.frame(inicio, fim)
       write.csv(ifr, "inicioFimRotulos.csv", row.names = FALSE)
       
       ############################################################################################################      
-      #cat("\n\tTRAIN: Convert Train CSV to ARFF ", g , "\n")
+      cat("\n\tTRAIN: Convert Train CSV to ARFF ", g , "\n")
       nome_arquivo_2 = paste(dataset_name, "-split-tr-", f, "-group-", g, ".arff", sep="")
       setwd(FolderGT)
       arg1Tr = paste(FolderGT, "/", nome_tr, sep="")
@@ -1225,28 +1305,28 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
       cat("\n\n")			  
       
       ############################################################################################################      
-      #cat("\n\tTRAIN: Verify and correct {0} and {1} ", g , "\n")
+      cat("\n\tTRAIN: Verify and correct {0} and {1} ", g , "\n")
       str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arg2Tr, sep="")      
       print(system(str0))
       cat("\n\n")			  
       
       ############################################################################################################      
-      #cat("\n\tTEST: Mount Group: ", g, "\n")
+      cat("\n\tTEST: Mount Group: ", g, "\n")
       atributos_ts = arquivo_ts[ds$AttStart:ds$AttEnd]
       #rotulos_ts = toString(grupoEspecifico$names.labels)
       classes_ts = select(arquivo_ts, grupoEspecifico$names.labels)
       grupo_ts = cbind(atributos_ts, classes_ts)
       fim_ts = ncol(grupo_ts)
-      #cat("\n\tTest Group Mounted: ", g, "\n")
+      cat("\n\tTest Group Mounted: ", g, "\n")
       
       ############################################################################################################      
-      #cat("\n\tTEST: Save Group ", g, "\n")
+      cat("\n\tTEST: Save Group ", g, "\n")
       setwd(FolderGT)
       nome_ts = paste(dataset_name, "-split-ts-", f, "-group-", g, ".csv", sep="")
       write.csv(grupo_ts, nome_ts, row.names = FALSE)
       
       ############################################################################################################      
-      #cat("\n\tTEST: Convert CSV to ARFF ", g , "\n")
+      cat("\n\tTEST: Convert CSV to ARFF ", g , "\n")
       nome_arquivo_3 = paste(dataset_name, "-split-ts-", f,"-group-", g, ".arff", sep="")
       setwd(FolderGT)
       arg1Ts = paste(FolderGT, "/", nome_ts, sep="")
@@ -1257,15 +1337,15 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
       cat("\n\n")			  
       
       ############################################################################################################      
-      #cat("\n\tTEST: Verify and correct {0} and {1} ", g , "\n")
+      cat("\n\tTEST: Verify and correct {0} and {1} ", g , "\n")
       str0 = paste("sed -i 's/{0}/{0,1}/g;s/{1}/{0,1}/g' ", arg2Ts, sep="")
       print(system(str0))	  
       cat("\n\n")	
       
       #####################################################################################################
-      #cat("\nCreating .s file for clus")
-      nome_arquivo_2 = paste("emotions-split-tr-", f , "-group-", g, ".arff", sep="")
-      nome_arquivo_3 = paste("emotions-split-ts-", f , "-group-", g, ".arff", sep="")
+      cat("\nCreating .s file for clus")
+      nome_arquivo_2 = paste(dataset_name, "-split-tr-", f , "-group-", g, ".arff", sep="")
+      nome_arquivo_3 = paste(dataset_name, "-split-ts-", f , "-group-", g, ".arff", sep="")
       
       if(inicio == fim){
         setwd(FolderGT)
@@ -1366,10 +1446,13 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
       
       g = g + 1
       gc()
-    }
+    } # fim do grupo
     
+
     gc()
   } 
+  
+  
   gc()
   cat("\n\n################################################################################################")
   cat("\n# CLUS RANDOM 3: END OF MOUNT RANDOM PARTITION FOR TEST ON CLUS                                 #") 
@@ -1393,6 +1476,10 @@ mountRandomParT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRa
 ##################################################################################################
 splitsPredictionsRandomT3 <- function(ds, dataset_name, number_folds, FolderDSF, FolderRandom3){
   
+  
+  print(FolderDSF)
+  print(FolderRandom3)
+  
   setwd(FolderRandom3)
   grupos = data.frame(read.csv("numero-grupos.csv"))
   grupos2 = grupos[,-1]
@@ -1414,19 +1501,18 @@ splitsPredictionsRandomT3 <- function(ds, dataset_name, number_folds, FolderDSF,
     FolderTest = paste(FolderRandom3, "/Test", sep="")
     FolderSplit = paste(FolderTest, "/Split-", f, sep="")
     
-    #cat("\nSelect Best Partition for", f, "\n")
+    cat("\nSelect Best Partition for", f, "\n")
     setwd(FolderRandom3)
     bestPartition = data.frame(read.csv("BestF1Macro.csv"))
     bestPartition2 = bestPartition[f,]
     particaoEscolhida = bestPartition2$num.part
-    #cat("\n\tChoose Partition:", particaoEscolhida, "\n")
+    cat("\n\tChoose Partition:", particaoEscolhida, "\n")
     
     FolderPV = paste(FolderVal, "/Split-", f, "/Partition-", particaoEscolhida, sep="")
     FolderPT = paste(FolderSplit, "/Partition-", particaoEscolhida, sep="")
     
-    
     ############################################################################################################
-    #cat("\nGET THE GROUPS NUMBER OF PARTITION\n")
+    cat("\nGET THE GROUPS NUMBER OF PARTITION\n")
     res_grupos2 = data.frame(grupos2 %>% filter(grupos2$fold == f, grupos2$part == particaoEscolhida))
     num.grupo = res_grupos2$groups
     cat("\n\tNumber of groups for this partition", num.grupo)
@@ -1776,15 +1862,15 @@ gatherPartitionsT3 <- function(ds, namesLabels, number_folds, FolderRandom3){
 ##################################################################################################
 deleteRandomFiles3 <- function(ds, dataset_name, namesLabels, number_folds, FolderRandom3){
   
-  setwd(FolderRandom3)
-  print(FolderRandom3)
-  grupos = data.frame(read.csv("numero-grupos.csv"))
-  grupos2 = grupos[,-1]
-  
   f = 1
   apagaRandom <- foreach (f = 1:number_folds) %dopar%{
     
-    cat("\nFold: ", f)
+                                        cat("\nFold: ", f)
+                                        
+                                        setwd(FolderRandom3)
+                                        print(FolderRandom3)
+    grupos = data.frame(read.csv("numero-grupos.csv"))
+    grupos2 = grupos[,-1]
     
     num.particoes = ds$Labels - 1 
     

@@ -22,21 +22,28 @@
 # Script 3 - Preprocessing                                                                       #
 ##################################################################################################
 
-##################################################################################################
+#################################################################################################
 # Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
+shm = 0
 FolderRoot = ""
 if (sistema[1] == "Linux"){
   FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 1
 } else {
   FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 0
 }
+shm = shm
 setwd(FolderRoot)
+
+# folder SCRIPTS
 FolderScripts = paste(FolderRoot, "/scripts/", sep="")
-setwd(FolderScripts)
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
 
 
 ##################################################################################################
@@ -79,12 +86,7 @@ informacoesDatasets = data.frame(nomeDataset, num.attributes, num.instances, num
 ##################################################################################################
 crossValidation <- function(ds, dataset_name, number_folds){ 
   
-  # set folder
-  sf = setFolder()
-  FolderRoot = sf$Folder
-  
-  # get the directories
-  diretorios = directories()
+  diretorios <- directories(shm)
   
   # creates the folder to store the 10-fold files
   FolderCV = paste(diretorios$folderFolds, "/", dataset_name, sep="")

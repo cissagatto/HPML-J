@@ -22,14 +22,27 @@
 # Script 10 - Clus Local                                                                         #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# Workspace configuration                                                                        #
-##################################################################################################
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
-diretorios = directories()
+sistema = c(Sys.info())
+shm = 0
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  shm = 1
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  shm = 0
+}
+shm = shm
+setwd(FolderRoot)
 
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
 
 ##################################################################################################
 # FUNCTION GATHER FILES FOLDS LOCAL                                                              #
@@ -46,11 +59,7 @@ diretorios = directories()
 ##################################################################################################
 gatherFilesFoldsLocal <- function(ds, dataset_name, number_folds, FolderCV, FolderLocal){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()  
+  diretorios <- directories(shm)
   
   #specifying folders
   F10F = diretorios$FolderCV
@@ -123,11 +132,7 @@ gatherFilesFoldsLocal <- function(ds, dataset_name, number_folds, FolderCV, Fold
 ##################################################################################################
 splitLabels <- function(ds, dataset_name, number_folds, namesLabels, FolderCV, FolderLocal){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()  
+  diretorios <- directories(shm)
   
   # specifying folder
   folderUtils = paste(FolderRoot, "/utils", sep="")
@@ -321,11 +326,7 @@ splitLabels <- function(ds, dataset_name, number_folds, namesLabels, FolderCV, F
 ##################################################################################################
 gatherLocalPredicts <- function(ds, dataset_name, number_folds, namesLabels, FolderLocal){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()  
+  diretorios <- directories(shm)
   
   # from fold = 1 to number_folds
     f = 1
@@ -372,8 +373,7 @@ gatherLocalPredicts <- function(ds, dataset_name, number_folds, namesLabels, Fol
         y_true = cbind(y_true, classes)
         y_pred = cbind(y_pred, pred)      
         
-        nome2 = paste(namesLabels[j], "-", j, ".test.pred.arff", sep="")
-        unlink(nome2)
+        unlink(testPred1)
         
         j = j + 1
         gc()
@@ -412,11 +412,7 @@ gatherLocalPredicts <- function(ds, dataset_name, number_folds, namesLabels, Fol
 ##################################################################################################
 evaluateLocal <- function(ds, dataset_name, number_folds, Folder){  
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios <- directories(shm)
   
   # data frame
   apagar = c(0)
@@ -491,11 +487,7 @@ evaluateLocal <- function(ds, dataset_name, number_folds, Folder){
 ##################################################################################################
 gatherEvalLocal <- function(ds, dataset_name, number_folds, Folder, FolderReports){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios <- directories(shm)
   
   # vector with names measures
   medidas = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
@@ -580,10 +572,7 @@ gatherEvalLocal <- function(ds, dataset_name, number_folds, Folder, FolderReport
 ##################################################################################################
 clusLocal <- function(ds, dataset_name, number_folds, namesLabels, FolderCV, FolderLocal, FolderReports){ 
   
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios <- directories(shm)
   
   cat("\n##################################################################################################")
   cat("\n# CLUS LOCAL: Tests each Splits Localy                                                           #")

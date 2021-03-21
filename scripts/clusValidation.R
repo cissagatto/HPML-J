@@ -22,13 +22,28 @@
 # Script 7 - Clus Validation                                                                     #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# Workspace configuration                                                                        #
-##################################################################################################
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
-diretorios = directories()
+sistema = c(Sys.info())
+shm = 0
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  shm = 1
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  shm = 0
+}
+shm = shm
+setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
 
 
 ##################################################################################################
@@ -46,11 +61,7 @@ diretorios = directories()
 ##################################################################################################
 gatherPredsHybPartVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # from fold 1 to number_folders
   f = 1
@@ -142,11 +153,7 @@ gatherPredsHybPartVAL <- function(ds, dataset_name, number_folds, FolderHybPart)
 ##################################################################################################
 evalHybPartVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # data frame
   apagar = c(0)
@@ -240,11 +247,7 @@ evalHybPartVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
 ##################################################################################################
 gatherEvaluationVAL <- function(ds, dataset_name, number_folds, FolderHybPart){  
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # vector with names
   measures = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
@@ -325,11 +328,7 @@ gatherEvaluationVAL <- function(ds, dataset_name, number_folds, FolderHybPart){
 ##################################################################################################
 gF1macroVAL <- function(ds, dataset_name, number_folds, FolderHybPart, FolderReports){
    
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # vector with measures names
   measures = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
@@ -408,11 +407,7 @@ gF1macroVAL <- function(ds, dataset_name, number_folds, FolderHybPart, FolderRep
 ##################################################################################################
 delHybPartVAL <- function(ds, number_folds, FolderHybPart){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # from fold = 1 to number_folds
   f = 1
@@ -492,11 +487,7 @@ delHybPartVAL <- function(ds, number_folds, FolderHybPart){
 ##################################################################################################
 clusValidation <- function(ds, dataset_name, number_folds, FolderHybPart, FolderReports){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # call functions
   

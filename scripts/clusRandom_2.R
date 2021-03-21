@@ -22,13 +22,29 @@
 # Script 12 - Clus Random 2                                                                      #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# Workspace configuration                                                                        #
-##################################################################################################
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
-diretorios = directories()
+sistema = c(Sys.info())
+shm = 0
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  shm = 1
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  shm = 0
+}
+shm = shm
+setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
+
 
 ##################################################################################################
 # FUNCTION GENERATED RANDOM PARTITIONS                                                           #
@@ -130,10 +146,7 @@ generatedRandomPartitions2 <- function(ds, dataset_name, number_folds, namesLabe
 ##################################################################################################
 RandomPartitions2 <- function(ds, namesLabels, dataset_name, number_folds, FolderRandom, FolderDSF){
   
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios <- directories(shm)
   
   FolderTr = paste(FolderDSF, "/Tr", sep="")
   dirFolderTr = c(dir(FolderTr))
@@ -146,6 +159,10 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name, number_folds, Folde
   setwd(FolderRandom)
   summaryPartitions = data.frame(read.csv("summary_partitions.csv"))
   summaryPartitions = summaryPartitions[,-1]
+  
+  fold = c()
+  silho = c()
+  qualidadeSilho = data.frame(fold, silho)
   
   f = 1  
   randomP <- foreach(f = 1:number_folds) %dopar%{  
@@ -165,15 +182,16 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name, number_folds, Folde
     ############################################################################################################
     #cat("\nSET WORKSPACE \n")
     sistema = c(Sys.info())
+    shm = 0
     FolderRoot = ""
     if (sistema[1] == "Linux"){
       FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 1
     } else {
       FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 0
     }
-    setwd(FolderRoot)
+    shm = shm
     #cat("\n\n\t", FolderRoot, "\n\n")
     
     ############################################################################################################
@@ -217,6 +235,10 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name, number_folds, Folde
     #cat("\nSTART MOUNT GROUPS OF LABELS FOR EACH PARTITION\n")
     
     ng = summaryPartitions[f,]$number_groups
+    
+    ####################################################################################
+    grupoSilhuetaTR = data.frame()
+    grupoSilhuetaTS = data.frame()
     
     # DO GRUPO 1 ATÉ O ÚLTIMO GRUPO DA PARTIÇÃO
     g = 1
@@ -280,6 +302,11 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name, number_folds, Folde
       thisGroupTr = cbind(atributosTr, classesTr)
       
       ####################################################################################
+      # grupo silhueta
+      esteGrupoTR = cbind(clusters = g, data.frame(t(classesTr)))
+      grupoSilhuetaTR = rbind(grupoSilhuetaTR, esteGrupoTR)
+      
+      ####################################################################################
       #cat("\nTRAIN: Save CSV\n")
       nomeCsTr = paste("grupo_Tr_", g, ".csv", sep="")
       nomeArTr = paste("grupo_Tr_", g, ".arff", sep="")
@@ -322,6 +349,11 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name, number_folds, Folde
       rotulosTs = toString(grSpecThisPart$names.labels)
       classesTs = select(arquivoTs, grSpecThisPart$names.labels)
       thisGroupTs = cbind(atributosTs, classesTs)
+      
+      ####################################################################################
+      # grupo silhueta
+      esteGrupoTs = cbind(clusters = g, data.frame(t(classesTs)))
+      grupoSilhuetaTS = rbind(grupoSilhuetaTS, esteGrupoTs)
       
       ####################################################################################
       #cat("\nTEST: Save CSV\n")
@@ -484,12 +516,49 @@ RandomPartitions2 <- function(ds, namesLabels, dataset_name, number_folds, Folde
       unlink(nome3, recursive = TRUE)
       unlink(nome4, recursive = TRUE)
       unlink(nome5, recursive = TRUE)
-      #unlink(nome6, recursive = TRUE)
+      unlink(nome6, recursive = TRUE)
       
       g = g + 1
       gc()
     
     } # FIM DO FOLD
+    
+    #setwd(FolderSplit)
+    #library(cluster)
+    #a = dist(grupoSilhuetaTR)
+    #b = as.dist(a)
+    #sil = silhouette(grupoSilhuetaTR$clusters, dist(grupoSilhuetaTR))
+    #sil = sortSilhouette(sil)
+    #write.csv(sil, paste("silhueta-p-", f, ".csv", sep=""))
+    
+    #pdf(paste("sil-p-", f, ".pdf", sep=""), width = 10, height = 8)
+    #plot(sil)
+    #dev.off()
+    #cat("\n")     
+    
+    # Summary of silhouette analysis
+    #si.sum = summary(sil)
+    #print(si.sum)
+    
+    # Average silhouette width of each cluster
+    #print(si.sum$clus.avg.widths)
+    
+    # The size of each clusters
+    #print(si.sum$clus.sizes)
+    
+    # The total average (mean of all individual silhouette widths)
+    #avgTotal = si.sum$avg.width
+    
+    #fold = f
+    #silho = avgTotal
+    #qualidadeSilho = rbind(qualidadeSilho, data.frame(fold, silho))
+    
+    #library("factoextra")
+    #pdf(paste("fviz-sil-p-", f, ".pdf", sep=""), width = 10, height = 8)
+    #print(fviz_silhouette(sil))
+    #dev.off()
+    cat("\n")     
+    
   }
   cat("\n\n################################################################################################")
   cat("\n# CLUS RANDOM 2: END FUNCTION Random Partitions                                                  #")

@@ -22,13 +22,28 @@
 # Script 5 - Correlations                                                                        #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# Workspace configuration                                                                        #
-##################################################################################################
-diretorios = directories()
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
+sistema = c(Sys.info())
+shm = 0
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  shm = 1
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  shm = 0
+}
+shm = shm
+setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
 
 
 ##################################################################################################

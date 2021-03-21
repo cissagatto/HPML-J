@@ -22,21 +22,30 @@
 # Script 13 - HPMLJ                                                                              #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# SET WORKING DIRECTORY                                                                          #
-##################################################################################################
-#cat("\nSet Working Directory\n")
 sistema = c(Sys.info())
+shm = 0
 FolderRoot = ""
 if (sistema[1] == "Linux"){
   FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 1
 } else {
   FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 0
 }
+shm = shm
+setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
+# save information
 write.table(sistema, "info_sistema.csv")
-#print(FolderRoot)
 
 
 ##################################################################################################
@@ -60,7 +69,7 @@ source("run.R")
 # GET THE DIRECTORIES                                                                            #
 ##################################################################################################
 cat("\nGet directories\n")
-diretorios <- directories()
+diretorios <- directories(shm)
 
 
 ##################################################################################################

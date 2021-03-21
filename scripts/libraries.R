@@ -22,21 +22,29 @@
 # Script 1 - Libraries                                                                           #
 ##################################################################################################
 
-##################################################################################################
+#################################################################################################
 # Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
+shm = 0
 FolderRoot = ""
 if (sistema[1] == "Linux"){
   FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 1
 } else {
   FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 0
 }
+shm = shm
 setwd(FolderRoot)
+
+# folder SCRIPTS
 FolderScripts = paste(FolderRoot, "/scripts/", sep="")
-setwd(FolderScripts)
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
+
 ##################################################################################################
 # LOAD EXTERNAL LIBRARIES                                                                        #
 ##################################################################################################
@@ -67,6 +75,7 @@ library("foreach", quietly = TRUE)
 library("doParallel", quietly = TRUE) 
 library("RColorBrewer", quietly = TRUE) 
 library("lattice", quietly = TRUE)
+library("cluster", quietly = TRUE)
 
 ##################################################################################################
 # Please, any errors, contact us: elainececiliagatto@gmail.com                                   #

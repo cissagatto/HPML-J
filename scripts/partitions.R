@@ -22,13 +22,27 @@
 # Script 6 - Partitions                                                                          #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# Workspace configuration                                                                        #
-##################################################################################################
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
-diretorios = directories()
+sistema = c(Sys.info())
+shm = 0
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  shm = 1
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  shm = 0
+}
+shm = shm
+setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
 
 
 ##################################################################################################
@@ -50,11 +64,7 @@ hybridPartitions <- function(ds, dataset_name, number_folds, DsFolders, FolderHC
   
   dataset_name = dataset_name
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios <- directories(shm)
   
   # Train folder
   FolderTr = paste(DsFolders, "/Tr", sep="")
@@ -88,14 +98,16 @@ hybridPartitions <- function(ds, dataset_name, number_folds, DsFolders, FolderHC
     ############################################################################################################
     # cat("\nSET WORKSPACE \n")
     sistema = c(Sys.info())
+    shm = 0
     FolderRoot = ""
     if (sistema[1] == "Linux"){
       FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 1
     } else {
       FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 0
     }
+    shm = shm
     
     ############################################################################################################
     setwd(FolderRoot)

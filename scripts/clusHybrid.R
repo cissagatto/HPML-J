@@ -22,13 +22,28 @@
 # Script 8 - CLUS HYBRID                                                                         #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# Workspace configuration                                                                        #
-##################################################################################################
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
-diretorios = directories()
+sistema = c(Sys.info())
+shm = 0
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  shm = 1
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  shm = 0
+}
+shm = shm
+setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
 
 
 ##################################################################################################
@@ -74,16 +89,17 @@ F1 = data.frame(numero_split, f1Sample, f1Weighted, f1Macro, f1Micro)
 mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClust, 
                              FolderHybPart, FolderHybrid){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # specifying folders
   FolderTr = paste(DsFolds, "/Tr", sep="")
   FolderTs = paste(DsFolds, "/Ts", sep="")
   FolderUtils = paste(FolderRoot, "/utils", sep="")
+  
+  fold = c()
+  part = c() 
+  silho = c()
+  qualidadeSilho = data.frame(fold, part, silho)
   
   # 10 FOLDS
   f = 1
@@ -136,6 +152,10 @@ mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClu
     nome_arq_ts = paste(dataset_name, "-Split-Ts-", f, ".csv", sep="")
     arquivo_ts = data.frame(read.csv(nome_arq_ts))
     
+    ####################################################################################
+    grupoSilhuetaTR = data.frame()
+    grupoSilhuetaTS = data.frame()
+    
     #cat("\nMount Groups of Labels for Fold ", f, "\n")
     k = 1
     while(k<=particaoEscolhida){
@@ -162,6 +182,11 @@ mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClu
       n_c = ncol(classes_tr)
       grupo_tr = cbind(atributos_tr, classes_tr)
       fim_tr = ncol(grupo_tr)
+      
+      ####################################################################################
+      # grupo silhueta
+      esteGrupoTR = cbind(clusters = k, data.frame(t(classes_tr)))
+      grupoSilhuetaTR = rbind(grupoSilhuetaTR, esteGrupoTR)
       
       #cat("\n\tTRAIN: Save Group", k, "\n")
       setwd(FolderHybridFClus)
@@ -199,6 +224,11 @@ mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClu
       grupo_ts = cbind(atributos_ts, classes_ts)
       fim_ts = ncol(grupo_ts)
       #cat("\n\tTest Group Mounted: ", k, "\n")
+      
+      ####################################################################################
+      # grupo silhueta
+      esteGrupoTS = cbind(clusters = k, data.frame(t(classes_ts)))
+      grupoSilhuetaTS = rbind(grupoSilhuetaTS, esteGrupoTS)
       
       #cat("\n\tTEST: Save Group ", k, "\n")
       setwd(FolderHybridFClus)
@@ -304,7 +334,44 @@ mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClu
         cat("\n")
         print(system(str))
         cat("\n")
-      }
+      } # end of groups
+      
+      
+      #library(cluster)
+      #a = dist(grupoSilhuetaTR)
+      #b = as.dist(a)
+      #sil = silhouette(grupoSilhuetaTR$clusters, dist(grupoSilhuetaTR))
+      #sil = sortSilhouette(sil)
+      #write.csv(sil, paste("silhueta-p", p, ".csv", sep=""))
+      
+      #pdf(paste("sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+      #plot(sil)
+      #dev.off()
+      #cat("\n")     
+      
+      # Summary of silhouette analysis
+      #si.sum = summary(sil)
+      #print(si.sum)
+      
+      # Average silhouette width of each cluster
+      #print(si.sum$clus.avg.widths)
+      
+      # The size of each clusters
+      #print(si.sum$clus.sizes)
+      
+      # The total average (mean of all individual silhouette widths)
+      #avgTotal = si.sum$avg.width
+      
+      #fold = f
+      #part = p 
+      #silho = avgTotal
+      #qualidadeSilho = rbind(qualidadeSilho, data.frame(fold, part, silho))
+      
+      #library("factoextra")
+      #pdf(paste("fviz-sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+      #print(fviz_silhouette(sil))
+      #dev.off()
+      #cat("\n")     
       
       # deleting files
       um = paste(dataset_name, "-split-", f, "-group-", k, ".model", sep="")
@@ -316,7 +383,7 @@ mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClu
       
       setwd(FolderHybridFClus)
       unlink(um, recursive = TRUE)
-      #unlink(dois, recursive = TRUE)
+      unlink(dois, recursive = TRUE)
       unlink(tres, recursive = TRUE)
       unlink(quatro, recursive = TRUE)
       unlink(cinco, recursive = TRUE)
@@ -326,7 +393,7 @@ mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClu
       gc()
     } # end partitions
     
-    gc()
+        gc()
   } # ending folds
   
   gc()
@@ -354,11 +421,7 @@ mountHybPartTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHClu
 ##################################################################################################
 splitsPredsHybTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHybrid, FolderHybPart){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # from fold = 1 to number_folds
   f = 1
@@ -475,11 +538,7 @@ splitsPredsHybTEST <- function(ds, dataset_name, number_folds, DsFolds, FolderHy
 ##################################################################################################
 gatherPredsHybTEST <- function(ds, dataset_name, number_folds, FolderHybrid, FolderHybPart){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # from fold = 1 to number_folds
   f = 1
@@ -562,11 +621,7 @@ gatherPredsHybTEST <- function(ds, dataset_name, number_folds, FolderHybrid, Fol
 ##################################################################################################
 evalHybTEST <- function(ds, dataset_name, number_folds, FolderHybrid, FolderReports){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # vector with names measures
   medidas = c("accuracy","average-precision","clp","coverage","F1","hamming-loss","macro-AUC",
@@ -677,11 +732,7 @@ evalHybTEST <- function(ds, dataset_name, number_folds, FolderHybrid, FolderRepo
 ##################################################################################################
 delHybTEST <-function(ds, dataset_name, number_folds, FolderHybrid, FolderHybPart){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # from fold = 1 to number_folds
   f = 1
@@ -705,6 +756,11 @@ delHybTEST <-function(ds, dataset_name, number_folds, FolderHybrid, FolderHybPar
       FolderGroup = paste(FolderSplit, "/Group-", g, sep="")
       setwd(FolderGroup)
       unlink("inicioFimRotulos.csv", recursive = TRUE)
+      
+      # gPositiveGo-split-1-group-1.test.pred.arff
+      nome1 = paste(dataset_name, "-split-", f, "-group-", g, ".test.pred.arff", sep="")
+      unlink(nome1)
+      
       g = g + 1
       gc()
     } # end groups
@@ -738,10 +794,7 @@ delHybTEST <-function(ds, dataset_name, number_folds, FolderHybrid, FolderHybPar
 clusHybrid <- function(ds, dataset_name, number_folds, DsFolds, FolderHClust, 
                        FolderHybPart, FolderHybrid, FolderReports){
   
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   cat("\n#################################################################################################")
   cat("\n# CLUS HYBRID: Tests each Splits in the best found partition configuration                     #")

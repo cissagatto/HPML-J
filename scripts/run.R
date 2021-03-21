@@ -28,19 +28,28 @@
 options(java.parameters = "-Xmx16g")
 
 
-##################################################################################################
+
+##################################################################################################################################################################################################
 # Configures the workspace according to the operating system                                     #
 ##################################################################################################
 sistema = c(Sys.info())
+shm = 0
 FolderRoot = ""
 if (sistema[1] == "Linux"){
   FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 1
 } else {
   FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-  setwd(FolderRoot)
+  shm = 0
 }
+shm = shm
 setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
 
 
 ##################################################################################################
@@ -113,7 +122,7 @@ options(scipen=30)
 # Opens the file "datasets.csv"                                                                  #
 ##################################################################################################
 cat("\nOpen Dataset Infomation File\n")
-diretorios = directories()
+diretorios = directories(shm)
 setwd(diretorios$folderDatasets)
 datasets = data.frame(read.csv("datasets.csv"))
 n = nrow(datasets)
@@ -136,7 +145,7 @@ executeHPMLJ <- function(n_dataset, number_cores, number_folds){
   cat("\n# START EXECUTE HPML-J                                                                           #")
   cat("\n##################################################################################################\n\n") 
   
-  diretorios = directories()
+  diretorios = directories(shm)
   
   if(number_cores == 0){
     cat("\nZero is a disallowed value for number_cores. Please choose a value greater than or equal to 1.")
@@ -195,6 +204,13 @@ executeHPMLJ <- function(n_dataset, number_cores, number_folds){
 # ******************************************************************************************************************** #
   
   cat("\n\n################################################################################################")
+  cat("\n# Run: RANDOM PARTITIONS VERSION 3                                                               #")
+  timeRandom3 = system.time(clusRandom_3(ds, dataset_name, number_folds, namesLabels, 
+                                         folders$folderDSFolds, folders$folderResDataset, 
+                                         folders$folderRandom3, folders$folderReports))
+  cat("\n##################################################################################################\n\n") 
+  
+  cat("\n\n################################################################################################")
   cat("\n# Run: RANDOM PARTITIONS VERSION 1                                                               #")
   timeRandom1 = system.time(clusRandom_1(ds, namesLabels, number_folds, dataset_name, 
                                          folders$folderDSFolds, folders$folderResDataset, 
@@ -206,13 +222,6 @@ executeHPMLJ <- function(n_dataset, number_cores, number_folds){
   timeRandom2 = system.time(clusRandom_2(ds, namesLabels, dataset_name, number_folds,
                                          folders$folderDSFolds, folders$folderResDataset, 
                                          folders$folderRandom2, folders$folderReports))
-  cat("\n##################################################################################################\n\n") 
-  
-  cat("\n\n################################################################################################")
-  cat("\n# Run: RANDOM PARTITIONS VERSION 3                                                               #")
-  timeRandom3 = system.time(clusRandom_3(ds, dataset_name, number_folds, namesLabels, 
-                                         folders$folderDSFolds, folders$folderResDataset, 
-                                         folders$folderRandom3, folders$folderReports))
   cat("\n##################################################################################################\n\n") 
   
   # ******************************************************************************************************************** #

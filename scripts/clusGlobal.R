@@ -22,13 +22,28 @@
 # Script 9 - Clus Global                                                                         #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# Workspace configuration                                                                        #
-##################################################################################################
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
-diretorios = directories()
+sistema = c(Sys.info())
+shm = 0
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  shm = 1
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  shm = 0
+}
+shm = shm
+setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
 
 
 ##################################################################################################
@@ -45,11 +60,7 @@ diretorios = directories()
 ##################################################################################################
 gatherFilesFoldsGlobal <- function(ds, dataset_name, number_folds, FolderConfigFiles, FolderGlobal){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()  
+  diretorios = directories(shm)  
   
   # specifying folders
   FolderTr = paste(diretorios$folderFolds, "/", dataset_name, "/Tr", sep="")
@@ -123,11 +134,7 @@ gatherFilesFoldsGlobal <- function(ds, dataset_name, number_folds, FolderConfigF
 ##################################################################################################
 executeClusGlobal <- function(ds, dataset_name, number_folds, Folder){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()  
+  diretorios = directories(shm)  
   
   # specifying folder
   folderUtils = paste(FolderRoot, "/utils", sep="")
@@ -227,11 +234,7 @@ executeClusGlobal <- function(ds, dataset_name, number_folds, Folder){
 ##################################################################################################
 gatherPredictsGlobal <- function(ds, dataset_name, number_folds, Folder){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()   
+  diretorios = directories(shm)   
   
   # from fold = 1 to number_folds
     f = 1
@@ -299,11 +302,8 @@ gatherPredictsGlobal <- function(ds, dataset_name, number_folds, Folder){
 ##################################################################################################
 gatherEvalGlobal <- function(ds, dataset_name, number_folds, Folder, FolderReports){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)   
+  
   retorno = list()
   
   # vector with names measures
@@ -392,11 +392,7 @@ gatherEvalGlobal <- function(ds, dataset_name, number_folds, Folder, FolderRepor
 ##################################################################################################
 deleteGlobal <-function(ds, dataset_name, number_folds, FolderGlobal){
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)   
   
   # from fold = 1 to number_labes
     f = 1
@@ -405,6 +401,13 @@ deleteGlobal <-function(ds, dataset_name, number_folds, FolderGlobal){
       FolderSplit = paste(FolderGlobal, "/Split-", f, sep="")
       setwd(FolderSplit)
       unlink("ResConfMat.csv", recursive = TRUE)
+      
+      nome1 = paste(dataset_name, "-Split-", f , ".s", sep="")
+      unlink(nome1)
+      
+      nome2 = paste(dataset_name, "-Split-", f ,".test.pred.arff", sep="")
+      unlink(nome2)
+      
       gc()
     }
   
@@ -431,10 +434,7 @@ deleteGlobal <-function(ds, dataset_name, number_folds, FolderGlobal){
 ##################################################################################################
 clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFiles,FolderGlobal, FolderReports){
   
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)   
   
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: Tests each Splits Globaly                                                        #")
@@ -480,6 +480,74 @@ clusGlobal <- function(ds, dataset_name, number_folds, FolderRD, FolderConfigFil
   gc()
   cat("\n##################################################################################################")
   cat("\n# CLUS GLOBAL: END!!!!                                                                           #") 
+  cat("\n##################################################################################################")
+  cat("\n\n\n\n")
+}
+
+silhoueteGlobal <- function(){
+
+  diretorios = directories(shm)  
+  
+  fold = c()
+  part = c() 
+  silho = c()
+  qualidadeSilho = data.frame(fold, part, silho)
+  
+  # from fold = 1 to number_folds
+  s = 1
+  foldsParalel <- foreach(s = 1:number_folds) %dopar% {
+    
+    cat("\nFold: ", s)
+    
+    # specifying folder
+    FS = paste(FolderGlobal, "/Split-", s, sep="")
+    
+    # names files
+    nome_tr = paste(dataset_name, "-Split-Tr-", s, ".arff", sep="")
+    nome_ts = paste(dataset_name, "-Split-Ts-", s, ".arff", sep="")
+    
+    setwd(FS)
+    library(cluster)
+    grupoSilhuetaTS = data.frame(read.arff(nome_ts))
+    a = dist(grupoSilhuetaTS)
+    b = as.dist(a)
+    sil = silhouette(grupoSilhuetaTS$clusters, dist(grupoSilhuetaTS))
+    sil = sortSilhouette(sil)
+    write.csv(sil, paste("silhueta-p", p, ".csv", sep=""))
+    
+    pdf(paste("sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+    plot(sil)
+    dev.off()
+    cat("\n")     
+    
+    # Summary of silhouette analysis
+    si.sum = summary(sil)
+    print(si.sum)
+    
+    # Average silhouette width of each cluster
+    print(si.sum$clus.avg.widths)
+    
+    # The size of each clusters
+    print(si.sum$clus.sizes)
+    
+    # The total average (mean of all individual silhouette widths)
+    avgTotal = si.sum$avg.width
+    
+    fold = f
+    part = p 
+    silho = avgTotal
+    qualidadeSilho = rbind(qualidadeSilho, data.frame(fold, part, silho))
+    
+    library("factoextra")
+    pdf(paste("fviz-sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+    print(fviz_silhouette(sil))
+    dev.off()
+    cat("\n")     
+  }
+  
+  gc()
+  cat("\n##################################################################################################")
+  cat("\n# GLOBAL CLUS: SILHOUETE                                                                         #")
   cat("\n##################################################################################################")
   cat("\n\n\n\n")
 }

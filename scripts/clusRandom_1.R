@@ -22,13 +22,29 @@
 # Script 11 - Clus Random 1                                                                      #
 ##################################################################################################
 
+#################################################################################################
+# Configures the workspace according to the operating system                                     #
 ##################################################################################################
-# Workspace configuration                                                                        #
-##################################################################################################
-sf = setFolder()
-setwd(sf$Folder)
-FolderRoot = sf$Folder
-diretorios = directories()
+sistema = c(Sys.info())
+shm = 0
+FolderRoot = ""
+if (sistema[1] == "Linux"){
+  FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+  shm = 1
+} else {
+  FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+  shm = 0
+}
+shm = shm
+setwd(FolderRoot)
+
+# folder SCRIPTS
+FolderScripts = paste(FolderRoot, "/scripts/", sep="")
+
+# folder shm
+FolderSHM = "/dev/shm/"
+
+
 
 ##################################################################################################
 #                                                                                                #
@@ -200,11 +216,7 @@ RandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_folds, Fol
   # number partitions
   num.particoes = ds$Labels - 1
   
-  # set folder
-  sf = setFolder()
-  setwd(sf$Folder)
-  FolderRoot = sf$Folder
-  diretorios = directories()
+  diretorios = directories(shm)
   
   # specifying folders
   FolderTr = paste(FolderDSF, "/Tr", sep="")
@@ -214,6 +226,11 @@ RandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_folds, Fol
   FolderVl = paste(FolderDSF, "/Vl", sep="")
   dirFolderVl = c(dir(FolderVl))
   n_dirFolderVl = length(dirFolderVl) 
+  
+  fold = c()
+  part = c() 
+  silho = c()
+  qualidadeSilho = data.frame(fold, part, silho)
   
   # from fold = 1 to number_folds
   f = 1  
@@ -234,15 +251,16 @@ RandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_folds, Fol
     ############################################################################################################
     #cat("\nSET WORKSPACE \n")
     sistema = c(Sys.info())
+    shm = 0
     FolderRoot = ""
     if (sistema[1] == "Linux"){
       FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 1
     } else {
       FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
-      setwd(FolderRoot)
+      shm = 0
     }
-    setwd(FolderRoot)
+    shm = shm
     
     ############################################################################################################
     setwd(FolderRoot)
@@ -315,6 +333,10 @@ RandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_folds, Fol
       
       grupos.labels = vector("list", p)
       
+      ####################################################################################
+      grupoSilhuetaTR = data.frame()
+      grupoSilhuetaVL = data.frame()
+      
       # DO GRUPO 1 ATÉ O ÚLTIMO GRUPO DA PARTIÇÃO
       g = 1
       while(g<=p){
@@ -374,6 +396,11 @@ RandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_folds, Fol
         thisGroupTr = cbind(atributosTr, classesTr)
         
         ####################################################################################
+        # grupo silhueta
+        esteGrupoTR = cbind(clusters = g, data.frame(t(classesTr)))
+        grupoSilhuetaTR = rbind(grupoSilhuetaTR, esteGrupoTR)
+        
+        ####################################################################################
         #cat("\nTRAIN: Save CSV\n")
         nomeCsTr = paste("grupo_Tr_", g, ".csv", sep="")
         nomeArTr = paste("grupo_Tr_", g, ".arff", sep="")
@@ -416,6 +443,11 @@ RandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_folds, Fol
         rotulosVl = toString(grSpecThisPart$rotulos)
         classesVl = select(arquivoVl, grSpecThisPart$rotulos)
         thisGroupVl = cbind(atributosVl, classesVl)
+        
+        ####################################################################################
+        # grupo silhueta
+        esteGrupoVL = cbind(clusters = g, data.frame(t(classesVl)))
+        grupoSilhuetaVL = rbind(grupoSilhuetaVL, esteGrupoVL)
         
         ####################################################################################
         #cat("\nVALIDATION: Save CSV\n")
@@ -581,6 +613,43 @@ RandomPartitionsVAL <- function(ds, namesLabels, dataset_name, number_folds, Fol
         g = g + 1
         gc()
       } # end groups
+      
+      #setwd(FolderPartition)
+      #library(cluster)
+      #a = dist(grupoSilhuetaTR)
+      #b = as.dist(a)
+      #sil = silhouette(grupoSilhuetaTR$clusters, dist(grupoSilhuetaTR))
+      #sil = sortSilhouette(sil)
+      #write.csv(sil, paste("silhueta-p-", p, ".csv", sep=""))
+      
+      #pdf(paste("sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+      #plot(sil)
+      #dev.off()
+      #cat("\n")     
+      
+      # Summary of silhouette analysis
+      #si.sum = summary(sil)
+      #print(si.sum)
+      
+      # Average silhouette width of each cluster
+      #print(si.sum$clus.avg.widths)
+      
+      # The size of each clusters
+      #print(si.sum$clus.sizes)
+      
+      # The total average (mean of all individual silhouette widths)
+      #avgTotal = si.sum$avg.width
+      
+      #fold = f
+      #part = p 
+      #silho = avgTotal
+      #qualidadeSilho = rbind(qualidadeSilho, data.frame(fold, part, silho))
+      
+      #library("factoextra")
+      #pdf(paste("fviz-sil-p-", p, ".pdf", sep=""), width = 10, height = 8)
+      #print(fviz_silhouette(sil))
+      #dev.off()
+      #cat("\n")     
       
       p = p + 1
       gc()
@@ -1006,6 +1075,19 @@ mountRandomParTEST <- function(ds, dataset_name, number_folds, FolderDSF, Folder
     library("dplyr")
     library("mldr")
     library("utiml")
+    
+    sistema = c(Sys.info())
+    shm = 0
+    FolderRoot = ""
+    if (sistema[1] == "Linux"){
+      FolderRoot = paste("/home/", sistema[7], "/HPML-J", sep="")
+      shm = 1
+    } else {
+      FolderRoot = paste("C:/Users/", sistema[7], "/HPML-J", sep="")
+      shm = 0
+    }
+    shm = shm
+    
     
     FolderVal = paste(FolderRandom, "/Validation", sep="")
     FolderTest = paste(FolderRandom, "/Test", sep="")

@@ -1,6 +1,6 @@
 # HPML-J
 
-This code is part of my doctoral research at PPG-CC/DC/UFSCar. HPML-J is the name of the first experiment carried out: Hybrid Partitions for Multi-Label Classification with index Jaccard. Important, this code will execute on Windows and Linux. If want, there is another version optimized for Linux, i.e., the code will use /dev/shm to minimizing the use of I/O. Chere here to access:
+This code is part of my doctoral research at PPG-CC/DC/UFSCar. HPML-J is the name of the first experiment carried out: Hybrid Partitions for Multi-Label Classification with index Jaccard. Important, this code will execute on Windows and Linux.
 
 ## Paper
 Exploring Label Correlations for Partitioning the Label Space in Multi-label Classification
@@ -31,33 +31,33 @@ This source code consists of an R project for R Studio and the following R scrip
 15. hpmlj.R
 
 ## Jars
-Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar, and weka.jar. Without these jars, the code not runs. 
+Confirms if the folder UTILS contains the following files: Clus.jar, R_csv_2_arff.jar, and weka.jar. Without these jars, the code not runs. Also, confirms if there are a folder lib in the folder UTILS. This folder is also needed.
 
 ## Datasets Folder
 After downloading the dataset you want to use, place it in the */HPML-J/Datasets/Originals* folder. Don't forget that the .xml and .arff files of the respective dataset are needed.
 
 ## Folder Path
-Place a copy of this code in _"C:/Users/[username]/HPML-J"_ or _"/home/username/HPML-J"_. Our files are configured to obtain the paths of the folders from the root. You can change this in the code if you want.
+Place a copy of this code in _"C:/Users/[username]/HPML-J"_ or _"/home/username/HPML-J"_. Our files are configured to obtain the paths of the folders from these paths. You can change this in the code if you want.
 
 ## File "datasets.csv"
-A file called "datasets.csv" must be in the *datasets* folder. This file is used to read information about the datasets and they are used in the code. All 74 datasets available in cometa are in this file. If you want to use another dataset, please, add the following information about the dataset in the file:
+A file called *datasets.csv* must be in the *datasets* folder. This file is used to read information about the datasets and they are used in the code. All information about the 74 datasets available in cometa are in this file. If you want to use another dataset, please, add the following information about the dataset in the file:
 
 _Id, Name, Domain, Labels, Instances, Attributes, Inputs, Labelsets, Single, Max freq, Card, Dens, MeanIR, Scumble, TCS, AttStart, AttEnd, LabelStart, LabelEnd
 
-The _"Id"_ of the dataset is a mandatory parameter (_n_dataset_) in the command line to run all code. The "LabelStart" and "LabelEnd" are used in a lot of internal functions. Please, make sure that this information is available before running the code. 
+The _"Id"_ of the dataset is a mandatory parameter (_n_dataset_) in the command line to run all code. The *LabelStart* and *LabelEnd* are used in a lot of internal functions and they refer to the start and end of the label space. Please, make sure that this information is available before running the code. 
 
-NOTE: Please, pay attention to the file names and the names in the CSV file. They must be the same, on the contrary, an error may occur.
+NOTE: Please, pay attention to the names in the *datasets.csv* and the names in the ARFF/XML/CSV files. They must be the same, on the contrary, an error may occur.
 
 ## Folder Strucutre
 <img src="https://github.com/cissagatto/HPML-J/blob/master/Images/estrutura_hpmj.PNG">
 
 ## Software Requirements
-This code was develop in R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows. The R language version was 4.0.1 (2020-06-06) with x86_64-w64-mingw32 platform. Please make sure all the dependencies are installed (verify libraries.R). This code does not provide an installation of libraries.
+This code was develop in R Studio Version 1.3.959 © 2009-2020, PBC, "Middlemist Red" (3a09be39, 2020-05-18) for Windows. The R language version was 4.0.1 (2020-06-06) with x86_64-w64-mingw32 platform. Please make sure all the dependencies are installed (verify libraries.R). This code does not provide an installation of R packages.
 
 ## Hardware Requirements
 This code may or may not be executed in parallel, however, it is highly recommended that you run it in parallel. The number of cores can be configured via the command line (_number_cores_). If *number_cores = 1* the code will run sequentially. In our experiments, we used ten cores. For reproducibility, we recommend that you also use ten cores.
 
-Important: we used the CLUS classifier in this experiment. This implies generating all physical ARFF training, validating, and testing files for each of the generated hybrid partitions. Our code generates the partitions first in memory and then saves them to the HD. However, to avoid memory problems, immediately after saving to HD, the files are validated (or tested) and then deleted. Even so, make sure you have enough space on your HD and RAM for this procedure.
+Important: we used the CLUS classifier in this experiment. This implies generating all physical ARFF training, validating, and testing files for each of the generated hybrid partitions. Our code generates the partitions first in memory and then saves them to the HD. However, to avoid memory problems, immediately after saving to HD, the files are validated (or tested) and then deleted. Even so, make sure you have enough space on your HD and enough RAM for this procedure.
 
 ## RUN
 To run the code, open the terminal, enter the */HPML-J/scripts/* folder, and type
@@ -68,7 +68,7 @@ Rscript hpmlj.R [number_dataset] [number_cores] [number_folds]
 
 Where:
 
-_number_dataset_ is the dataset number in the datasets.csv file
+_number_dataset_ is the dataset number in the *datasets.csv* file
 
 _number_cores_ is the total cores you want to use in parallel execution.
 
@@ -85,7 +85,7 @@ This code saves some important results in csv files.
 
 
 ## Paper Results
-The results obtained for the paper can be found in the folder "ResultsPaper". In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.
+The results obtained for the paper can be found in the folder *ResultsPaper*. In this folder are the spreadsheets with the results for all the evaluation measures, as well as the files needed for the statistical tests of Friedman and Nemenyi. The graphics are also in this folder.
 
 ## Acknowledgment
 This study is financed in part by the Coordenação de Aperfeiçoamento de Pessoal de Nível Superior - Brasil (CAPES) - Finance Code 001

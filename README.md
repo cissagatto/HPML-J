@@ -97,4 +97,7 @@ This study is financed in part by the Coordenação de Aperfeiçoamento de Pesso
 ## Report Error
 Please contact me: elainececiliagatto@gmail.com
 
+## HPML Eschematic
+<img src="https://github.com/cissagatto/HPML-J/blob/main/HPML-ALL-VERSIONS.png" width="700">
+
 # Thanks
